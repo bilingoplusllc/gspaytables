@@ -27,10 +27,15 @@ HERE = Path(__file__).resolve().parent.parent
 DATA = HERE / "data"
 
 # Зоны, у которых нет метро-области в принципе: это штаты целиком либо остаток США.
+# Зоны, совпадающие с целым штатом: для них берём индекс уровня штата — это
+# не прокси, а точное совпадение границ.
+STATEWIDE = {"AK": "Alaska", "HI": "Hawaii"}
+
+# Остаток США индекса не получает. «Нестоличная часть США» выглядит подходящим
+# ответом, но описывает другое множество: в Rest of U.S. входят и метро-области,
+# которым просто не назначили отдельную зону.
 NON_METRO = {
-    "RUS": "Rest of U.S. — это не город, а весь остальной континент",
-    "AK": "штат целиком",
-    "HI": "штат целиком",
+    "RUS": "Rest of U.S. — это не город и не штат, а остаток из всех штатов сразу",
 }
 
 
@@ -77,6 +82,33 @@ def load_bea(zip_path: Path) -> list[dict]:
     return out, last_year
 
 
+def load_state(zip_path: Path) -> tuple[dict, str]:
+    """RPP «все товары и услуги» по штатам, последний доступный год."""
+    z = zipfile.ZipFile(zip_path)
+    name = next(n for n in z.namelist() if n.upper().startswith("SARPP_STATE"))
+    with z.open(name) as f:
+        rows = list(csv.reader(io.TextIOWrapper(f, encoding="utf-8-sig")))
+    header = [h.strip() for h in rows[0]]
+    years = [(i, h) for i, h in enumerate(header) if re.fullmatch(r"\d{4}", h)]
+    last_i, last_year = years[-1]
+    i_line = header.index("LineCode")
+    i_geo = header.index("GeoName")
+    i_desc = header.index("Description")
+    out = {}
+    for row in rows[1:]:
+        if len(row) <= last_i or row[i_line].strip() != "1":
+            continue
+        # Смысл кода читаем из самой записи, а не принимаем на веру: строка
+        # обязана называть себя «All items», иначе мы взяли не тот показатель.
+        if "all items" not in row[i_desc].strip().lower():
+            raise RuntimeError(f"LineCode 1 оказался не All items: {row[i_desc]!r}")
+        try:
+            out[row[i_geo].strip()] = float(row[last_i].strip())
+        except ValueError:
+            continue
+    return out, last_year
+
+
 def match(area_name: str, bea: list[dict]) -> dict | None:
     """Ищем метро-область по пересечению городов, а не по совпадению строки."""
     want = _cities(area_name)
@@ -100,11 +132,22 @@ def match(area_name: str, bea: list[dict]) -> dict | None:
 def build() -> dict:
     tables = json.loads((DATA / "paytables-2026.json").read_text(encoding="utf-8"))
     bea, year = load_bea(DATA / "marpp.zip")
+    states, state_year = load_state(DATA / "sarpp.zip")
+    if state_year != year:
+        raise RuntimeError(f"годы BEA разошлись: метро {year}, штаты {state_year}")
 
     result, unmatched = {}, []
     for code, loc in tables["localities"].items():
         if code in NON_METRO:
             result[code] = {"rpp": None, "why": NON_METRO[code]}
+            continue
+        if code in STATEWIDE:
+            nm = STATEWIDE[code]
+            if nm not in states:
+                raise RuntimeError(f"нет индекса штата для {nm}")
+            result[code] = {"msa": f"State of {nm}", "rpp": states[nm],
+                            "level": "state", "matched_cities": [],
+                            "exact": True, "why": None}
             continue
         m = match(loc["area_name"], bea)
         if m is None:
@@ -120,7 +163,8 @@ def build() -> dict:
     ok = sum(1 for v in result.values() if v.get("rpp"))
     exact = sum(1 for v in result.values() if v.get("exact"))
     print(f"RPP за {year}: сопоставлено {ok} из {len(result)} зон "
-          f"(точных {exact}), без метро {len(NON_METRO)}")
+          f"(точных {exact}, из них по штату {len(STATEWIDE)}), "
+          f"без индекса {len(NON_METRO)}")
     for code, nm in unmatched:
         print(f"  не сопоставлено: {code} — {nm}")
     return payload

@@ -92,9 +92,10 @@ start ranking by what the cheque buys.</p>
 <tbody>{''.join(body)}{''.join(extra)}</tbody>
 </table></div>
 <figcaption>Sources: OPM {year} General Schedule salary tables; BEA Regional Price
-Parities {R['bea_year']}. Alaska, Hawaii and Rest of U.S. have no single metropolitan
-price index, so they are listed without an adjusted figure rather than given an
-invented one.</figcaption>
+Parities {R['bea_year']}. Alaska and Hawaii are whole states, so they use the state
+price index rather than a metropolitan one — an exact match for the area, not a proxy.
+Rest of U.S. is a residual drawn from every state at once and has no price index of its
+own, so it is listed without an adjusted figure rather than given an invented one.</figcaption>
 </figure>""")
 
     B.append('<h2>Browse by grade</h2>')
@@ -187,10 +188,10 @@ have been cut to the {money(cap)} statutory ceiling.</p>
 </table></div>
 <figcaption>The best-paid GS-{g} on paper is in {esc(hi['name'])} at {money(hi['pay'])}.
 The best-off GS-{g} in practice is in {esc(best_adj['name'])}, where {money(best_adj['pay'])}
-buys what {money(best_adj['adj'])} buys at national average prices. Alaska, Hawaii and
-Rest of U.S. have no single metropolitan price index, so their last two columns are left
-empty rather than filled with a guess. Sources: OPM {year} salary tables; BEA Regional
-Price Parities {R['bea_year']}.</figcaption>
+buys what {money(best_adj['adj'])} buys at national average prices. Rest of U.S. is a
+residual drawn from every state at once and has no price index of its own, so its last
+two columns are left empty rather than filled with a guess. Sources: OPM {year} salary
+tables; BEA Regional Price Parities {R['bea_year']}.</figcaption>
 </figure>""")
 
     B.append(f'<h2>All ten steps of GS-{g}</h2>')

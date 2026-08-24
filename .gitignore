@@ -1,6 +1,7 @@
 # Сырые загрузки OPM и BEA — пересобираются pipeline/fetch.py
 data/raw/
 data/marpp.zip
+data/sarpp.zip
 data/idx.html
 
 # Сборка сайта

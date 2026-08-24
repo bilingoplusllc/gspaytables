@@ -27,6 +27,8 @@ RAW = HERE / "data" / "raw"
 
 # Индексы цен BEA. Годового ключа API не нужно: архив лежит открыто.
 BEA_ZIP = "https://apps.bea.gov/regional/zip/MARPP.zip"
+# Индексы по штатам: нужны Аляске и Гавайям, где зона = штат целиком.
+BEA_STATE_ZIP = "https://apps.bea.gov/regional/zip/SARPP.zip"
 
 
 def get(url: str, tries: int = 3) -> bytes:
@@ -96,23 +98,31 @@ def main() -> int:
     # Индексы цен BEA. Без них rpp.py не соберётся, а вместе с ним не
     # соберётся весь сайт: покупательная способность — его единственное
     # отличие от справочников конкурентов.
-    bea_dst = HERE / "data" / "marpp.zip"
-    try:
-        blob = get(BEA_ZIP)
-        # Проверяем, что это действительно архив, а не страница с ошибкой:
-        # BEA отдаёт HTML со статусом 200, когда файл переехал.
-        with zipfile.ZipFile(io.BytesIO(blob)) as z:
-            names = z.namelist()
-        if not any(n.startswith("MARPP_MSA_") and n.endswith(".csv") for n in names):
-            raise RuntimeError(f"в архиве нет таблицы MARPP_MSA: {names[:4]}")
-        bea_dst.write_bytes(blob)
-        print(f"  индексы цен BEA: {len(blob):,} байт")
-    except (RuntimeError, zipfile.BadZipFile) as e:
-        print(f"  индексы цен BEA: {e}", file=sys.stderr)
-        return 1
+    for url, fname, want in ((BEA_ZIP, "marpp.zip", "MARPP_MSA_"),
+                            (BEA_STATE_ZIP, "sarpp.zip", "SARPP_STATE_")):
+        if not _bea(url, HERE / "data" / fname, want):
+            return 1
 
     print(f"\nготово: {ok} из {len(codes)} таблиц + BEA -> {out}")
     return 0 if ok == len(codes) else 1
+
+
+def _bea(url: str, dst: Path, want: str) -> bool:
+    """Качает архив BEA и убеждается, что это архив, а не страница с ошибкой."""
+    try:
+        blob = get(url)
+        # BEA отдаёт HTML со статусом 200, когда файл переехал, поэтому
+        # проверяем содержимое, а не код ответа.
+        with zipfile.ZipFile(io.BytesIO(blob)) as z:
+            names = z.namelist()
+        if not any(n.startswith(want) and n.endswith(".csv") for n in names):
+            raise RuntimeError(f"в архиве нет таблицы {want}: {names[:4]}")
+        dst.write_bytes(blob)
+        print(f"  {dst.name}: {len(blob):,} байт")
+        return True
+    except (RuntimeError, zipfile.BadZipFile) as e:
+        print(f"  {dst.name}: {e}", file=sys.stderr)
+        return False
 
 
 if __name__ == "__main__":

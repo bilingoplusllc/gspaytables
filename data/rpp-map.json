@@ -3,8 +3,12 @@
  "us_base": 100.0,
  "areas": {
   "AK": {
-   "rpp": null,
-   "why": "штат целиком"
+   "msa": "State of Alaska",
+   "rpp": 102.359,
+   "level": "state",
+   "matched_cities": [],
+   "exact": true,
+   "why": null
   },
   "AL": {
    "msa": "Albany-Schenectady-Troy, NY",
@@ -247,8 +251,12 @@
    "why": null
   },
   "HI": {
-   "rpp": null,
-   "why": "штат целиком"
+   "msa": "State of Hawaii",
+   "rpp": 109.951,
+   "level": "state",
+   "matched_cities": [],
+   "exact": true,
+   "why": null
   },
   "HNT": {
    "msa": "Decatur, AL",
@@ -455,7 +463,7 @@
   },
   "RUS": {
    "rpp": null,
-   "why": "Rest of U.S. — это не город, а весь остальной континент"
+   "why": "Rest of U.S. — это не город и не штат, а остаток из всех штатов сразу"
   },
   "SAC": {
    "msa": "Sacramento-Roseville-Folsom, CA",
