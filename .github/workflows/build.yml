@@ -1,0 +1,119 @@
+name: Build and deploy
+
+on:
+  schedule:
+    # OPM публикует таблицы следующего года в конце декабря, BEA обновляет
+    # индексы цен там же. Ежемесячный прогон существует ради этих двух недель;
+    # в остальные месяцы он просто подтверждает, что источники ещё живы.
+    - cron: "10 5 6 * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "pipeline/**"
+      - ".github/workflows/build.yml"
+
+concurrency:
+  group: build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          # Версия закреплена намеренно: в коде есть места, где разница между
+          # 3.11 и 3.12 меняет не поведение, а сам разбор файла.
+          python-version: "3.12"
+
+      # Зависимостей нет: только стандартная библиотека.
+      - name: Fetch OPM and BEA data
+        run: python pipeline/fetch.py
+
+      - name: Parse pay tables
+        run: python pipeline/parse.py
+
+      - name: Build locality definitions
+        run: python pipeline/localities.py
+
+      - name: Map localities to price data
+        run: python pipeline/rpp.py
+
+      - name: Render site
+        run: python pipeline/render.py
+
+      # Гейты внутри render.py смотрят на смысл страниц. Этот шаг — вторая,
+      # независимая линия: он ничего не знает о питоне и проверяет каталог как
+      # есть. Если render.py однажды тихо перестанет что-то проверять, здесь
+      # всё равно останется рубеж.
+      - name: Sanity check
+        run: |
+          COUNT=$(find dist -name index.html | wc -l)
+          echo "страниц собрано: $COUNT"
+          if [ "$COUNT" -lt 70 ]; then
+            echo "::error::Слишком мало страниц ($COUNT) — публикация остановлена"
+            exit 1
+          fi
+
+          # Языковой шлюз. 2026-08-12 на соседнем проекте русский текст уехал
+          # на все 321 страницу, и все структурные проверки были зелёными.
+          CYR=$(grep -rlP '[\x{0400}-\x{04FF}]' dist | wc -l)
+          if [ "$CYR" -gt 0 ]; then
+            echo "::error::Кириллица на $CYR страницах — публикация остановлена"
+            grep -rlP '[\x{0400}-\x{04FF}]' dist | head -5
+            exit 1
+          fi
+
+          # Дисклеймер обязателен на каждой странице: сайт о федеральных
+          # зарплатах без явного «мы не OPM» — это риск по правилу FTC
+          # об имперсонации госоргана, а не вопрос вежливости.
+          NODISC=$(grep -rL "not affiliated with" dist --include="*.html" | wc -l)
+          if [ "$NODISC" -gt 0 ]; then
+            echo "::error::Дисклеймер отсутствует на $NODISC страницах"
+            grep -rL "not affiliated with" dist --include="*.html" | head -5
+            exit 1
+          fi
+
+          for f in dist/404.html dist/index.html dist/privacy/index.html \
+                   dist/locality/rest-of-u-s/index.html dist/gs-12/index.html; do
+            [ -s "$f" ] || { echo "::error::нет файла $f"; exit 1; }
+          done
+          echo "независимая проверка пройдена"
+
+      # Wrangler не создаёт проект сам и падает с «Project not found».
+      # Шаг идемпотентный: если проект уже есть, ошибка ожидаема и игнорируется.
+      - name: Ensure Pages project exists
+        continue-on-error: true
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project create fedpay --production-branch=main
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=fedpay --branch=main
+
+  # GitHub молча отключает cron после 60 дней без активности в репозитории.
+  # Ежемесячный коммит этого не допускает.
+  keepalive:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .keepalive
+          git config user.name "fedpay-bot"
+          git config user.email "hello@fedpayscale.com"
+          git add .keepalive
+          git diff --staged --quiet || git commit -m "chore: keepalive"
+          git push

@@ -1,0 +1,5180 @@
+{
+ "AK": {
+  "places": [
+   {
+    "name": "Alaska",
+    "code": "02",
+    "kind": "state"
+   }
+  ],
+  "counties": 0,
+  "installations": 0,
+  "states": []
+ },
+ "AL": {
+  "places": [
+   {
+    "name": "Albany County, NY",
+    "code": "36001",
+    "kind": "county"
+   },
+   {
+    "name": "Columbia County, NY",
+    "code": "36021",
+    "kind": "county"
+   },
+   {
+    "name": "Fulton County, NY",
+    "code": "36035",
+    "kind": "county"
+   },
+   {
+    "name": "Greene County, NY",
+    "code": "36039",
+    "kind": "county"
+   },
+   {
+    "name": "Hamilton County, NY",
+    "code": "36041",
+    "kind": "county"
+   },
+   {
+    "name": "Montgomery County, NY",
+    "code": "36057",
+    "kind": "county"
+   },
+   {
+    "name": "Rensselaer County, NY",
+    "code": "36083",
+    "kind": "county"
+   },
+   {
+    "name": "Saratoga County, NY",
+    "code": "36091",
+    "kind": "county"
+   },
+   {
+    "name": "Schenectady County, NY",
+    "code": "36093",
+    "kind": "county"
+   },
+   {
+    "name": "Schoharie County, NY",
+    "code": "36095",
+    "kind": "county"
+   },
+   {
+    "name": "Warren County, NY",
+    "code": "36113",
+    "kind": "county"
+   },
+   {
+    "name": "Washington County, NY",
+    "code": "36115",
+    "kind": "county"
+   },
+   {
+    "name": "Berkshire County, MA",
+    "code": "25003",
+    "kind": "county"
+   }
+  ],
+  "counties": 13,
+  "installations": 0,
+  "states": [
+   "MA",
+   "NY"
+  ]
+ },
+ "AQ": {
+  "places": [
+   {
+    "name": "Bernalillo County, NM",
+    "code": "35001",
+    "kind": "county"
+   },
+   {
+    "name": "Cibola County, NM",
+    "code": "35006",
+    "kind": "county"
+   },
+   {
+    "name": "Los Alamos County, NM",
+    "code": "35028",
+    "kind": "county"
+   },
+   {
+    "name": "McKinley County, NM",
+    "code": "35031",
+    "kind": "county"
+   },
+   {
+    "name": "Mora County, NM",
+    "code": "35033",
+    "kind": "county"
+   },
+   {
+    "name": "Rio Arriba County, NM",
+    "code": "35039",
+    "kind": "county"
+   },
+   {
+    "name": "Sandoval County, NM",
+    "code": "35043",
+    "kind": "county"
+   },
+   {
+    "name": "San Miguel County, NM",
+    "code": "35047",
+    "kind": "county"
+   },
+   {
+    "name": "Santa Fe County, NM",
+    "code": "35049",
+    "kind": "county"
+   },
+   {
+    "name": "Torrance County, NM",
+    "code": "35057",
+    "kind": "county"
+   },
+   {
+    "name": "Valencia County, NM",
+    "code": "35061",
+    "kind": "county"
+   }
+  ],
+  "counties": 11,
+  "installations": 0,
+  "states": [
+   "NM"
+  ]
+ },
+ "ATL": {
+  "places": [
+   {
+    "name": "Banks County, GA",
+    "code": "13011",
+    "kind": "county"
+   },
+   {
+    "name": "Barrow County, GA",
+    "code": "13013",
+    "kind": "county"
+   },
+   {
+    "name": "Bartow County, GA",
+    "code": "13015",
+    "kind": "county"
+   },
+   {
+    "name": "Butts County, GA",
+    "code": "13035",
+    "kind": "county"
+   },
+   {
+    "name": "Carroll County, GA",
+    "code": "13045",
+    "kind": "county"
+   },
+   {
+    "name": "Chattahoochee County, GA",
+    "code": "13053",
+    "kind": "county"
+   },
+   {
+    "name": "Cherokee County, GA",
+    "code": "13057",
+    "kind": "county"
+   },
+   {
+    "name": "Clarke County, GA",
+    "code": "13059",
+    "kind": "county"
+   },
+   {
+    "name": "Clayton County, GA",
+    "code": "13063",
+    "kind": "county"
+   },
+   {
+    "name": "Cobb County, GA",
+    "code": "13067",
+    "kind": "county"
+   },
+   {
+    "name": "Coweta County, GA",
+    "code": "13077",
+    "kind": "county"
+   },
+   {
+    "name": "Dawson County, GA",
+    "code": "13085",
+    "kind": "county"
+   },
+   {
+    "name": "DeKalb County, GA",
+    "code": "13089",
+    "kind": "county"
+   },
+   {
+    "name": "Douglas County, GA",
+    "code": "13097",
+    "kind": "county"
+   },
+   {
+    "name": "Elbert County, GA",
+    "code": "13105",
+    "kind": "county"
+   },
+   {
+    "name": "Fayette County, GA",
+    "code": "13113",
+    "kind": "county"
+   },
+   {
+    "name": "Floyd County, GA",
+    "code": "13115",
+    "kind": "county"
+   },
+   {
+    "name": "Forsyth County, GA",
+    "code": "13117",
+    "kind": "county"
+   },
+   {
+    "name": "Franklin County, GA",
+    "code": "13119",
+    "kind": "county"
+   },
+   {
+    "name": "Fulton County, GA",
+    "code": "13121",
+    "kind": "county"
+   },
+   {
+    "name": "Gilmer County, GA",
+    "code": "13123",
+    "kind": "county"
+   },
+   {
+    "name": "Gordon County, GA",
+    "code": "13129",
+    "kind": "county"
+   },
+   {
+    "name": "Greene County, GA",
+    "code": "13133",
+    "kind": "county"
+   },
+   {
+    "name": "Gwinnett County, GA",
+    "code": "13135",
+    "kind": "county"
+   },
+   {
+    "name": "Habersham County, GA",
+    "code": "13137",
+    "kind": "county"
+   },
+   {
+    "name": "Hall County, GA",
+    "code": "13139",
+    "kind": "county"
+   },
+   {
+    "name": "Haralson County, GA",
+    "code": "13143",
+    "kind": "county"
+   },
+   {
+    "name": "Harris County, GA",
+    "code": "13145",
+    "kind": "county"
+   },
+   {
+    "name": "Heard County, GA",
+    "code": "13149",
+    "kind": "county"
+   },
+   {
+    "name": "Henry County, GA",
+    "code": "13151",
+    "kind": "county"
+   },
+   {
+    "name": "Jackson County, GA",
+    "code": "13157",
+    "kind": "county"
+   },
+   {
+    "name": "Jasper County, GA",
+    "code": "13159",
+    "kind": "county"
+   },
+   {
+    "name": "Lamar County, GA",
+    "code": "13171",
+    "kind": "county"
+   },
+   {
+    "name": "Lumpkin County, GA",
+    "code": "13187",
+    "kind": "county"
+   },
+   {
+    "name": "Madison County, GA",
+    "code": "13195",
+    "kind": "county"
+   },
+   {
+    "name": "Marion County, GA",
+    "code": "13197",
+    "kind": "county"
+   },
+   {
+    "name": "Meriwether County, GA",
+    "code": "13199",
+    "kind": "county"
+   },
+   {
+    "name": "Morgan County, GA",
+    "code": "13211",
+    "kind": "county"
+   },
+   {
+    "name": "Muscogee County, GA",
+    "code": "13215",
+    "kind": "county"
+   },
+   {
+    "name": "Newton County, GA",
+    "code": "13217",
+    "kind": "county"
+   },
+   {
+    "name": "Oconee County, GA",
+    "code": "13219",
+    "kind": "county"
+   },
+   {
+    "name": "Oglethorpe County, GA",
+    "code": "13221",
+    "kind": "county"
+   },
+   {
+    "name": "Paulding County, GA",
+    "code": "13223",
+    "kind": "county"
+   },
+   {
+    "name": "Pickens County, GA",
+    "code": "13227",
+    "kind": "county"
+   },
+   {
+    "name": "Pike County, GA",
+    "code": "13231",
+    "kind": "county"
+   },
+   {
+    "name": "Polk County, GA",
+    "code": "13233",
+    "kind": "county"
+   },
+   {
+    "name": "Putnam County, GA",
+    "code": "13237",
+    "kind": "county"
+   },
+   {
+    "name": "Rabun County, GA",
+    "code": "13241",
+    "kind": "county"
+   },
+   {
+    "name": "Rockdale County, GA",
+    "code": "13247",
+    "kind": "county"
+   },
+   {
+    "name": "Spalding County, GA",
+    "code": "13255",
+    "kind": "county"
+   },
+   {
+    "name": "Stephens County, GA",
+    "code": "13257",
+    "kind": "county"
+   },
+   {
+    "name": "Stewart County, GA",
+    "code": "13259",
+    "kind": "county"
+   },
+   {
+    "name": "Talbot County, GA",
+    "code": "13263",
+    "kind": "county"
+   },
+   {
+    "name": "Taliaferro County, GA",
+    "code": "13265",
+    "kind": "county"
+   },
+   {
+    "name": "Troup County, GA",
+    "code": "13285",
+    "kind": "county"
+   },
+   {
+    "name": "Upson County, GA",
+    "code": "13293",
+    "kind": "county"
+   },
+   {
+    "name": "Walton County, GA",
+    "code": "13297",
+    "kind": "county"
+   },
+   {
+    "name": "White County, GA",
+    "code": "13311",
+    "kind": "county"
+   },
+   {
+    "name": "Chambers County, AL",
+    "code": "01017",
+    "kind": "county"
+   },
+   {
+    "name": "Cherokee County, AL",
+    "code": "01019",
+    "kind": "county"
+   },
+   {
+    "name": "Cleburne County, AL",
+    "code": "01029",
+    "kind": "county"
+   },
+   {
+    "name": "Lee County, AL",
+    "code": "01081",
+    "kind": "county"
+   },
+   {
+    "name": "Randolph County, AL",
+    "code": "01111",
+    "kind": "county"
+   },
+   {
+    "name": "Russell County, AL",
+    "code": "01113",
+    "kind": "county"
+   }
+  ],
+  "counties": 64,
+  "installations": 0,
+  "states": [
+   "AL",
+   "GA"
+  ]
+ },
+ "AU": {
+  "places": [
+   {
+    "name": "Bastrop County, TX",
+    "code": "48021",
+    "kind": "county"
+   },
+   {
+    "name": "Blanco County, TX",
+    "code": "48031",
+    "kind": "county"
+   },
+   {
+    "name": "Burnet County, TX",
+    "code": "48053",
+    "kind": "county"
+   },
+   {
+    "name": "Caldwell County, TX",
+    "code": "48055",
+    "kind": "county"
+   },
+   {
+    "name": "Hays County, TX",
+    "code": "48209",
+    "kind": "county"
+   },
+   {
+    "name": "Lee County, TX",
+    "code": "48287",
+    "kind": "county"
+   },
+   {
+    "name": "Milam County, TX",
+    "code": "48331",
+    "kind": "county"
+   },
+   {
+    "name": "Travis County, TX",
+    "code": "48453",
+    "kind": "county"
+   },
+   {
+    "name": "Williamson County, TX",
+    "code": "48491",
+    "kind": "county"
+   }
+  ],
+  "counties": 9,
+  "installations": 0,
+  "states": [
+   "TX"
+  ]
+ },
+ "BH": {
+  "places": [
+   {
+    "name": "Bibb County, AL",
+    "code": "01007",
+    "kind": "county"
+   },
+   {
+    "name": "Blount County, AL",
+    "code": "01009",
+    "kind": "county"
+   },
+   {
+    "name": "Calhoun County, AL",
+    "code": "01015",
+    "kind": "county"
+   },
+   {
+    "name": "Chilton County, AL",
+    "code": "01021",
+    "kind": "county"
+   },
+   {
+    "name": "Clay County, AL",
+    "code": "01027",
+    "kind": "county"
+   },
+   {
+    "name": "Coosa County, AL",
+    "code": "01037",
+    "kind": "county"
+   },
+   {
+    "name": "Cullman County, AL",
+    "code": "01043",
+    "kind": "county"
+   },
+   {
+    "name": "Etowah County, AL",
+    "code": "01055",
+    "kind": "county"
+   },
+   {
+    "name": "Greene County, AL",
+    "code": "01063",
+    "kind": "county"
+   },
+   {
+    "name": "Hale County, AL",
+    "code": "01065",
+    "kind": "county"
+   },
+   {
+    "name": "Jefferson County, AL",
+    "code": "01073",
+    "kind": "county"
+   },
+   {
+    "name": "Pickens County, AL",
+    "code": "01107",
+    "kind": "county"
+   },
+   {
+    "name": "St. Clair County, AL",
+    "code": "01115",
+    "kind": "county"
+   },
+   {
+    "name": "Shelby County, AL",
+    "code": "01117",
+    "kind": "county"
+   },
+   {
+    "name": "Talladega County, AL",
+    "code": "01121",
+    "kind": "county"
+   },
+   {
+    "name": "Tallapoosa County, AL",
+    "code": "01123",
+    "kind": "county"
+   },
+   {
+    "name": "Tuscaloosa County, AL",
+    "code": "01125",
+    "kind": "county"
+   },
+   {
+    "name": "Walker County, AL",
+    "code": "01127",
+    "kind": "county"
+   },
+   {
+    "name": "Winston County, AL",
+    "code": "01133",
+    "kind": "county"
+   }
+  ],
+  "counties": 19,
+  "installations": 0,
+  "states": [
+   "AL"
+  ]
+ },
+ "BN": {
+  "places": [
+   {
+    "name": "Addison County, VT",
+    "code": "50001",
+    "kind": "county"
+   },
+   {
+    "name": "Chittenden County, VT",
+    "code": "50007",
+    "kind": "county"
+   },
+   {
+    "name": "Franklin County, VT",
+    "code": "50011",
+    "kind": "county"
+   },
+   {
+    "name": "Grand Isle County, VT",
+    "code": "50013",
+    "kind": "county"
+   },
+   {
+    "name": "Lamoille County, VT",
+    "code": "50015",
+    "kind": "county"
+   },
+   {
+    "name": "Washington County, VT",
+    "code": "50023",
+    "kind": "county"
+   }
+  ],
+  "counties": 6,
+  "installations": 0,
+  "states": [
+   "VT"
+  ]
+ },
+ "BOS": {
+  "places": [
+   {
+    "name": "Barnstable County, MA",
+    "code": "25001",
+    "kind": "county"
+   },
+   {
+    "name": "Bristol County, MA",
+    "code": "25005",
+    "kind": "county"
+   },
+   {
+    "name": "Dukes County, MA",
+    "code": "25007",
+    "kind": "county"
+   },
+   {
+    "name": "Essex County, MA",
+    "code": "25009",
+    "kind": "county"
+   },
+   {
+    "name": "Middlesex County, MA",
+    "code": "25017",
+    "kind": "county"
+   },
+   {
+    "name": "Nantucket County, MA",
+    "code": "25019",
+    "kind": "county"
+   },
+   {
+    "name": "Norfolk County, MA",
+    "code": "25021",
+    "kind": "county"
+   },
+   {
+    "name": "Plymouth County, MA",
+    "code": "25023",
+    "kind": "county"
+   },
+   {
+    "name": "Suffolk County, MA",
+    "code": "25025",
+    "kind": "county"
+   },
+   {
+    "name": "Worcester County, MA",
+    "code": "25027",
+    "kind": "county"
+   },
+   {
+    "name": "Bristol County, RI",
+    "code": "44001",
+    "kind": "county"
+   },
+   {
+    "name": "Kent County, RI",
+    "code": "44003",
+    "kind": "county"
+   },
+   {
+    "name": "Newport County, RI",
+    "code": "44005",
+    "kind": "county"
+   },
+   {
+    "name": "Providence County, RI",
+    "code": "44007",
+    "kind": "county"
+   },
+   {
+    "name": "Washington County, RI",
+    "code": "44009",
+    "kind": "county"
+   },
+   {
+    "name": "Belknap County, NH",
+    "code": "33001",
+    "kind": "county"
+   },
+   {
+    "name": "Carroll County, NH",
+    "code": "33003",
+    "kind": "county"
+   },
+   {
+    "name": "Cheshire County, NH",
+    "code": "33005",
+    "kind": "county"
+   },
+   {
+    "name": "Grafton County, NH",
+    "code": "33009",
+    "kind": "county"
+   },
+   {
+    "name": "Hillsborough County, NH",
+    "code": "33011",
+    "kind": "county"
+   },
+   {
+    "name": "Merrimack County, NH",
+    "code": "33013",
+    "kind": "county"
+   },
+   {
+    "name": "Rockingham County, NH",
+    "code": "33015",
+    "kind": "county"
+   },
+   {
+    "name": "Strafford County, NH",
+    "code": "33017",
+    "kind": "county"
+   },
+   {
+    "name": "Sullivan County, NH",
+    "code": "33019",
+    "kind": "county"
+   },
+   {
+    "name": "Windham County, CT",
+    "code": "09015",
+    "kind": "county"
+   },
+   {
+    "name": "Androscoggin County, ME",
+    "code": "23001",
+    "kind": "county"
+   },
+   {
+    "name": "Cumberland County, ME",
+    "code": "23005",
+    "kind": "county"
+   },
+   {
+    "name": "Sagadahoc County, ME",
+    "code": "23023",
+    "kind": "county"
+   },
+   {
+    "name": "York County, ME",
+    "code": "23031",
+    "kind": "county"
+   },
+   {
+    "name": "Orange County, VT",
+    "code": "50017",
+    "kind": "county"
+   },
+   {
+    "name": "Windsor County, VT",
+    "code": "50027",
+    "kind": "county"
+   }
+  ],
+  "counties": 31,
+  "installations": 0,
+  "states": [
+   "CT",
+   "MA",
+   "ME",
+   "NH",
+   "RI",
+   "VT"
+  ]
+ },
+ "BU": {
+  "places": [
+   {
+    "name": "Allegany County, NY",
+    "code": "36003",
+    "kind": "county"
+   },
+   {
+    "name": "Cattaraugus County, NY",
+    "code": "36009",
+    "kind": "county"
+   },
+   {
+    "name": "Erie County, NY",
+    "code": "36029",
+    "kind": "county"
+   },
+   {
+    "name": "Niagara County, NY",
+    "code": "36063",
+    "kind": "county"
+   },
+   {
+    "name": "Wyoming County, NY",
+    "code": "36121",
+    "kind": "county"
+   }
+  ],
+  "counties": 5,
+  "installations": 0,
+  "states": [
+   "NY"
+  ]
+ },
+ "CC": {
+  "places": [
+   {
+    "name": "Aransas County, TX",
+    "code": "48007",
+    "kind": "county"
+   },
+   {
+    "name": "Brooks County, TX",
+    "code": "48047",
+    "kind": "county"
+   },
+   {
+    "name": "Duval County, TX",
+    "code": "48131",
+    "kind": "county"
+   },
+   {
+    "name": "Jim Wells County, TX",
+    "code": "48249",
+    "kind": "county"
+   },
+   {
+    "name": "Kenedy County, TX",
+    "code": "48261",
+    "kind": "county"
+   },
+   {
+    "name": "Kleberg County, TX",
+    "code": "48273",
+    "kind": "county"
+   },
+   {
+    "name": "Live Oak County, TX",
+    "code": "48297",
+    "kind": "county"
+   },
+   {
+    "name": "Nueces County, TX",
+    "code": "48355",
+    "kind": "county"
+   },
+   {
+    "name": "Refugio County, TX",
+    "code": "48391",
+    "kind": "county"
+   },
+   {
+    "name": "San Patricio County, TX",
+    "code": "48409",
+    "kind": "county"
+   }
+  ],
+  "counties": 10,
+  "installations": 0,
+  "states": [
+   "TX"
+  ]
+ },
+ "CHI": {
+  "places": [
+   {
+    "name": "Boone County, IL",
+    "code": "17007",
+    "kind": "county"
+   },
+   {
+    "name": "Bureau County, IL",
+    "code": "17011",
+    "kind": "county"
+   },
+   {
+    "name": "Cook County, IL",
+    "code": "17031",
+    "kind": "county"
+   },
+   {
+    "name": "DeKalb County, IL",
+    "code": "17037",
+    "kind": "county"
+   },
+   {
+    "name": "DuPage County, IL",
+    "code": "17043",
+    "kind": "county"
+   },
+   {
+    "name": "Grundy County, IL",
+    "code": "17063",
+    "kind": "county"
+   },
+   {
+    "name": "Iroquois County, IL",
+    "code": "17075",
+    "kind": "county"
+   },
+   {
+    "name": "Kane County, IL",
+    "code": "17089",
+    "kind": "county"
+   },
+   {
+    "name": "Kankakee County, IL",
+    "code": "17091",
+    "kind": "county"
+   },
+   {
+    "name": "Kendall County, IL",
+    "code": "17093",
+    "kind": "county"
+   },
+   {
+    "name": "Lake County, IL",
+    "code": "17097",
+    "kind": "county"
+   },
+   {
+    "name": "LaSalle County, IL",
+    "code": "17099",
+    "kind": "county"
+   },
+   {
+    "name": "McHenry County, IL",
+    "code": "17111",
+    "kind": "county"
+   },
+   {
+    "name": "Ogle County, IL",
+    "code": "17141",
+    "kind": "county"
+   },
+   {
+    "name": "Putnam County, IL",
+    "code": "17155",
+    "kind": "county"
+   },
+   {
+    "name": "Stephenson County, IL",
+    "code": "17177",
+    "kind": "county"
+   },
+   {
+    "name": "Will County, IL",
+    "code": "17197",
+    "kind": "county"
+   },
+   {
+    "name": "Winnebago County, IL",
+    "code": "17201",
+    "kind": "county"
+   },
+   {
+    "name": "Jasper County, IN",
+    "code": "18073",
+    "kind": "county"
+   },
+   {
+    "name": "Lake County, IN",
+    "code": "18089",
+    "kind": "county"
+   },
+   {
+    "name": "LaPorte County, IN",
+    "code": "18091",
+    "kind": "county"
+   },
+   {
+    "name": "Newton County, IN",
+    "code": "18111",
+    "kind": "county"
+   },
+   {
+    "name": "Porter County, IN",
+    "code": "18127",
+    "kind": "county"
+   },
+   {
+    "name": "Starke County, IN",
+    "code": "18149",
+    "kind": "county"
+   },
+   {
+    "name": "Kenosha County, WI",
+    "code": "55059",
+    "kind": "county"
+   }
+  ],
+  "counties": 25,
+  "installations": 0,
+  "states": [
+   "IL",
+   "IN",
+   "WI"
+  ]
+ },
+ "CIN": {
+  "places": [
+   {
+    "name": "Adams County, OH",
+    "code": "39001",
+    "kind": "county"
+   },
+   {
+    "name": "Brown County, OH",
+    "code": "39015",
+    "kind": "county"
+   },
+   {
+    "name": "Butler County, OH",
+    "code": "39017",
+    "kind": "county"
+   },
+   {
+    "name": "Clermont County, OH",
+    "code": "39025",
+    "kind": "county"
+   },
+   {
+    "name": "Clinton County, OH",
+    "code": "39027",
+    "kind": "county"
+   },
+   {
+    "name": "Hamilton County, OH",
+    "code": "39061",
+    "kind": "county"
+   },
+   {
+    "name": "Highland County, OH",
+    "code": "39071",
+    "kind": "county"
+   },
+   {
+    "name": "Warren County, OH",
+    "code": "39165",
+    "kind": "county"
+   },
+   {
+    "name": "Boone County, KY",
+    "code": "21015",
+    "kind": "county"
+   },
+   {
+    "name": "Bracken County, KY",
+    "code": "21023",
+    "kind": "county"
+   },
+   {
+    "name": "Campbell County, KY",
+    "code": "21037",
+    "kind": "county"
+   },
+   {
+    "name": "Carroll County, KY",
+    "code": "21041",
+    "kind": "county"
+   },
+   {
+    "name": "Fleming County, KY",
+    "code": "21069",
+    "kind": "county"
+   },
+   {
+    "name": "Gallatin County, KY",
+    "code": "21077",
+    "kind": "county"
+   },
+   {
+    "name": "Grant County, KY",
+    "code": "21081",
+    "kind": "county"
+   },
+   {
+    "name": "Kenton County, KY",
+    "code": "21117",
+    "kind": "county"
+   },
+   {
+    "name": "Lewis County, KY",
+    "code": "21135",
+    "kind": "county"
+   },
+   {
+    "name": "Mason County, KY",
+    "code": "21161",
+    "kind": "county"
+   },
+   {
+    "name": "Owen County, KY",
+    "code": "21187",
+    "kind": "county"
+   },
+   {
+    "name": "Pendleton County, KY",
+    "code": "21191",
+    "kind": "county"
+   },
+   {
+    "name": "Robertson County, KY",
+    "code": "21201",
+    "kind": "county"
+   },
+   {
+    "name": "Dearborn County, IN",
+    "code": "18029",
+    "kind": "county"
+   },
+   {
+    "name": "Franklin County, IN",
+    "code": "18047",
+    "kind": "county"
+   },
+   {
+    "name": "Ohio County, IN",
+    "code": "18115",
+    "kind": "county"
+   },
+   {
+    "name": "Ripley County, IN",
+    "code": "18137",
+    "kind": "county"
+   },
+   {
+    "name": "Switzerland County, IN",
+    "code": "18155",
+    "kind": "county"
+   },
+   {
+    "name": "Union County, IN",
+    "code": "18161",
+    "kind": "county"
+   }
+  ],
+  "counties": 27,
+  "installations": 0,
+  "states": [
+   "IN",
+   "KY",
+   "OH"
+  ]
+ },
+ "CLE": {
+  "places": [
+   {
+    "name": "Ashland County, OH",
+    "code": "39005",
+    "kind": "county"
+   },
+   {
+    "name": "Ashtabula County, OH",
+    "code": "39007",
+    "kind": "county"
+   },
+   {
+    "name": "Carroll County, OH",
+    "code": "39019",
+    "kind": "county"
+   },
+   {
+    "name": "Columbiana County, OH",
+    "code": "39029",
+    "kind": "county"
+   },
+   {
+    "name": "Crawford County, OH",
+    "code": "39033",
+    "kind": "county"
+   },
+   {
+    "name": "Cuyahoga County, OH",
+    "code": "39035",
+    "kind": "county"
+   },
+   {
+    "name": "Erie County, OH",
+    "code": "39043",
+    "kind": "county"
+   },
+   {
+    "name": "Geauga County, OH",
+    "code": "39055",
+    "kind": "county"
+   },
+   {
+    "name": "Harrison County, OH",
+    "code": "39067",
+    "kind": "county"
+   },
+   {
+    "name": "Holmes County, OH",
+    "code": "39075",
+    "kind": "county"
+   },
+   {
+    "name": "Huron County, OH",
+    "code": "39077",
+    "kind": "county"
+   },
+   {
+    "name": "Lake County, OH",
+    "code": "39085",
+    "kind": "county"
+   },
+   {
+    "name": "Lorain County, OH",
+    "code": "39093",
+    "kind": "county"
+   },
+   {
+    "name": "Mahoning County, OH",
+    "code": "39099",
+    "kind": "county"
+   },
+   {
+    "name": "Medina County, OH",
+    "code": "39103",
+    "kind": "county"
+   },
+   {
+    "name": "Portage County, OH",
+    "code": "39133",
+    "kind": "county"
+   },
+   {
+    "name": "Richland County, OH",
+    "code": "39139",
+    "kind": "county"
+   },
+   {
+    "name": "Stark County, OH",
+    "code": "39151",
+    "kind": "county"
+   },
+   {
+    "name": "Summit County, OH",
+    "code": "39153",
+    "kind": "county"
+   },
+   {
+    "name": "Trumbull County, OH",
+    "code": "39155",
+    "kind": "county"
+   },
+   {
+    "name": "Tuscarawas County, OH",
+    "code": "39157",
+    "kind": "county"
+   },
+   {
+    "name": "Wayne County, OH",
+    "code": "39169",
+    "kind": "county"
+   },
+   {
+    "name": "Mercer County, PA",
+    "code": "42085",
+    "kind": "county"
+   }
+  ],
+  "counties": 23,
+  "installations": 0,
+  "states": [
+   "OH",
+   "PA"
+  ]
+ },
+ "COL": {
+  "places": [
+   {
+    "name": "Coshocton County, OH",
+    "code": "39031",
+    "kind": "county"
+   },
+   {
+    "name": "Delaware County, OH",
+    "code": "39041",
+    "kind": "county"
+   },
+   {
+    "name": "Fairfield County, OH",
+    "code": "39045",
+    "kind": "county"
+   },
+   {
+    "name": "Fayette County, OH",
+    "code": "39047",
+    "kind": "county"
+   },
+   {
+    "name": "Franklin County, OH",
+    "code": "39049",
+    "kind": "county"
+   },
+   {
+    "name": "Guernsey County, OH",
+    "code": "39059",
+    "kind": "county"
+   },
+   {
+    "name": "Hardin County, OH",
+    "code": "39065",
+    "kind": "county"
+   },
+   {
+    "name": "Hocking County, OH",
+    "code": "39073",
+    "kind": "county"
+   },
+   {
+    "name": "Knox County, OH",
+    "code": "39083",
+    "kind": "county"
+   },
+   {
+    "name": "Licking County, OH",
+    "code": "39089",
+    "kind": "county"
+   },
+   {
+    "name": "Logan County, OH",
+    "code": "39091",
+    "kind": "county"
+   },
+   {
+    "name": "Madison County, OH",
+    "code": "39097",
+    "kind": "county"
+   },
+   {
+    "name": "Marion County, OH",
+    "code": "39101",
+    "kind": "county"
+   },
+   {
+    "name": "Morgan County, OH",
+    "code": "39115",
+    "kind": "county"
+   },
+   {
+    "name": "Morrow County, OH",
+    "code": "39117",
+    "kind": "county"
+   },
+   {
+    "name": "Muskingum County, OH",
+    "code": "39119",
+    "kind": "county"
+   },
+   {
+    "name": "Noble County, OH",
+    "code": "39121",
+    "kind": "county"
+   },
+   {
+    "name": "Perry County, OH",
+    "code": "39127",
+    "kind": "county"
+   },
+   {
+    "name": "Pickaway County, OH",
+    "code": "39129",
+    "kind": "county"
+   },
+   {
+    "name": "Pike County, OH",
+    "code": "39131",
+    "kind": "county"
+   },
+   {
+    "name": "Ross County, OH",
+    "code": "39141",
+    "kind": "county"
+   },
+   {
+    "name": "Union County, OH",
+    "code": "39159",
+    "kind": "county"
+   },
+   {
+    "name": "Vinton County, OH",
+    "code": "39163",
+    "kind": "county"
+   }
+  ],
+  "counties": 23,
+  "installations": 0,
+  "states": [
+   "OH"
+  ]
+ },
+ "CS": {
+  "places": [
+   {
+    "name": "El Paso County, CO",
+    "code": "08041",
+    "kind": "county"
+   },
+   {
+    "name": "Fremont County, CO",
+    "code": "08043",
+    "kind": "county"
+   },
+   {
+    "name": "Pueblo County, CO",
+    "code": "08101",
+    "kind": "county"
+   },
+   {
+    "name": "Teller County, CO",
+    "code": "08119",
+    "kind": "county"
+   }
+  ],
+  "counties": 4,
+  "installations": 0,
+  "states": [
+   "CO"
+  ]
+ },
+ "CT": {
+  "places": [
+   {
+    "name": "Alexander County, NC",
+    "code": "37003",
+    "kind": "county"
+   },
+   {
+    "name": "Anson County, NC",
+    "code": "37007",
+    "kind": "county"
+   },
+   {
+    "name": "Burke County, NC",
+    "code": "37023",
+    "kind": "county"
+   },
+   {
+    "name": "Cabarrus County, NC",
+    "code": "37025",
+    "kind": "county"
+   },
+   {
+    "name": "Caldwell County, NC",
+    "code": "37027",
+    "kind": "county"
+   },
+   {
+    "name": "Catawba County, NC",
+    "code": "37035",
+    "kind": "county"
+   },
+   {
+    "name": "Cleveland County, NC",
+    "code": "37045",
+    "kind": "county"
+   },
+   {
+    "name": "Gaston County, NC",
+    "code": "37071",
+    "kind": "county"
+   },
+   {
+    "name": "Iredell County, NC",
+    "code": "37097",
+    "kind": "county"
+   },
+   {
+    "name": "Lincoln County, NC",
+    "code": "37109",
+    "kind": "county"
+   },
+   {
+    "name": "Mecklenburg County, NC",
+    "code": "37119",
+    "kind": "county"
+   },
+   {
+    "name": "Rowan County, NC",
+    "code": "37159",
+    "kind": "county"
+   },
+   {
+    "name": "Stanly County, NC",
+    "code": "37167",
+    "kind": "county"
+   },
+   {
+    "name": "Union County, NC",
+    "code": "37179",
+    "kind": "county"
+   },
+   {
+    "name": "Chester County, SC",
+    "code": "45023",
+    "kind": "county"
+   },
+   {
+    "name": "Chesterfield County, SC",
+    "code": "45025",
+    "kind": "county"
+   },
+   {
+    "name": "Lancaster County, SC",
+    "code": "45057",
+    "kind": "county"
+   },
+   {
+    "name": "York County, SC",
+    "code": "45091",
+    "kind": "county"
+   }
+  ],
+  "counties": 18,
+  "installations": 0,
+  "states": [
+   "NC",
+   "SC"
+  ]
+ },
+ "DAY": {
+  "places": [
+   {
+    "name": "Allen County, OH",
+    "code": "39003",
+    "kind": "county"
+   },
+   {
+    "name": "Auglaize County, OH",
+    "code": "39011",
+    "kind": "county"
+   },
+   {
+    "name": "Champaign County, OH",
+    "code": "39021",
+    "kind": "county"
+   },
+   {
+    "name": "Clark County, OH",
+    "code": "39023",
+    "kind": "county"
+   },
+   {
+    "name": "Darke County, OH",
+    "code": "39037",
+    "kind": "county"
+   },
+   {
+    "name": "Greene County, OH",
+    "code": "39057",
+    "kind": "county"
+   },
+   {
+    "name": "Mercer County, OH",
+    "code": "39107",
+    "kind": "county"
+   },
+   {
+    "name": "Miami County, OH",
+    "code": "39109",
+    "kind": "county"
+   },
+   {
+    "name": "Montgomery County, OH",
+    "code": "39113",
+    "kind": "county"
+   },
+   {
+    "name": "Preble County, OH",
+    "code": "39135",
+    "kind": "county"
+   },
+   {
+    "name": "Shelby County, OH",
+    "code": "39149",
+    "kind": "county"
+   },
+   {
+    "name": "Van Wert County, OH",
+    "code": "39161",
+    "kind": "county"
+   }
+  ],
+  "counties": 12,
+  "installations": 0,
+  "states": [
+   "OH"
+  ]
+ },
+ "DCB": {
+  "places": [
+   {
+    "name": "District of Columbia, DC",
+    "code": "11001",
+    "kind": "county"
+   },
+   {
+    "name": "Allegany County, MD",
+    "code": "24001",
+    "kind": "county"
+   },
+   {
+    "name": "Anne Arundel County, MD",
+    "code": "24003",
+    "kind": "county"
+   },
+   {
+    "name": "Baltimore County, MD",
+    "code": "24005",
+    "kind": "county"
+   },
+   {
+    "name": "Calvert County, MD",
+    "code": "24009",
+    "kind": "county"
+   },
+   {
+    "name": "Caroline County, MD",
+    "code": "24011",
+    "kind": "county"
+   },
+   {
+    "name": "Carroll County, MD",
+    "code": "24013",
+    "kind": "county"
+   },
+   {
+    "name": "Charles County, MD",
+    "code": "24017",
+    "kind": "county"
+   },
+   {
+    "name": "Dorchester County, MD",
+    "code": "24019",
+    "kind": "county"
+   },
+   {
+    "name": "Frederick County, MD",
+    "code": "24021",
+    "kind": "county"
+   },
+   {
+    "name": "Harford County, MD",
+    "code": "24025",
+    "kind": "county"
+   },
+   {
+    "name": "Howard County, MD",
+    "code": "24027",
+    "kind": "county"
+   },
+   {
+    "name": "Kent County, MD",
+    "code": "24029",
+    "kind": "county"
+   },
+   {
+    "name": "Montgomery County, MD",
+    "code": "24031",
+    "kind": "county"
+   },
+   {
+    "name": "Prince George's County, MD",
+    "code": "24033",
+    "kind": "county"
+   },
+   {
+    "name": "Queen Anne's County, MD",
+    "code": "24035",
+    "kind": "county"
+   },
+   {
+    "name": "St. Mary's County, MD",
+    "code": "24037",
+    "kind": "county"
+   },
+   {
+    "name": "Talbot County, MD",
+    "code": "24041",
+    "kind": "county"
+   },
+   {
+    "name": "Washington County, MD",
+    "code": "24043",
+    "kind": "county"
+   },
+   {
+    "name": "Baltimore city, MD",
+    "code": "24510",
+    "kind": "county"
+   },
+   {
+    "name": "Arlington County, VA",
+    "code": "51013",
+    "kind": "county"
+   },
+   {
+    "name": "Caroline County, VA",
+    "code": "51033",
+    "kind": "county"
+   },
+   {
+    "name": "Clarke County, VA",
+    "code": "51043",
+    "kind": "county"
+   },
+   {
+    "name": "Culpeper County, VA",
+    "code": "51047",
+    "kind": "county"
+   },
+   {
+    "name": "Fairfax County, VA",
+    "code": "51059",
+    "kind": "county"
+   },
+   {
+    "name": "Fauquier County, VA",
+    "code": "51061",
+    "kind": "county"
+   },
+   {
+    "name": "Frederick County, VA",
+    "code": "51069",
+    "kind": "county"
+   },
+   {
+    "name": "King George County, VA",
+    "code": "51099",
+    "kind": "county"
+   },
+   {
+    "name": "Loudoun County, VA",
+    "code": "51107",
+    "kind": "county"
+   },
+   {
+    "name": "Madison County, VA",
+    "code": "51113",
+    "kind": "county"
+   },
+   {
+    "name": "Orange County, VA",
+    "code": "51137",
+    "kind": "county"
+   },
+   {
+    "name": "Prince William County, VA",
+    "code": "51153",
+    "kind": "county"
+   },
+   {
+    "name": "Rappahannock County, VA",
+    "code": "51157",
+    "kind": "county"
+   },
+   {
+    "name": "Shenandoah County, VA",
+    "code": "51171",
+    "kind": "county"
+   },
+   {
+    "name": "Spotsylvania County, VA",
+    "code": "51177",
+    "kind": "county"
+   },
+   {
+    "name": "Stafford County, VA",
+    "code": "51179",
+    "kind": "county"
+   },
+   {
+    "name": "Warren County, VA",
+    "code": "51187",
+    "kind": "county"
+   },
+   {
+    "name": "Westmoreland County, VA",
+    "code": "51193",
+    "kind": "county"
+   },
+   {
+    "name": "Alexandria city, VA",
+    "code": "51510",
+    "kind": "county"
+   },
+   {
+    "name": "Fairfax city, VA",
+    "code": "51600",
+    "kind": "county"
+   },
+   {
+    "name": "Falls Church city, VA",
+    "code": "51610",
+    "kind": "county"
+   },
+   {
+    "name": "Fredericksburg city, VA",
+    "code": "51630",
+    "kind": "county"
+   },
+   {
+    "name": "Manassas city, VA",
+    "code": "51683",
+    "kind": "county"
+   },
+   {
+    "name": "Manassas Park city, VA",
+    "code": "51685",
+    "kind": "county"
+   },
+   {
+    "name": "Winchester city, VA",
+    "code": "51840",
+    "kind": "county"
+   },
+   {
+    "name": "Berkeley County, WV",
+    "code": "54003",
+    "kind": "county"
+   },
+   {
+    "name": "Hampshire County, WV",
+    "code": "54027",
+    "kind": "county"
+   },
+   {
+    "name": "Hardy County, WV",
+    "code": "54031",
+    "kind": "county"
+   },
+   {
+    "name": "Jefferson County, WV",
+    "code": "54037",
+    "kind": "county"
+   },
+   {
+    "name": "Mineral County, WV",
+    "code": "54057",
+    "kind": "county"
+   },
+   {
+    "name": "Morgan County, WV",
+    "code": "54065",
+    "kind": "county"
+   },
+   {
+    "name": "Adams County, PA",
+    "code": "42001",
+    "kind": "county"
+   },
+   {
+    "name": "Franklin County, PA",
+    "code": "42055",
+    "kind": "county"
+   },
+   {
+    "name": "Fulton County, PA",
+    "code": "42057",
+    "kind": "county"
+   },
+   {
+    "name": "York County, PA",
+    "code": "42133",
+    "kind": "county"
+   }
+  ],
+  "counties": 55,
+  "installations": 0,
+  "states": [
+   "DC",
+   "MD",
+   "PA",
+   "VA",
+   "WV"
+  ]
+ },
+ "DEN": {
+  "places": [
+   {
+    "name": "Adams County, CO",
+    "code": "08001",
+    "kind": "county"
+   },
+   {
+    "name": "Arapahoe County, CO",
+    "code": "08005",
+    "kind": "county"
+   },
+   {
+    "name": "Boulder County, CO",
+    "code": "08013",
+    "kind": "county"
+   },
+   {
+    "name": "Broomfield County, CO",
+    "code": "08014",
+    "kind": "county"
+   },
+   {
+    "name": "Clear Creek County, CO",
+    "code": "08019",
+    "kind": "county"
+   },
+   {
+    "name": "Denver County, CO",
+    "code": "08031",
+    "kind": "county"
+   },
+   {
+    "name": "Douglas County, CO",
+    "code": "08035",
+    "kind": "county"
+   },
+   {
+    "name": "Elbert County, CO",
+    "code": "08039",
+    "kind": "county"
+   },
+   {
+    "name": "Gilpin County, CO",
+    "code": "08047",
+    "kind": "county"
+   },
+   {
+    "name": "Jefferson County, CO",
+    "code": "08059",
+    "kind": "county"
+   },
+   {
+    "name": "Larimer County, CO",
+    "code": "08069",
+    "kind": "county"
+   },
+   {
+    "name": "Lincoln County, CO",
+    "code": "08073",
+    "kind": "county"
+   },
+   {
+    "name": "Park County, CO",
+    "code": "08093",
+    "kind": "county"
+   },
+   {
+    "name": "Weld County, CO",
+    "code": "08123",
+    "kind": "county"
+   }
+  ],
+  "counties": 14,
+  "installations": 0,
+  "states": [
+   "CO"
+  ]
+ },
+ "DET": {
+  "places": [
+   {
+    "name": "Clinton County, MI",
+    "code": "26037",
+    "kind": "county"
+   },
+   {
+    "name": "Eaton County, MI",
+    "code": "26045",
+    "kind": "county"
+   },
+   {
+    "name": "Genesee County, MI",
+    "code": "26049",
+    "kind": "county"
+   },
+   {
+    "name": "Huron County, MI",
+    "code": "26063",
+    "kind": "county"
+   },
+   {
+    "name": "Ingham County, MI",
+    "code": "26065",
+    "kind": "county"
+   },
+   {
+    "name": "Jackson County, MI",
+    "code": "26075",
+    "kind": "county"
+   },
+   {
+    "name": "Lapeer County, MI",
+    "code": "26087",
+    "kind": "county"
+   },
+   {
+    "name": "Lenawee County, MI",
+    "code": "26091",
+    "kind": "county"
+   },
+   {
+    "name": "Livingston County, MI",
+    "code": "26093",
+    "kind": "county"
+   },
+   {
+    "name": "Macomb County, MI",
+    "code": "26099",
+    "kind": "county"
+   },
+   {
+    "name": "Monroe County, MI",
+    "code": "26115",
+    "kind": "county"
+   },
+   {
+    "name": "Oakland County, MI",
+    "code": "26125",
+    "kind": "county"
+   },
+   {
+    "name": "St. Clair County, MI",
+    "code": "26147",
+    "kind": "county"
+   },
+   {
+    "name": "Sanilac County, MI",
+    "code": "26151",
+    "kind": "county"
+   },
+   {
+    "name": "Shiawassee County, MI",
+    "code": "26155",
+    "kind": "county"
+   },
+   {
+    "name": "Tuscola County, MI",
+    "code": "26157",
+    "kind": "county"
+   },
+   {
+    "name": "Washtenaw County, MI",
+    "code": "26161",
+    "kind": "county"
+   },
+   {
+    "name": "Wayne County, MI",
+    "code": "26163",
+    "kind": "county"
+   }
+  ],
+  "counties": 18,
+  "installations": 0,
+  "states": [
+   "MI"
+  ]
+ },
+ "DFW": {
+  "places": [
+   {
+    "name": "Collin County, TX",
+    "code": "48085",
+    "kind": "county"
+   },
+   {
+    "name": "Cooke County, TX",
+    "code": "48097",
+    "kind": "county"
+   },
+   {
+    "name": "Dallas County, TX",
+    "code": "48113",
+    "kind": "county"
+   },
+   {
+    "name": "Delta County, TX",
+    "code": "48119",
+    "kind": "county"
+   },
+   {
+    "name": "Denton County, TX",
+    "code": "48121",
+    "kind": "county"
+   },
+   {
+    "name": "Ellis County, TX",
+    "code": "48139",
+    "kind": "county"
+   },
+   {
+    "name": "Fannin County, TX",
+    "code": "48147",
+    "kind": "county"
+   },
+   {
+    "name": "Grayson County, TX",
+    "code": "48181",
+    "kind": "county"
+   },
+   {
+    "name": "Henderson County, TX",
+    "code": "48213",
+    "kind": "county"
+   },
+   {
+    "name": "Hill County, TX",
+    "code": "48217",
+    "kind": "county"
+   },
+   {
+    "name": "Hood County, TX",
+    "code": "48221",
+    "kind": "county"
+   },
+   {
+    "name": "Hopkins County, TX",
+    "code": "48223",
+    "kind": "county"
+   },
+   {
+    "name": "Hunt County, TX",
+    "code": "48231",
+    "kind": "county"
+   },
+   {
+    "name": "Jack County, TX",
+    "code": "48237",
+    "kind": "county"
+   },
+   {
+    "name": "Johnson County, TX",
+    "code": "48251",
+    "kind": "county"
+   },
+   {
+    "name": "Kaufman County, TX",
+    "code": "48257",
+    "kind": "county"
+   },
+   {
+    "name": "Montague County, TX",
+    "code": "48337",
+    "kind": "county"
+   },
+   {
+    "name": "Navarro County, TX",
+    "code": "48349",
+    "kind": "county"
+   },
+   {
+    "name": "Palo Pinto County, TX",
+    "code": "48363",
+    "kind": "county"
+   },
+   {
+    "name": "Parker County, TX",
+    "code": "48367",
+    "kind": "county"
+   },
+   {
+    "name": "Rains County, TX",
+    "code": "48379",
+    "kind": "county"
+   },
+   {
+    "name": "Rockwall County, TX",
+    "code": "48397",
+    "kind": "county"
+   },
+   {
+    "name": "Somervell County, TX",
+    "code": "48425",
+    "kind": "county"
+   },
+   {
+    "name": "Tarrant County, TX",
+    "code": "48439",
+    "kind": "county"
+   },
+   {
+    "name": "Van Zandt County, TX",
+    "code": "48467",
+    "kind": "county"
+   },
+   {
+    "name": "Wise County, TX",
+    "code": "48497",
+    "kind": "county"
+   },
+   {
+    "name": "Bryan County, OK",
+    "code": "40013",
+    "kind": "county"
+   },
+   {
+    "name": "Carter County, OK",
+    "code": "40019",
+    "kind": "county"
+   },
+   {
+    "name": "Love County, OK",
+    "code": "40085",
+    "kind": "county"
+   }
+  ],
+  "counties": 29,
+  "installations": 0,
+  "states": [
+   "OK",
+   "TX"
+  ]
+ },
+ "DM": {
+  "places": [
+   {
+    "name": "Adair County, IA",
+    "code": "19001",
+    "kind": "county"
+   },
+   {
+    "name": "Boone County, IA",
+    "code": "19015",
+    "kind": "county"
+   },
+   {
+    "name": "Clarke County, IA",
+    "code": "19039",
+    "kind": "county"
+   },
+   {
+    "name": "Dallas County, IA",
+    "code": "19049",
+    "kind": "county"
+   },
+   {
+    "name": "Greene County, IA",
+    "code": "19073",
+    "kind": "county"
+   },
+   {
+    "name": "Guthrie County, IA",
+    "code": "19077",
+    "kind": "county"
+   },
+   {
+    "name": "Hamilton County, IA",
+    "code": "19079",
+    "kind": "county"
+   },
+   {
+    "name": "Jasper County, IA",
+    "code": "19099",
+    "kind": "county"
+   },
+   {
+    "name": "Lucas County, IA",
+    "code": "19117",
+    "kind": "county"
+   },
+   {
+    "name": "Madison County, IA",
+    "code": "19121",
+    "kind": "county"
+   },
+   {
+    "name": "Mahaska County, IA",
+    "code": "19123",
+    "kind": "county"
+   },
+   {
+    "name": "Marion County, IA",
+    "code": "19125",
+    "kind": "county"
+   },
+   {
+    "name": "Monroe County, IA",
+    "code": "19135",
+    "kind": "county"
+   },
+   {
+    "name": "Polk County, IA",
+    "code": "19153",
+    "kind": "county"
+   },
+   {
+    "name": "Poweshiek County, IA",
+    "code": "19157",
+    "kind": "county"
+   },
+   {
+    "name": "Story County, IA",
+    "code": "19169",
+    "kind": "county"
+   },
+   {
+    "name": "Warren County, IA",
+    "code": "19181",
+    "kind": "county"
+   }
+  ],
+  "counties": 17,
+  "installations": 0,
+  "states": [
+   "IA"
+  ]
+ },
+ "DV": {
+  "places": [
+   {
+    "name": "Cedar County, IA",
+    "code": "19031",
+    "kind": "county"
+   },
+   {
+    "name": "Clinton County, IA",
+    "code": "19045",
+    "kind": "county"
+   },
+   {
+    "name": "Jackson County, IA",
+    "code": "19097",
+    "kind": "county"
+   },
+   {
+    "name": "Louisa County, IA",
+    "code": "19115",
+    "kind": "county"
+   },
+   {
+    "name": "Muscatine County, IA",
+    "code": "19139",
+    "kind": "county"
+   },
+   {
+    "name": "Scott County, IA",
+    "code": "19163",
+    "kind": "county"
+   },
+   {
+    "name": "Carroll County, IL",
+    "code": "17015",
+    "kind": "county"
+   },
+   {
+    "name": "Henry County, IL",
+    "code": "17073",
+    "kind": "county"
+   },
+   {
+    "name": "Lee County, IL",
+    "code": "17103",
+    "kind": "county"
+   },
+   {
+    "name": "Mercer County, IL",
+    "code": "17131",
+    "kind": "county"
+   },
+   {
+    "name": "Rock Island County, IL",
+    "code": "17161",
+    "kind": "county"
+   },
+   {
+    "name": "Whiteside County, IL",
+    "code": "17195",
+    "kind": "county"
+   }
+  ],
+  "counties": 12,
+  "installations": 0,
+  "states": [
+   "IA",
+   "IL"
+  ]
+ },
+ "FN": {
+  "places": [
+   {
+    "name": "Fresno County, CA",
+    "code": "06019",
+    "kind": "county"
+   },
+   {
+    "name": "Kings County, CA",
+    "code": "06031",
+    "kind": "county"
+   },
+   {
+    "name": "Madera County, CA",
+    "code": "06039",
+    "kind": "county"
+   },
+   {
+    "name": "Mariposa County, CA",
+    "code": "06043",
+    "kind": "county"
+   },
+   {
+    "name": "Tulare County, CA",
+    "code": "06107",
+    "kind": "county"
+   }
+  ],
+  "counties": 5,
+  "installations": 0,
+  "states": [
+   "CA"
+  ]
+ },
+ "HAR": {
+  "places": [
+   {
+    "name": "Hartford County, CT",
+    "code": "09003",
+    "kind": "county"
+   },
+   {
+    "name": "Middlesex County, CT",
+    "code": "09007",
+    "kind": "county"
+   },
+   {
+    "name": "New London County, CT",
+    "code": "09011",
+    "kind": "county"
+   },
+   {
+    "name": "Tolland County, CT",
+    "code": "09013",
+    "kind": "county"
+   },
+   {
+    "name": "Franklin County, MA",
+    "code": "25011",
+    "kind": "county"
+   },
+   {
+    "name": "Hampden County, MA",
+    "code": "25013",
+    "kind": "county"
+   },
+   {
+    "name": "Hampshire County, MA",
+    "code": "25015",
+    "kind": "county"
+   }
+  ],
+  "counties": 7,
+  "installations": 0,
+  "states": [
+   "CT",
+   "MA"
+  ]
+ },
+ "HB": {
+  "places": [
+   {
+    "name": "Cumberland County, PA",
+    "code": "42041",
+    "kind": "county"
+   },
+   {
+    "name": "Dauphin County, PA",
+    "code": "42043",
+    "kind": "county"
+   },
+   {
+    "name": "Juniata County, PA",
+    "code": "42067",
+    "kind": "county"
+   },
+   {
+    "name": "Lancaster County, PA",
+    "code": "42071",
+    "kind": "county"
+   },
+   {
+    "name": "Lebanon County, PA",
+    "code": "42075",
+    "kind": "county"
+   },
+   {
+    "name": "Perry County, PA",
+    "code": "42099",
+    "kind": "county"
+   }
+  ],
+  "counties": 6,
+  "installations": 0,
+  "states": [
+   "PA"
+  ]
+ },
+ "HI": {
+  "places": [
+   {
+    "name": "Hawaii",
+    "code": "15",
+    "kind": "state"
+   }
+  ],
+  "counties": 0,
+  "installations": 0,
+  "states": []
+ },
+ "HNT": {
+  "places": [
+   {
+    "name": "Colbert County, AL",
+    "code": "01033",
+    "kind": "county"
+   },
+   {
+    "name": "DeKalb County, AL",
+    "code": "01049",
+    "kind": "county"
+   },
+   {
+    "name": "Lauderdale County, AL",
+    "code": "01077",
+    "kind": "county"
+   },
+   {
+    "name": "Lawrence County, AL",
+    "code": "01079",
+    "kind": "county"
+   },
+   {
+    "name": "Limestone County, AL",
+    "code": "01083",
+    "kind": "county"
+   },
+   {
+    "name": "Madison County, AL",
+    "code": "01089",
+    "kind": "county"
+   },
+   {
+    "name": "Marshall County, AL",
+    "code": "01095",
+    "kind": "county"
+   },
+   {
+    "name": "Morgan County, AL",
+    "code": "01103",
+    "kind": "county"
+   },
+   {
+    "name": "Lincoln County, TN",
+    "code": "47103",
+    "kind": "county"
+   }
+  ],
+  "counties": 9,
+  "installations": 0,
+  "states": [
+   "AL",
+   "TN"
+  ]
+ },
+ "HOU": {
+  "places": [
+   {
+    "name": "Austin County, TX",
+    "code": "48015",
+    "kind": "county"
+   },
+   {
+    "name": "Brazoria County, TX",
+    "code": "48039",
+    "kind": "county"
+   },
+   {
+    "name": "Chambers County, TX",
+    "code": "48071",
+    "kind": "county"
+   },
+   {
+    "name": "Colorado County, TX",
+    "code": "48089",
+    "kind": "county"
+   },
+   {
+    "name": "Fort Bend County, TX",
+    "code": "48157",
+    "kind": "county"
+   },
+   {
+    "name": "Galveston County, TX",
+    "code": "48167",
+    "kind": "county"
+   },
+   {
+    "name": "Grimes County, TX",
+    "code": "48185",
+    "kind": "county"
+   },
+   {
+    "name": "Harris County, TX",
+    "code": "48201",
+    "kind": "county"
+   },
+   {
+    "name": "Jackson County, TX",
+    "code": "48239",
+    "kind": "county"
+   },
+   {
+    "name": "Liberty County, TX",
+    "code": "48291",
+    "kind": "county"
+   },
+   {
+    "name": "Madison County, TX",
+    "code": "48313",
+    "kind": "county"
+   },
+   {
+    "name": "Matagorda County, TX",
+    "code": "48321",
+    "kind": "county"
+   },
+   {
+    "name": "Montgomery County, TX",
+    "code": "48339",
+    "kind": "county"
+   },
+   {
+    "name": "San Jacinto County, TX",
+    "code": "48407",
+    "kind": "county"
+   },
+   {
+    "name": "Trinity County, TX",
+    "code": "48455",
+    "kind": "county"
+   },
+   {
+    "name": "Walker County, TX",
+    "code": "48471",
+    "kind": "county"
+   },
+   {
+    "name": "Waller County, TX",
+    "code": "48473",
+    "kind": "county"
+   },
+   {
+    "name": "Washington County, TX",
+    "code": "48477",
+    "kind": "county"
+   },
+   {
+    "name": "Wharton County, TX",
+    "code": "48481",
+    "kind": "county"
+   }
+  ],
+  "counties": 19,
+  "installations": 0,
+  "states": [
+   "TX"
+  ]
+ },
+ "IND": {
+  "places": [
+   {
+    "name": "Bartholomew County, IN",
+    "code": "18005",
+    "kind": "county"
+   },
+   {
+    "name": "Benton County, IN",
+    "code": "18007",
+    "kind": "county"
+   },
+   {
+    "name": "Blackford County, IN",
+    "code": "18009",
+    "kind": "county"
+   },
+   {
+    "name": "Boone County, IN",
+    "code": "18011",
+    "kind": "county"
+   },
+   {
+    "name": "Brown County, IN",
+    "code": "18013",
+    "kind": "county"
+   },
+   {
+    "name": "Carroll County, IN",
+    "code": "18015",
+    "kind": "county"
+   },
+   {
+    "name": "Clinton County, IN",
+    "code": "18023",
+    "kind": "county"
+   },
+   {
+    "name": "Decatur County, IN",
+    "code": "18031",
+    "kind": "county"
+   },
+   {
+    "name": "Delaware County, IN",
+    "code": "18035",
+    "kind": "county"
+   },
+   {
+    "name": "Fayette County, IN",
+    "code": "18041",
+    "kind": "county"
+   },
+   {
+    "name": "Fountain County, IN",
+    "code": "18045",
+    "kind": "county"
+   },
+   {
+    "name": "Grant County, IN",
+    "code": "18053",
+    "kind": "county"
+   },
+   {
+    "name": "Hamilton County, IN",
+    "code": "18057",
+    "kind": "county"
+   },
+   {
+    "name": "Hancock County, IN",
+    "code": "18059",
+    "kind": "county"
+   },
+   {
+    "name": "Hendricks County, IN",
+    "code": "18063",
+    "kind": "county"
+   },
+   {
+    "name": "Henry County, IN",
+    "code": "18065",
+    "kind": "county"
+   },
+   {
+    "name": "Jackson County, IN",
+    "code": "18071",
+    "kind": "county"
+   },
+   {
+    "name": "Jennings County, IN",
+    "code": "18079",
+    "kind": "county"
+   },
+   {
+    "name": "Johnson County, IN",
+    "code": "18081",
+    "kind": "county"
+   },
+   {
+    "name": "Lawrence County, IN",
+    "code": "18093",
+    "kind": "county"
+   },
+   {
+    "name": "Madison County, IN",
+    "code": "18095",
+    "kind": "county"
+   },
+   {
+    "name": "Marion County, IN",
+    "code": "18097",
+    "kind": "county"
+   },
+   {
+    "name": "Monroe County, IN",
+    "code": "18105",
+    "kind": "county"
+   },
+   {
+    "name": "Montgomery County, IN",
+    "code": "18107",
+    "kind": "county"
+   },
+   {
+    "name": "Morgan County, IN",
+    "code": "18109",
+    "kind": "county"
+   },
+   {
+    "name": "Owen County, IN",
+    "code": "18119",
+    "kind": "county"
+   },
+   {
+    "name": "Putnam County, IN",
+    "code": "18133",
+    "kind": "county"
+   },
+   {
+    "name": "Randolph County, IN",
+    "code": "18135",
+    "kind": "county"
+   },
+   {
+    "name": "Rush County, IN",
+    "code": "18139",
+    "kind": "county"
+   },
+   {
+    "name": "Shelby County, IN",
+    "code": "18145",
+    "kind": "county"
+   },
+   {
+    "name": "Tippecanoe County, IN",
+    "code": "18157",
+    "kind": "county"
+   },
+   {
+    "name": "Tipton County, IN",
+    "code": "18159",
+    "kind": "county"
+   },
+   {
+    "name": "Warren County, IN",
+    "code": "18171",
+    "kind": "county"
+   },
+   {
+    "name": "Wayne County, IN",
+    "code": "18177",
+    "kind": "county"
+   }
+  ],
+  "counties": 34,
+  "installations": 0,
+  "states": [
+   "IN"
+  ]
+ },
+ "KC": {
+  "places": [
+   {
+    "name": "Andrew County, MO",
+    "code": "29003",
+    "kind": "county"
+   },
+   {
+    "name": "Bates County, MO",
+    "code": "29013",
+    "kind": "county"
+   },
+   {
+    "name": "Buchanan County, MO",
+    "code": "29021",
+    "kind": "county"
+   },
+   {
+    "name": "Caldwell County, MO",
+    "code": "29025",
+    "kind": "county"
+   },
+   {
+    "name": "Carroll County, MO",
+    "code": "29033",
+    "kind": "county"
+   },
+   {
+    "name": "Cass County, MO",
+    "code": "29037",
+    "kind": "county"
+   },
+   {
+    "name": "Clay County, MO",
+    "code": "29047",
+    "kind": "county"
+   },
+   {
+    "name": "Clinton County, MO",
+    "code": "29049",
+    "kind": "county"
+   },
+   {
+    "name": "Daviess County, MO",
+    "code": "29061",
+    "kind": "county"
+   },
+   {
+    "name": "DeKalb County, MO",
+    "code": "29063",
+    "kind": "county"
+   },
+   {
+    "name": "Gentry County, MO",
+    "code": "29075",
+    "kind": "county"
+   },
+   {
+    "name": "Henry County, MO",
+    "code": "29083",
+    "kind": "county"
+   },
+   {
+    "name": "Holt County, MO",
+    "code": "29087",
+    "kind": "county"
+   },
+   {
+    "name": "Jackson County, MO",
+    "code": "29095",
+    "kind": "county"
+   },
+   {
+    "name": "Johnson County, MO",
+    "code": "29101",
+    "kind": "county"
+   },
+   {
+    "name": "Lafayette County, MO",
+    "code": "29107",
+    "kind": "county"
+   },
+   {
+    "name": "Platte County, MO",
+    "code": "29165",
+    "kind": "county"
+   },
+   {
+    "name": "Ray County, MO",
+    "code": "29177",
+    "kind": "county"
+   },
+   {
+    "name": "Anderson County, KS",
+    "code": "20003",
+    "kind": "county"
+   },
+   {
+    "name": "Atchison County, KS",
+    "code": "20005",
+    "kind": "county"
+   },
+   {
+    "name": "Doniphan County, KS",
+    "code": "20043",
+    "kind": "county"
+   },
+   {
+    "name": "Douglas County, KS",
+    "code": "20045",
+    "kind": "county"
+   },
+   {
+    "name": "Franklin County, KS",
+    "code": "20059",
+    "kind": "county"
+   },
+   {
+    "name": "Jackson County, KS",
+    "code": "20085",
+    "kind": "county"
+   },
+   {
+    "name": "Jefferson County, KS",
+    "code": "20087",
+    "kind": "county"
+   },
+   {
+    "name": "Johnson County, KS",
+    "code": "20091",
+    "kind": "county"
+   },
+   {
+    "name": "Leavenworth County, KS",
+    "code": "20103",
+    "kind": "county"
+   },
+   {
+    "name": "Linn County, KS",
+    "code": "20107",
+    "kind": "county"
+   },
+   {
+    "name": "Miami County, KS",
+    "code": "20121",
+    "kind": "county"
+   },
+   {
+    "name": "Osage County, KS",
+    "code": "20139",
+    "kind": "county"
+   },
+   {
+    "name": "Shawnee County, KS",
+    "code": "20177",
+    "kind": "county"
+   },
+   {
+    "name": "Wabaunsee County, KS",
+    "code": "20197",
+    "kind": "county"
+   },
+   {
+    "name": "Wyandotte County, KS",
+    "code": "20209",
+    "kind": "county"
+   }
+  ],
+  "counties": 33,
+  "installations": 0,
+  "states": [
+   "KS",
+   "MO"
+  ]
+ },
+ "LA": {
+  "places": [
+   {
+    "name": "Imperial County, CA",
+    "code": "06025",
+    "kind": "county"
+   },
+   {
+    "name": "Kern County, CA",
+    "code": "06029",
+    "kind": "county"
+   },
+   {
+    "name": "Los Angeles County, CA",
+    "code": "06037",
+    "kind": "county"
+   },
+   {
+    "name": "Orange County, CA",
+    "code": "06059",
+    "kind": "county"
+   },
+   {
+    "name": "Riverside County, CA",
+    "code": "06065",
+    "kind": "county"
+   },
+   {
+    "name": "San Bernardino County, CA",
+    "code": "06071",
+    "kind": "county"
+   },
+   {
+    "name": "San Luis Obispo County, CA",
+    "code": "06079",
+    "kind": "county"
+   },
+   {
+    "name": "Santa Barbara County, CA",
+    "code": "06083",
+    "kind": "county"
+   },
+   {
+    "name": "Ventura County, CA",
+    "code": "06111",
+    "kind": "county"
+   }
+  ],
+  "counties": 9,
+  "installations": 0,
+  "states": [
+   "CA"
+  ]
+ },
+ "LR": {
+  "places": [
+   {
+    "name": "Jim Hogg County, TX",
+    "code": "48247",
+    "kind": "county"
+   },
+   {
+    "name": "La Salle County, TX",
+    "code": "48283",
+    "kind": "county"
+   },
+   {
+    "name": "Webb County, TX",
+    "code": "48479",
+    "kind": "county"
+   }
+  ],
+  "counties": 3,
+  "installations": 0,
+  "states": [
+   "TX"
+  ]
+ },
+ "LV": {
+  "places": [
+   {
+    "name": "Clark County, NV",
+    "code": "32003",
+    "kind": "county"
+   },
+   {
+    "name": "Nye County, NV",
+    "code": "32023",
+    "kind": "county"
+   },
+   {
+    "name": "Mohave County, AZ",
+    "code": "04015",
+    "kind": "county"
+   }
+  ],
+  "counties": 3,
+  "installations": 0,
+  "states": [
+   "AZ",
+   "NV"
+  ]
+ },
+ "MFL": {
+  "places": [
+   {
+    "name": "Broward County, FL",
+    "code": "12011",
+    "kind": "county"
+   },
+   {
+    "name": "Indian River County, FL",
+    "code": "12061",
+    "kind": "county"
+   },
+   {
+    "name": "Martin County, FL",
+    "code": "12085",
+    "kind": "county"
+   },
+   {
+    "name": "Miami-Dade County, FL",
+    "code": "12086",
+    "kind": "county"
+   },
+   {
+    "name": "Monroe County, FL",
+    "code": "12087",
+    "kind": "county"
+   },
+   {
+    "name": "Okeechobee County, FL",
+    "code": "12093",
+    "kind": "county"
+   },
+   {
+    "name": "Palm Beach County, FL",
+    "code": "12099",
+    "kind": "county"
+   },
+   {
+    "name": "St. Lucie County, FL",
+    "code": "12111",
+    "kind": "county"
+   }
+  ],
+  "counties": 8,
+  "installations": 0,
+  "states": [
+   "FL"
+  ]
+ },
+ "MIL": {
+  "places": [
+   {
+    "name": "Dodge County, WI",
+    "code": "55027",
+    "kind": "county"
+   },
+   {
+    "name": "Fond du Lac County, WI",
+    "code": "55039",
+    "kind": "county"
+   },
+   {
+    "name": "Jefferson County, WI",
+    "code": "55055",
+    "kind": "county"
+   },
+   {
+    "name": "Milwaukee County, WI",
+    "code": "55079",
+    "kind": "county"
+   },
+   {
+    "name": "Ozaukee County, WI",
+    "code": "55089",
+    "kind": "county"
+   },
+   {
+    "name": "Racine County, WI",
+    "code": "55101",
+    "kind": "county"
+   },
+   {
+    "name": "Sheboygan County, WI",
+    "code": "55117",
+    "kind": "county"
+   },
+   {
+    "name": "Walworth County, WI",
+    "code": "55127",
+    "kind": "county"
+   },
+   {
+    "name": "Washington County, WI",
+    "code": "55131",
+    "kind": "county"
+   },
+   {
+    "name": "Waukesha County, WI",
+    "code": "55133",
+    "kind": "county"
+   }
+  ],
+  "counties": 10,
+  "installations": 0,
+  "states": [
+   "WI"
+  ]
+ },
+ "MSP": {
+  "places": [
+   {
+    "name": "Anoka County, MN",
+    "code": "27003",
+    "kind": "county"
+   },
+   {
+    "name": "Benton County, MN",
+    "code": "27009",
+    "kind": "county"
+   },
+   {
+    "name": "Blue Earth County, MN",
+    "code": "27013",
+    "kind": "county"
+   },
+   {
+    "name": "Brown County, MN",
+    "code": "27015",
+    "kind": "county"
+   },
+   {
+    "name": "Carver County, MN",
+    "code": "27019",
+    "kind": "county"
+   },
+   {
+    "name": "Chisago County, MN",
+    "code": "27025",
+    "kind": "county"
+   },
+   {
+    "name": "Dakota County, MN",
+    "code": "27037",
+    "kind": "county"
+   },
+   {
+    "name": "Dodge County, MN",
+    "code": "27039",
+    "kind": "county"
+   },
+   {
+    "name": "Fillmore County, MN",
+    "code": "27045",
+    "kind": "county"
+   },
+   {
+    "name": "Goodhue County, MN",
+    "code": "27049",
+    "kind": "county"
+   },
+   {
+    "name": "Hennepin County, MN",
+    "code": "27053",
+    "kind": "county"
+   },
+   {
+    "name": "Isanti County, MN",
+    "code": "27059",
+    "kind": "county"
+   },
+   {
+    "name": "Kanabec County, MN",
+    "code": "27065",
+    "kind": "county"
+   },
+   {
+    "name": "Le Sueur County, MN",
+    "code": "27079",
+    "kind": "county"
+   },
+   {
+    "name": "McLeod County, MN",
+    "code": "27085",
+    "kind": "county"
+   },
+   {
+    "name": "Meeker County, MN",
+    "code": "27093",
+    "kind": "county"
+   },
+   {
+    "name": "Mille Lacs County, MN",
+    "code": "27095",
+    "kind": "county"
+   },
+   {
+    "name": "Morrison County, MN",
+    "code": "27097",
+    "kind": "county"
+   },
+   {
+    "name": "Mower County, MN",
+    "code": "27099",
+    "kind": "county"
+   },
+   {
+    "name": "Nicollet County, MN",
+    "code": "27103",
+    "kind": "county"
+   },
+   {
+    "name": "Olmsted County, MN",
+    "code": "27109",
+    "kind": "county"
+   },
+   {
+    "name": "Pine County, MN",
+    "code": "27115",
+    "kind": "county"
+   },
+   {
+    "name": "Ramsey County, MN",
+    "code": "27123",
+    "kind": "county"
+   },
+   {
+    "name": "Rice County, MN",
+    "code": "27131",
+    "kind": "county"
+   },
+   {
+    "name": "Scott County, MN",
+    "code": "27139",
+    "kind": "county"
+   },
+   {
+    "name": "Sherburne County, MN",
+    "code": "27141",
+    "kind": "county"
+   },
+   {
+    "name": "Sibley County, MN",
+    "code": "27143",
+    "kind": "county"
+   },
+   {
+    "name": "Stearns County, MN",
+    "code": "27145",
+    "kind": "county"
+   },
+   {
+    "name": "Steele County, MN",
+    "code": "27147",
+    "kind": "county"
+   },
+   {
+    "name": "Wabasha County, MN",
+    "code": "27157",
+    "kind": "county"
+   },
+   {
+    "name": "Waseca County, MN",
+    "code": "27161",
+    "kind": "county"
+   },
+   {
+    "name": "Washington County, MN",
+    "code": "27163",
+    "kind": "county"
+   },
+   {
+    "name": "Wright County, MN",
+    "code": "27171",
+    "kind": "county"
+   },
+   {
+    "name": "Pierce County, WI",
+    "code": "55093",
+    "kind": "county"
+   },
+   {
+    "name": "Polk County, WI",
+    "code": "55095",
+    "kind": "county"
+   },
+   {
+    "name": "St. Croix County, WI",
+    "code": "55109",
+    "kind": "county"
+   }
+  ],
+  "counties": 36,
+  "installations": 0,
+  "states": [
+   "MN",
+   "WI"
+  ]
+ },
+ "NY": {
+  "places": [
+   {
+    "name": "Bronx County, NY",
+    "code": "36005",
+    "kind": "county"
+   },
+   {
+    "name": "Dutchess County, NY",
+    "code": "36027",
+    "kind": "county"
+   },
+   {
+    "name": "Kings County, NY",
+    "code": "36047",
+    "kind": "county"
+   },
+   {
+    "name": "Nassau County, NY",
+    "code": "36059",
+    "kind": "county"
+   },
+   {
+    "name": "New York County, NY",
+    "code": "36061",
+    "kind": "county"
+   },
+   {
+    "name": "Orange County, NY",
+    "code": "36071",
+    "kind": "county"
+   },
+   {
+    "name": "Putnam County, NY",
+    "code": "36079",
+    "kind": "county"
+   },
+   {
+    "name": "Queens County, NY",
+    "code": "36081",
+    "kind": "county"
+   },
+   {
+    "name": "Richmond County, NY",
+    "code": "36085",
+    "kind": "county"
+   },
+   {
+    "name": "Rockland County, NY",
+    "code": "36087",
+    "kind": "county"
+   },
+   {
+    "name": "Suffolk County, NY",
+    "code": "36103",
+    "kind": "county"
+   },
+   {
+    "name": "Sullivan County, NY",
+    "code": "36105",
+    "kind": "county"
+   },
+   {
+    "name": "Ulster County, NY",
+    "code": "36111",
+    "kind": "county"
+   },
+   {
+    "name": "Westchester County, NY",
+    "code": "36119",
+    "kind": "county"
+   },
+   {
+    "name": "Bergen County, NJ",
+    "code": "34003",
+    "kind": "county"
+   },
+   {
+    "name": "Essex County, NJ",
+    "code": "34013",
+    "kind": "county"
+   },
+   {
+    "name": "Fort Dix, NJ",
+    "code": "341052005",
+    "kind": "installation"
+   },
+   {
+    "name": "Hudson County, NJ",
+    "code": "34017",
+    "kind": "county"
+   },
+   {
+    "name": "Hunterdon County, NJ",
+    "code": "34019",
+    "kind": "county"
+   },
+   {
+    "name": "Joint Base McGuire-Dix-Lakehurst",
+    "code": "341530005",
+    "kind": "installation"
+   },
+   {
+    "name": "McGuire Air Force Base, NJ",
+    "code": "341778005",
+    "kind": "installation"
+   },
+   {
+    "name": "Mercer County, NJ",
+    "code": "34021",
+    "kind": "county"
+   },
+   {
+    "name": "Middlesex County, NJ",
+    "code": "34023",
+    "kind": "county"
+   },
+   {
+    "name": "Monmouth County, NJ",
+    "code": "34025",
+    "kind": "county"
+   },
+   {
+    "name": "Morris County, NJ",
+    "code": "34027",
+    "kind": "county"
+   },
+   {
+    "name": "Ocean County, NJ",
+    "code": "34029",
+    "kind": "county"
+   },
+   {
+    "name": "Passaic County, NJ",
+    "code": "34031",
+    "kind": "county"
+   },
+   {
+    "name": "Somerset County, NJ",
+    "code": "34035",
+    "kind": "county"
+   },
+   {
+    "name": "Sussex County, NJ",
+    "code": "34037",
+    "kind": "county"
+   },
+   {
+    "name": "Union County, NJ",
+    "code": "34039",
+    "kind": "county"
+   },
+   {
+    "name": "Warren County, NJ",
+    "code": "34041",
+    "kind": "county"
+   },
+   {
+    "name": "Fairfield County, CT",
+    "code": "09001",
+    "kind": "county"
+   },
+   {
+    "name": "Litchfield County, CT",
+    "code": "09005",
+    "kind": "county"
+   },
+   {
+    "name": "New Haven County, CT",
+    "code": "09009",
+    "kind": "county"
+   },
+   {
+    "name": "Carbon County, PA",
+    "code": "42025",
+    "kind": "county"
+   },
+   {
+    "name": "Lehigh County, PA",
+    "code": "42077",
+    "kind": "county"
+   },
+   {
+    "name": "Monroe County, PA",
+    "code": "42089",
+    "kind": "county"
+   },
+   {
+    "name": "Northampton County, PA",
+    "code": "42095",
+    "kind": "county"
+   },
+   {
+    "name": "Pike County, PA",
+    "code": "42103",
+    "kind": "county"
+   },
+   {
+    "name": "Wayne County, PA",
+    "code": "42127",
+    "kind": "county"
+   }
+  ],
+  "counties": 37,
+  "installations": 3,
+  "states": [
+   "CT",
+   "NJ",
+   "NY",
+   "PA"
+  ]
+ },
+ "OM": {
+  "places": [
+   {
+    "name": "Burt County, NE",
+    "code": "31021",
+    "kind": "county"
+   },
+   {
+    "name": "Cass County, NE",
+    "code": "31025",
+    "kind": "county"
+   },
+   {
+    "name": "Dodge County, NE",
+    "code": "31053",
+    "kind": "county"
+   },
+   {
+    "name": "Douglas County, NE",
+    "code": "31055",
+    "kind": "county"
+   },
+   {
+    "name": "Sarpy County, NE",
+    "code": "31153",
+    "kind": "county"
+   },
+   {
+    "name": "Saunders County, NE",
+    "code": "31155",
+    "kind": "county"
+   },
+   {
+    "name": "Washington County, NE",
+    "code": "31177",
+    "kind": "county"
+   },
+   {
+    "name": "Fremont County, IA",
+    "code": "19071",
+    "kind": "county"
+   },
+   {
+    "name": "Harrison County, IA",
+    "code": "19085",
+    "kind": "county"
+   },
+   {
+    "name": "Mills County, IA",
+    "code": "19129",
+    "kind": "county"
+   },
+   {
+    "name": "Pottawattamie County, IA",
+    "code": "19155",
+    "kind": "county"
+   },
+   {
+    "name": "Shelby County, IA",
+    "code": "19165",
+    "kind": "county"
+   }
+  ],
+  "counties": 12,
+  "installations": 0,
+  "states": [
+   "IA",
+   "NE"
+  ]
+ },
+ "PB": {
+  "places": [
+   {
+    "name": "Brevard County, FL",
+    "code": "12009",
+    "kind": "county"
+   }
+  ],
+  "counties": 1,
+  "installations": 0,
+  "states": [
+   "FL"
+  ]
+ },
+ "PHL": {
+  "places": [
+   {
+    "name": "Berks County, PA",
+    "code": "42011",
+    "kind": "county"
+   },
+   {
+    "name": "Bucks County, PA",
+    "code": "42017",
+    "kind": "county"
+   },
+   {
+    "name": "Chester County, PA",
+    "code": "42029",
+    "kind": "county"
+   },
+   {
+    "name": "Delaware County, PA",
+    "code": "42045",
+    "kind": "county"
+   },
+   {
+    "name": "Montgomery County, PA",
+    "code": "42091",
+    "kind": "county"
+   },
+   {
+    "name": "Philadelphia County, PA",
+    "code": "42101",
+    "kind": "county"
+   },
+   {
+    "name": "Schuylkill County, PA",
+    "code": "42107",
+    "kind": "county"
+   },
+   {
+    "name": "Atlantic County, NJ",
+    "code": "34001",
+    "kind": "county"
+   },
+   {
+    "name": "Burlington County, NJ",
+    "code": "34005",
+    "kind": "county"
+   },
+   {
+    "name": "Camden County, NJ",
+    "code": "34007",
+    "kind": "county"
+   },
+   {
+    "name": "Cape May County, NJ",
+    "code": "34009",
+    "kind": "county"
+   },
+   {
+    "name": "Cumberland County, NJ",
+    "code": "34011",
+    "kind": "county"
+   },
+   {
+    "name": "Gloucester County, NJ",
+    "code": "34015",
+    "kind": "county"
+   },
+   {
+    "name": "Salem County, NJ",
+    "code": "34033",
+    "kind": "county"
+   },
+   {
+    "name": "Kent County, DE",
+    "code": "10001",
+    "kind": "county"
+   },
+   {
+    "name": "New Castle County, DE",
+    "code": "10003",
+    "kind": "county"
+   },
+   {
+    "name": "Sussex County, DE",
+    "code": "10005",
+    "kind": "county"
+   },
+   {
+    "name": "Cecil County, MD",
+    "code": "24015",
+    "kind": "county"
+   },
+   {
+    "name": "Somerset County, MD",
+    "code": "24039",
+    "kind": "county"
+   },
+   {
+    "name": "Wicomico County, MD",
+    "code": "24045",
+    "kind": "county"
+   },
+   {
+    "name": "Worcester County, MD",
+    "code": "24047",
+    "kind": "county"
+   }
+  ],
+  "counties": 21,
+  "installations": 0,
+  "states": [
+   "DE",
+   "MD",
+   "NJ",
+   "PA"
+  ]
+ },
+ "PIT": {
+  "places": [
+   {
+    "name": "Allegheny County, PA",
+    "code": "42003",
+    "kind": "county"
+   },
+   {
+    "name": "Armstrong County, PA",
+    "code": "42005",
+    "kind": "county"
+   },
+   {
+    "name": "Beaver County, PA",
+    "code": "42007",
+    "kind": "county"
+   },
+   {
+    "name": "Butler County, PA",
+    "code": "42019",
+    "kind": "county"
+   },
+   {
+    "name": "Cambria County, PA",
+    "code": "42021",
+    "kind": "county"
+   },
+   {
+    "name": "Fayette County, PA",
+    "code": "42051",
+    "kind": "county"
+   },
+   {
+    "name": "Greene County, PA",
+    "code": "42059",
+    "kind": "county"
+   },
+   {
+    "name": "Indiana County, PA",
+    "code": "42063",
+    "kind": "county"
+   },
+   {
+    "name": "Lawrence County, PA",
+    "code": "42073",
+    "kind": "county"
+   },
+   {
+    "name": "Somerset County, PA",
+    "code": "42111",
+    "kind": "county"
+   },
+   {
+    "name": "Washington County, PA",
+    "code": "42125",
+    "kind": "county"
+   },
+   {
+    "name": "Westmoreland County, PA",
+    "code": "42129",
+    "kind": "county"
+   },
+   {
+    "name": "Belmont County, OH",
+    "code": "39013",
+    "kind": "county"
+   },
+   {
+    "name": "Jefferson County, OH",
+    "code": "39081",
+    "kind": "county"
+   },
+   {
+    "name": "Brooke County, WV",
+    "code": "54009",
+    "kind": "county"
+   },
+   {
+    "name": "Hancock County, WV",
+    "code": "54029",
+    "kind": "county"
+   },
+   {
+    "name": "Marshall County, WV",
+    "code": "54051",
+    "kind": "county"
+   },
+   {
+    "name": "Ohio County, WV",
+    "code": "54069",
+    "kind": "county"
+   }
+  ],
+  "counties": 18,
+  "installations": 0,
+  "states": [
+   "OH",
+   "PA",
+   "WV"
+  ]
+ },
+ "POR": {
+  "places": [
+   {
+    "name": "Benton County, OR",
+    "code": "41003",
+    "kind": "county"
+   },
+   {
+    "name": "Clackamas County, OR",
+    "code": "41005",
+    "kind": "county"
+   },
+   {
+    "name": "Columbia County, OR",
+    "code": "41009",
+    "kind": "county"
+   },
+   {
+    "name": "Linn County, OR",
+    "code": "41043",
+    "kind": "county"
+   },
+   {
+    "name": "Marion County, OR",
+    "code": "41047",
+    "kind": "county"
+   },
+   {
+    "name": "Multnomah County, OR",
+    "code": "41051",
+    "kind": "county"
+   },
+   {
+    "name": "Polk County, OR",
+    "code": "41053",
+    "kind": "county"
+   },
+   {
+    "name": "Washington County, OR",
+    "code": "41067",
+    "kind": "county"
+   },
+   {
+    "name": "Yamhill County, OR",
+    "code": "41071",
+    "kind": "county"
+   },
+   {
+    "name": "Clark County, WA",
+    "code": "53011",
+    "kind": "county"
+   },
+   {
+    "name": "Cowlitz County, WA",
+    "code": "53015",
+    "kind": "county"
+   },
+   {
+    "name": "Skamania County, WA",
+    "code": "53059",
+    "kind": "county"
+   },
+   {
+    "name": "Wahkiakum County, WA",
+    "code": "53069",
+    "kind": "county"
+   }
+  ],
+  "counties": 13,
+  "installations": 0,
+  "states": [
+   "OR",
+   "WA"
+  ]
+ },
+ "PX": {
+  "places": [
+   {
+    "name": "Gila County, AZ",
+    "code": "04007",
+    "kind": "county"
+   },
+   {
+    "name": "Maricopa County, AZ",
+    "code": "04013",
+    "kind": "county"
+   },
+   {
+    "name": "Pinal County, AZ",
+    "code": "04021",
+    "kind": "county"
+   }
+  ],
+  "counties": 3,
+  "installations": 0,
+  "states": [
+   "AZ"
+  ]
+ },
+ "RA": {
+  "places": [
+   {
+    "name": "Caswell County, NC",
+    "code": "37033",
+    "kind": "county"
+   },
+   {
+    "name": "Chatham County, NC",
+    "code": "37037",
+    "kind": "county"
+   },
+   {
+    "name": "Cumberland County, NC",
+    "code": "37051",
+    "kind": "county"
+   },
+   {
+    "name": "Durham County, NC",
+    "code": "37063",
+    "kind": "county"
+   },
+   {
+    "name": "Edgecombe County, NC",
+    "code": "37065",
+    "kind": "county"
+   },
+   {
+    "name": "Franklin County, NC",
+    "code": "37069",
+    "kind": "county"
+   },
+   {
+    "name": "Granville County, NC",
+    "code": "37077",
+    "kind": "county"
+   },
+   {
+    "name": "Halifax County, NC",
+    "code": "37083",
+    "kind": "county"
+   },
+   {
+    "name": "Harnett County, NC",
+    "code": "37085",
+    "kind": "county"
+   },
+   {
+    "name": "Hoke County, NC",
+    "code": "37093",
+    "kind": "county"
+   },
+   {
+    "name": "Johnston County, NC",
+    "code": "37101",
+    "kind": "county"
+   },
+   {
+    "name": "Lee County, NC",
+    "code": "37105",
+    "kind": "county"
+   },
+   {
+    "name": "Moore County, NC",
+    "code": "37125",
+    "kind": "county"
+   },
+   {
+    "name": "Nash County, NC",
+    "code": "37127",
+    "kind": "county"
+   },
+   {
+    "name": "Northampton County, NC",
+    "code": "37131",
+    "kind": "county"
+   },
+   {
+    "name": "Orange County, NC",
+    "code": "37135",
+    "kind": "county"
+   },
+   {
+    "name": "Person County, NC",
+    "code": "37145",
+    "kind": "county"
+   },
+   {
+    "name": "Robeson County, NC",
+    "code": "37155",
+    "kind": "county"
+   },
+   {
+    "name": "Scotland County, NC",
+    "code": "37165",
+    "kind": "county"
+   },
+   {
+    "name": "Vance County, NC",
+    "code": "37181",
+    "kind": "county"
+   },
+   {
+    "name": "Wake County, NC",
+    "code": "37183",
+    "kind": "county"
+   },
+   {
+    "name": "Warren County, NC",
+    "code": "37185",
+    "kind": "county"
+   },
+   {
+    "name": "Wayne County, NC",
+    "code": "37191",
+    "kind": "county"
+   },
+   {
+    "name": "Wilson County, NC",
+    "code": "37195",
+    "kind": "county"
+   }
+  ],
+  "counties": 24,
+  "installations": 0,
+  "states": [
+   "NC"
+  ]
+ },
+ "RCH": {
+  "places": [
+   {
+    "name": "Amelia County, VA",
+    "code": "51007",
+    "kind": "county"
+   },
+   {
+    "name": "Brunswick County, VA",
+    "code": "51025",
+    "kind": "county"
+   },
+   {
+    "name": "Charles City County, VA",
+    "code": "51036",
+    "kind": "county"
+   },
+   {
+    "name": "Chesterfield County, VA",
+    "code": "51041",
+    "kind": "county"
+   },
+   {
+    "name": "Cumberland County, VA",
+    "code": "51049",
+    "kind": "county"
+   },
+   {
+    "name": "Dinwiddie County, VA",
+    "code": "51053",
+    "kind": "county"
+   },
+   {
+    "name": "Essex County, VA",
+    "code": "51057",
+    "kind": "county"
+   },
+   {
+    "name": "Goochland County, VA",
+    "code": "51075",
+    "kind": "county"
+   },
+   {
+    "name": "Greensville County, VA",
+    "code": "51081",
+    "kind": "county"
+   },
+   {
+    "name": "Hanover County, VA",
+    "code": "51085",
+    "kind": "county"
+   },
+   {
+    "name": "Henrico County, VA",
+    "code": "51087",
+    "kind": "county"
+   },
+   {
+    "name": "King and Queen County, VA",
+    "code": "51097",
+    "kind": "county"
+   },
+   {
+    "name": "King William County, VA",
+    "code": "51101",
+    "kind": "county"
+   },
+   {
+    "name": "Louisa County, VA",
+    "code": "51109",
+    "kind": "county"
+   },
+   {
+    "name": "New Kent County, VA",
+    "code": "51127",
+    "kind": "county"
+   },
+   {
+    "name": "Nottoway County, VA",
+    "code": "51135",
+    "kind": "county"
+   },
+   {
+    "name": "Powhatan County, VA",
+    "code": "51145",
+    "kind": "county"
+   },
+   {
+    "name": "Prince George County, VA",
+    "code": "51149",
+    "kind": "county"
+   },
+   {
+    "name": "Sussex County, VA",
+    "code": "51183",
+    "kind": "county"
+   },
+   {
+    "name": "Colonial Heights city, VA",
+    "code": "51570",
+    "kind": "county"
+   },
+   {
+    "name": "Emporia city, VA",
+    "code": "51595",
+    "kind": "county"
+   },
+   {
+    "name": "Hopewell city, VA",
+    "code": "51670",
+    "kind": "county"
+   },
+   {
+    "name": "Petersburg city, VA",
+    "code": "51730",
+    "kind": "county"
+   },
+   {
+    "name": "Richmond city, VA",
+    "code": "51760",
+    "kind": "county"
+   }
+  ],
+  "counties": 24,
+  "installations": 0,
+  "states": [
+   "VA"
+  ]
+ },
+ "RN": {
+  "places": [
+   {
+    "name": "Churchill County, NV",
+    "code": "32001",
+    "kind": "county"
+   },
+   {
+    "name": "Lyon County, NV",
+    "code": "32019",
+    "kind": "county"
+   },
+   {
+    "name": "Storey County, NV",
+    "code": "32029",
+    "kind": "county"
+   },
+   {
+    "name": "Washoe County, NV",
+    "code": "32031",
+    "kind": "county"
+   }
+  ],
+  "counties": 4,
+  "installations": 0,
+  "states": [
+   "NV"
+  ]
+ },
+ "RT": {
+  "places": [
+   {
+    "name": "Genesee County, NY",
+    "code": "36037",
+    "kind": "county"
+   },
+   {
+    "name": "Livingston County, NY",
+    "code": "36051",
+    "kind": "county"
+   },
+   {
+    "name": "Monroe County, NY",
+    "code": "36055",
+    "kind": "county"
+   },
+   {
+    "name": "Ontario County, NY",
+    "code": "36069",
+    "kind": "county"
+   },
+   {
+    "name": "Orleans County, NY",
+    "code": "36073",
+    "kind": "county"
+   },
+   {
+    "name": "Seneca County, NY",
+    "code": "36099",
+    "kind": "county"
+   },
+   {
+    "name": "Wayne County, NY",
+    "code": "36117",
+    "kind": "county"
+   },
+   {
+    "name": "Yates County, NY",
+    "code": "36123",
+    "kind": "county"
+   }
+  ],
+  "counties": 8,
+  "installations": 0,
+  "states": [
+   "NY"
+  ]
+ },
+ "RUS": {
+  "places": [],
+  "counties": 0,
+  "installations": 0,
+  "states": []
+ },
+ "SAC": {
+  "places": [
+   {
+    "name": "Alpine County, CA",
+    "code": "06003",
+    "kind": "county"
+   },
+   {
+    "name": "Amador County, CA",
+    "code": "06005",
+    "kind": "county"
+   },
+   {
+    "name": "Butte County, CA",
+    "code": "06007",
+    "kind": "county"
+   },
+   {
+    "name": "Colusa County, CA",
+    "code": "06011",
+    "kind": "county"
+   },
+   {
+    "name": "El Dorado County, CA",
+    "code": "06017",
+    "kind": "county"
+   },
+   {
+    "name": "Nevada County, CA",
+    "code": "06057",
+    "kind": "county"
+   },
+   {
+    "name": "Placer County, CA",
+    "code": "06061",
+    "kind": "county"
+   },
+   {
+    "name": "Sacramento County, CA",
+    "code": "06067",
+    "kind": "county"
+   },
+   {
+    "name": "Sierra County, CA",
+    "code": "06091",
+    "kind": "county"
+   },
+   {
+    "name": "Sutter County, CA",
+    "code": "06101",
+    "kind": "county"
+   },
+   {
+    "name": "Yolo County, CA",
+    "code": "06113",
+    "kind": "county"
+   },
+   {
+    "name": "Yuba County, CA",
+    "code": "06115",
+    "kind": "county"
+   },
+   {
+    "name": "Douglas County, NV",
+    "code": "32005",
+    "kind": "county"
+   },
+   {
+    "name": "Carson City, NV",
+    "code": "32510",
+    "kind": "county"
+   }
+  ],
+  "counties": 14,
+  "installations": 0,
+  "states": [
+   "CA",
+   "NV"
+  ]
+ },
+ "SD": {
+  "places": [
+   {
+    "name": "San Diego County, CA",
+    "code": "06073",
+    "kind": "county"
+   }
+  ],
+  "counties": 1,
+  "installations": 0,
+  "states": [
+   "CA"
+  ]
+ },
+ "SEA": {
+  "places": [
+   {
+    "name": "Clallam County, WA",
+    "code": "53009",
+    "kind": "county"
+   },
+   {
+    "name": "Grays Harbor County, WA",
+    "code": "53027",
+    "kind": "county"
+   },
+   {
+    "name": "Island County, WA",
+    "code": "53029",
+    "kind": "county"
+   },
+   {
+    "name": "Jefferson County, WA",
+    "code": "53031",
+    "kind": "county"
+   },
+   {
+    "name": "King County, WA",
+    "code": "53033",
+    "kind": "county"
+   },
+   {
+    "name": "Kitsap County, WA",
+    "code": "53035",
+    "kind": "county"
+   },
+   {
+    "name": "Lewis County, WA",
+    "code": "53041",
+    "kind": "county"
+   },
+   {
+    "name": "Mason County, WA",
+    "code": "53045",
+    "kind": "county"
+   },
+   {
+    "name": "Pacific County, WA",
+    "code": "53049",
+    "kind": "county"
+   },
+   {
+    "name": "Pierce County, WA",
+    "code": "53053",
+    "kind": "county"
+   },
+   {
+    "name": "San Juan County, WA",
+    "code": "53055",
+    "kind": "county"
+   },
+   {
+    "name": "Skagit County, WA",
+    "code": "53057",
+    "kind": "county"
+   },
+   {
+    "name": "Snohomish County, WA",
+    "code": "53061",
+    "kind": "county"
+   },
+   {
+    "name": "Thurston County, WA",
+    "code": "53067",
+    "kind": "county"
+   },
+   {
+    "name": "Whatcom County, WA",
+    "code": "53073",
+    "kind": "county"
+   }
+  ],
+  "counties": 15,
+  "installations": 0,
+  "states": [
+   "WA"
+  ]
+ },
+ "SF": {
+  "places": [
+   {
+    "name": "Alameda County, CA",
+    "code": "06001",
+    "kind": "county"
+   },
+   {
+    "name": "Calaveras County, CA",
+    "code": "06009",
+    "kind": "county"
+   },
+   {
+    "name": "Contra Costa County, CA",
+    "code": "06013",
+    "kind": "county"
+   },
+   {
+    "name": "Marin County, CA",
+    "code": "06041",
+    "kind": "county"
+   },
+   {
+    "name": "Merced County, CA",
+    "code": "06047",
+    "kind": "county"
+   },
+   {
+    "name": "Monterey County, CA",
+    "code": "06053",
+    "kind": "county"
+   },
+   {
+    "name": "Napa County, CA",
+    "code": "06055",
+    "kind": "county"
+   },
+   {
+    "name": "San Benito County, CA",
+    "code": "06069",
+    "kind": "county"
+   },
+   {
+    "name": "San Francisco County, CA",
+    "code": "06075",
+    "kind": "county"
+   },
+   {
+    "name": "San Joaquin County, CA",
+    "code": "06077",
+    "kind": "county"
+   },
+   {
+    "name": "San Mateo County, CA",
+    "code": "06081",
+    "kind": "county"
+   },
+   {
+    "name": "Santa Clara County, CA",
+    "code": "06085",
+    "kind": "county"
+   },
+   {
+    "name": "Santa Cruz County, CA",
+    "code": "06087",
+    "kind": "county"
+   },
+   {
+    "name": "Solano County, CA",
+    "code": "06095",
+    "kind": "county"
+   },
+   {
+    "name": "Sonoma County, CA",
+    "code": "06097",
+    "kind": "county"
+   },
+   {
+    "name": "Stanislaus County, CA",
+    "code": "06099",
+    "kind": "county"
+   }
+  ],
+  "counties": 16,
+  "installations": 0,
+  "states": [
+   "CA"
+  ]
+ },
+ "SL": {
+  "places": [
+   {
+    "name": "Crawford County, MO",
+    "code": "29055",
+    "kind": "county"
+   },
+   {
+    "name": "Franklin County, MO",
+    "code": "29071",
+    "kind": "county"
+   },
+   {
+    "name": "Gasconade County, MO",
+    "code": "29073",
+    "kind": "county"
+   },
+   {
+    "name": "Iron County, MO",
+    "code": "29093",
+    "kind": "county"
+   },
+   {
+    "name": "Jefferson County, MO",
+    "code": "29099",
+    "kind": "county"
+   },
+   {
+    "name": "Lincoln County, MO",
+    "code": "29113",
+    "kind": "county"
+   },
+   {
+    "name": "Madison County, MO",
+    "code": "29123",
+    "kind": "county"
+   },
+   {
+    "name": "Montgomery County, MO",
+    "code": "29139",
+    "kind": "county"
+   },
+   {
+    "name": "Pike County, MO",
+    "code": "29163",
+    "kind": "county"
+   },
+   {
+    "name": "St. Charles County, MO",
+    "code": "29183",
+    "kind": "county"
+   },
+   {
+    "name": "Ste. Genevieve County, MO",
+    "code": "29186",
+    "kind": "county"
+   },
+   {
+    "name": "St. Francois County, MO",
+    "code": "29187",
+    "kind": "county"
+   },
+   {
+    "name": "St. Louis County, MO",
+    "code": "29189",
+    "kind": "county"
+   },
+   {
+    "name": "Warren County, MO",
+    "code": "29219",
+    "kind": "county"
+   },
+   {
+    "name": "Washington County, MO",
+    "code": "29221",
+    "kind": "county"
+   },
+   {
+    "name": "St. Louis city, MO",
+    "code": "29510",
+    "kind": "county"
+   },
+   {
+    "name": "Bond County, IL",
+    "code": "17005",
+    "kind": "county"
+   },
+   {
+    "name": "Calhoun County, IL",
+    "code": "17013",
+    "kind": "county"
+   },
+   {
+    "name": "Clinton County, IL",
+    "code": "17027",
+    "kind": "county"
+   },
+   {
+    "name": "Fayette County, IL",
+    "code": "17051",
+    "kind": "county"
+   },
+   {
+    "name": "Greene County, IL",
+    "code": "17061",
+    "kind": "county"
+   },
+   {
+    "name": "Jersey County, IL",
+    "code": "17083",
+    "kind": "county"
+   },
+   {
+    "name": "Macoupin County, IL",
+    "code": "17117",
+    "kind": "county"
+   },
+   {
+    "name": "Madison County, IL",
+    "code": "17119",
+    "kind": "county"
+   },
+   {
+    "name": "Marion County, IL",
+    "code": "17121",
+    "kind": "county"
+   },
+   {
+    "name": "Monroe County, IL",
+    "code": "17133",
+    "kind": "county"
+   },
+   {
+    "name": "Montgomery County, IL",
+    "code": "17135",
+    "kind": "county"
+   },
+   {
+    "name": "Randolph County, IL",
+    "code": "17157",
+    "kind": "county"
+   },
+   {
+    "name": "St. Clair County, IL",
+    "code": "17163",
+    "kind": "county"
+   },
+   {
+    "name": "Washington County, IL",
+    "code": "17189",
+    "kind": "county"
+   }
+  ],
+  "counties": 30,
+  "installations": 0,
+  "states": [
+   "IL",
+   "MO"
+  ]
+ },
+ "SN": {
+  "places": [
+   {
+    "name": "Ferry County, WA",
+    "code": "53019",
+    "kind": "county"
+   },
+   {
+    "name": "Lincoln County, WA",
+    "code": "53043",
+    "kind": "county"
+   },
+   {
+    "name": "Pend Oreille County, WA",
+    "code": "53051",
+    "kind": "county"
+   },
+   {
+    "name": "Spokane County, WA",
+    "code": "53063",
+    "kind": "county"
+   },
+   {
+    "name": "Stevens County, WA",
+    "code": "53065",
+    "kind": "county"
+   },
+   {
+    "name": "Benewah County, ID",
+    "code": "16009",
+    "kind": "county"
+   },
+   {
+    "name": "Kootenai County, ID",
+    "code": "16055",
+    "kind": "county"
+   },
+   {
+    "name": "Shoshone County, ID",
+    "code": "16079",
+    "kind": "county"
+   }
+  ],
+  "counties": 8,
+  "installations": 0,
+  "states": [
+   "ID",
+   "WA"
+  ]
+ },
+ "SO": {
+  "places": [
+   {
+    "name": "Atascosa County, TX",
+    "code": "48013",
+    "kind": "county"
+   },
+   {
+    "name": "Bandera County, TX",
+    "code": "48019",
+    "kind": "county"
+   },
+   {
+    "name": "Bexar County, TX",
+    "code": "48029",
+    "kind": "county"
+   },
+   {
+    "name": "Comal County, TX",
+    "code": "48091",
+    "kind": "county"
+   },
+   {
+    "name": "Frio County, TX",
+    "code": "48163",
+    "kind": "county"
+   },
+   {
+    "name": "Gillespie County, TX",
+    "code": "48171",
+    "kind": "county"
+   },
+   {
+    "name": "Gonzales County, TX",
+    "code": "48177",
+    "kind": "county"
+   },
+   {
+    "name": "Guadalupe County, TX",
+    "code": "48187",
+    "kind": "county"
+   },
+   {
+    "name": "Karnes County, TX",
+    "code": "48255",
+    "kind": "county"
+   },
+   {
+    "name": "Kendall County, TX",
+    "code": "48259",
+    "kind": "county"
+   },
+   {
+    "name": "Kerr County, TX",
+    "code": "48265",
+    "kind": "county"
+   },
+   {
+    "name": "McMullen County, TX",
+    "code": "48311",
+    "kind": "county"
+   },
+   {
+    "name": "Medina County, TX",
+    "code": "48325",
+    "kind": "county"
+   },
+   {
+    "name": "Wilson County, TX",
+    "code": "48493",
+    "kind": "county"
+   }
+  ],
+  "counties": 14,
+  "installations": 0,
+  "states": [
+   "TX"
+  ]
+ },
+ "TU": {
+  "places": [
+   {
+    "name": "Cochise County, AZ",
+    "code": "04003",
+    "kind": "county"
+   },
+   {
+    "name": "Pima County, AZ",
+    "code": "04019",
+    "kind": "county"
+   },
+   {
+    "name": "Santa Cruz County, AZ",
+    "code": "04023",
+    "kind": "county"
+   }
+  ],
+  "counties": 3,
+  "installations": 0,
+  "states": [
+   "AZ"
+  ]
+ },
+ "VB": {
+  "places": [
+   {
+    "name": "Gloucester County, VA",
+    "code": "51073",
+    "kind": "county"
+   },
+   {
+    "name": "Isle of Wight County, VA",
+    "code": "51093",
+    "kind": "county"
+   },
+   {
+    "name": "James City County, VA",
+    "code": "51095",
+    "kind": "county"
+   },
+   {
+    "name": "Mathews County, VA",
+    "code": "51115",
+    "kind": "county"
+   },
+   {
+    "name": "Middlesex County, VA",
+    "code": "51119",
+    "kind": "county"
+   },
+   {
+    "name": "Southampton County, VA",
+    "code": "51175",
+    "kind": "county"
+   },
+   {
+    "name": "Surry County, VA",
+    "code": "51181",
+    "kind": "county"
+   },
+   {
+    "name": "York County, VA",
+    "code": "51199",
+    "kind": "county"
+   },
+   {
+    "name": "Chesapeake city, VA",
+    "code": "51550",
+    "kind": "county"
+   },
+   {
+    "name": "Franklin city, VA",
+    "code": "51620",
+    "kind": "county"
+   },
+   {
+    "name": "Hampton city, VA",
+    "code": "51650",
+    "kind": "county"
+   },
+   {
+    "name": "Newport News city, VA",
+    "code": "51700",
+    "kind": "county"
+   },
+   {
+    "name": "Norfolk city, VA",
+    "code": "51710",
+    "kind": "county"
+   },
+   {
+    "name": "Poquoson city, VA",
+    "code": "51735",
+    "kind": "county"
+   },
+   {
+    "name": "Portsmouth city, VA",
+    "code": "51740",
+    "kind": "county"
+   },
+   {
+    "name": "Suffolk city, VA",
+    "code": "51800",
+    "kind": "county"
+   },
+   {
+    "name": "Virginia Beach city, VA",
+    "code": "51810",
+    "kind": "county"
+   },
+   {
+    "name": "Williamsburg city, VA",
+    "code": "51830",
+    "kind": "county"
+   },
+   {
+    "name": "Camden County, NC",
+    "code": "37029",
+    "kind": "county"
+   },
+   {
+    "name": "Chowan County, NC",
+    "code": "37041",
+    "kind": "county"
+   },
+   {
+    "name": "Currituck County, NC",
+    "code": "37053",
+    "kind": "county"
+   },
+   {
+    "name": "Dare County, NC",
+    "code": "37055",
+    "kind": "county"
+   },
+   {
+    "name": "Gates County, NC",
+    "code": "37073",
+    "kind": "county"
+   },
+   {
+    "name": "Hertford County, NC",
+    "code": "37091",
+    "kind": "county"
+   },
+   {
+    "name": "Pasquotank County, NC",
+    "code": "37139",
+    "kind": "county"
+   },
+   {
+    "name": "Perquimans County, NC",
+    "code": "37143",
+    "kind": "county"
+   },
+   {
+    "name": "Tyrrell County, NC",
+    "code": "37177",
+    "kind": "county"
+   }
+  ],
+  "counties": 27,
+  "installations": 0,
+  "states": [
+   "NC",
+   "VA"
+  ]
+ }
+}

@@ -1,0 +1,550 @@
+{
+ "bea_year": "2024",
+ "us_base": 100.0,
+ "areas": {
+  "AK": {
+   "rpp": null,
+   "why": "штат целиком"
+  },
+  "AL": {
+   "msa": "Albany-Schenectady-Troy, NY",
+   "rpp": 99.566,
+   "matched_cities": [
+    "albany",
+    "schenectady"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "AQ": {
+   "msa": "Albuquerque, NM",
+   "rpp": 95.546,
+   "matched_cities": [
+    "albuquerque"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "ATL": {
+   "msa": "Athens-Clarke County, GA",
+   "rpp": 93.343,
+   "matched_cities": [
+    "athens",
+    "clarke county"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "AU": {
+   "msa": "Austin-Round Rock-San Marcos, TX",
+   "rpp": 98.066,
+   "matched_cities": [
+    "austin",
+    "round rock"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "BH": {
+   "msa": "Birmingham, AL",
+   "rpp": 91.644,
+   "matched_cities": [
+    "birmingham"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "BN": {
+   "msa": "Burlington-South Burlington, VT",
+   "rpp": 100.949,
+   "matched_cities": [
+    "burlington",
+    "south burlington"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "BOS": {
+   "msa": "Boston-Cambridge-Newton, MA-NH",
+   "rpp": 108.266,
+   "matched_cities": [
+    "boston"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "BU": {
+   "msa": "Buffalo-Cheektowaga, NY",
+   "rpp": 95.844,
+   "matched_cities": [
+    "buffalo",
+    "cheektowaga"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "CC": {
+   "msa": "Corpus Christi, TX",
+   "rpp": 92.671,
+   "matched_cities": [
+    "corpus christi"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "CHI": {
+   "msa": "Chicago-Naperville-Elgin, IL-IN",
+   "rpp": 103.595,
+   "matched_cities": [
+    "chicago",
+    "naperville"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "CIN": {
+   "msa": "Cincinnati, OH-KY-IN",
+   "rpp": 95.37,
+   "matched_cities": [
+    "cincinnati"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "CLE": {
+   "msa": "Akron, OH",
+   "rpp": 93.37,
+   "matched_cities": [
+    "akron"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "COL": {
+   "msa": "Columbus, GA-AL",
+   "rpp": 89.296,
+   "matched_cities": [
+    "columbus"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "CS": {
+   "msa": "Colorado Springs, CO",
+   "rpp": 100.707,
+   "matched_cities": [
+    "colorado springs"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "CT": {
+   "msa": "Charlotte-Concord-Gastonia, NC-SC",
+   "rpp": 97.348,
+   "matched_cities": [
+    "charlotte",
+    "concord"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "DAY": {
+   "msa": "Dayton-Kettering-Beavercreek, OH",
+   "rpp": 92.694,
+   "matched_cities": [
+    "dayton",
+    "kettering"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "DCB": {
+   "msa": "Washington-Arlington-Alexandria, DC-VA-MD-WV",
+   "rpp": 108.884,
+   "matched_cities": [
+    "arlington",
+    "washington"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "DEN": {
+   "msa": "Denver-Aurora-Centennial, CO",
+   "rpp": 105.782,
+   "matched_cities": [
+    "aurora",
+    "denver"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "DET": {
+   "msa": "Detroit-Warren-Dearborn, MI",
+   "rpp": 100.298,
+   "matched_cities": [
+    "detroit",
+    "warren"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "DFW": {
+   "msa": "Dallas-Fort Worth-Arlington, TX",
+   "rpp": 103.09,
+   "matched_cities": [
+    "dallas",
+    "fort worth"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "DM": {
+   "msa": "Des Moines-West Des Moines, IA",
+   "rpp": 91.701,
+   "matched_cities": [
+    "des moines",
+    "west des moines"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "DV": {
+   "msa": "Davenport-Moline-Rock Island, IA-IL",
+   "rpp": 89.079,
+   "matched_cities": [
+    "davenport",
+    "moline"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "FN": {
+   "msa": "Fresno, CA",
+   "rpp": 102.158,
+   "matched_cities": [
+    "fresno"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "HAR": {
+   "msa": "Hartford-West Hartford-East Hartford, CT",
+   "rpp": 102.746,
+   "matched_cities": [
+    "east hartford",
+    "hartford"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "HB": {
+   "msa": "Harrisburg-Carlisle, PA",
+   "rpp": 98.65,
+   "matched_cities": [
+    "harrisburg"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "HI": {
+   "rpp": null,
+   "why": "штат целиком"
+  },
+  "HNT": {
+   "msa": "Decatur, AL",
+   "rpp": 87.212,
+   "matched_cities": [
+    "decatur"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "HOU": {
+   "msa": "Houston-Pasadena-The Woodlands, TX",
+   "rpp": 98.629,
+   "matched_cities": [
+    "houston",
+    "the woodlands"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "IND": {
+   "msa": "Indianapolis-Carmel-Greenwood, IN",
+   "rpp": 95.696,
+   "matched_cities": [
+    "carmel",
+    "indianapolis"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "KC": {
+   "msa": "Kansas City, MO-KS",
+   "rpp": 92.543,
+   "matched_cities": [
+    "kansas city"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "LA": {
+   "msa": "Los Angeles-Long Beach-Anaheim, CA",
+   "rpp": 113.566,
+   "matched_cities": [
+    "long beach",
+    "los angeles"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "LR": {
+   "msa": "Laredo, TX",
+   "rpp": 86.956,
+   "matched_cities": [
+    "laredo"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "LV": {
+   "msa": "Las Vegas-Henderson-North Las Vegas, NV",
+   "rpp": 100.215,
+   "matched_cities": [
+    "henderson",
+    "las vegas"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "MFL": {
+   "msa": "Miami-Fort Lauderdale-West Palm Beach, FL",
+   "rpp": 114.155,
+   "matched_cities": [
+    "fort lauderdale",
+    "miami"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "MIL": {
+   "msa": "Milwaukee-Waukesha, WI",
+   "rpp": 96.937,
+   "matched_cities": [
+    "milwaukee",
+    "waukesha"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "MSP": {
+   "msa": "Minneapolis-St. Paul-Bloomington, MN-WI",
+   "rpp": 104.822,
+   "matched_cities": [
+    "minneapolis",
+    "st. paul"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "NY": {
+   "msa": "New York-Newark-Jersey City, NY-NJ",
+   "rpp": 112.563,
+   "matched_cities": [
+    "new york",
+    "newark"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "OM": {
+   "msa": "Omaha, NE-IA",
+   "rpp": 91.911,
+   "matched_cities": [
+    "omaha"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "PB": {
+   "msa": "Palm Bay-Melbourne-Titusville, FL",
+   "rpp": 100.005,
+   "matched_cities": [
+    "melbourne",
+    "palm bay",
+    "titusville"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "PHL": {
+   "msa": "Philadelphia-Camden-Wilmington, PA-NJ-DE-MD",
+   "rpp": 102.554,
+   "matched_cities": [
+    "camden",
+    "philadelphia"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "PIT": {
+   "msa": "Pittsburgh, PA",
+   "rpp": 94.671,
+   "matched_cities": [
+    "pittsburgh"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "POR": {
+   "msa": "Portland-Vancouver-Hillsboro, OR-WA",
+   "rpp": 105.421,
+   "matched_cities": [
+    "portland",
+    "vancouver"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "PX": {
+   "msa": "Phoenix-Mesa-Chandler, AZ",
+   "rpp": 103.316,
+   "matched_cities": [
+    "mesa",
+    "phoenix"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "RA": {
+   "msa": "Raleigh-Cary, NC",
+   "rpp": 98.157,
+   "matched_cities": [
+    "cary",
+    "raleigh"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "RCH": {
+   "msa": "Richmond, VA",
+   "rpp": 97.858,
+   "matched_cities": [
+    "richmond"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "RN": {
+   "msa": "Reno, NV",
+   "rpp": 101.014,
+   "matched_cities": [
+    "reno"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "RT": {
+   "msa": "Rochester, MN",
+   "rpp": 90.821,
+   "matched_cities": [
+    "rochester"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "RUS": {
+   "rpp": null,
+   "why": "Rest of U.S. — это не город, а весь остальной континент"
+  },
+  "SAC": {
+   "msa": "Sacramento-Roseville-Folsom, CA",
+   "rpp": 106.67,
+   "matched_cities": [
+    "roseville",
+    "sacramento"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "SD": {
+   "msa": "San Diego-Chula Vista-Carlsbad, CA",
+   "rpp": 111.887,
+   "matched_cities": [
+    "carlsbad",
+    "chula vista",
+    "san diego"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "SEA": {
+   "msa": "Seattle-Tacoma-Bellevue, WA",
+   "rpp": 111.133,
+   "matched_cities": [
+    "seattle",
+    "tacoma"
+   ],
+   "exact": true,
+   "why": null
+  },
+  "SF": {
+   "msa": "San Francisco-Oakland-Fremont, CA",
+   "rpp": 115.613,
+   "matched_cities": [
+    "oakland",
+    "san francisco"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "SL": {
+   "msa": "Farmington, NM",
+   "rpp": 87.707,
+   "matched_cities": [
+    "farmington"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "SN": {
+   "msa": "Spokane-Spokane Valley, WA",
+   "rpp": 100.346,
+   "matched_cities": [
+    "spokane",
+    "spokane valley"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "SO": {
+   "msa": "San Antonio-New Braunfels, TX",
+   "rpp": 94.716,
+   "matched_cities": [
+    "new braunfels",
+    "san antonio"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "TU": {
+   "msa": "Tucson, AZ",
+   "rpp": 96.896,
+   "matched_cities": [
+    "tucson"
+   ],
+   "exact": false,
+   "why": null
+  },
+  "VB": {
+   "msa": "Virginia Beach-Chesapeake-Norfolk, VA-NC",
+   "rpp": 97.941,
+   "matched_cities": [
+    "norfolk",
+    "virginia beach"
+   ],
+   "exact": true,
+   "why": null
+  }
+ }
+}

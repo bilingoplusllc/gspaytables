@@ -1,0 +1,17 @@
+# Сырые загрузки OPM и BEA — пересобираются pipeline/fetch.py
+data/raw/
+data/marpp.zip
+data/idx.html
+
+# Сборка сайта
+dist/
+
+# Служебное
+__pycache__/
+*.pyc
+.DS_Store
+
+# Внутренние документы ветки: остаются в рабочем дереве BiLingoPlus,
+# в публичный репозиторий не идут (ключевики, конкуренты, экономика).
+research/
+MEMORY.md
