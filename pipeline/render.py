@@ -102,6 +102,18 @@ def data_date(T: dict, R: dict, L: dict) -> str:
     return today
 
 
+def side_rail(title: str, links: list, note: str = "") -> str:
+    """Рельс со списком ссылок. Пустой список рельса не создаёт."""
+    if not links:
+        return ""
+    items = "".join(
+        f'<li><a href="{href}"{" aria-current=\'page\'" if cur else ""}>{esc(label)}'
+        f'</a></li>' for href, label, cur in links)
+    tail = f'<p class="rail-note">{note}</p>' if note else ""
+    return (f'<h2>{esc(title)}</h2><ol>{items}</ol>{tail}'
+            f'<div class="ad-slot ad-rail">Advertisement</div>')
+
+
 def calc_script(T: dict, R: dict, ranks: dict) -> str:
     """Данные и код инструмента, встроенные в страницу.
 
@@ -266,7 +278,8 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
   Economic Analysis. Both are works of the U.S. government and in the public domain.</p>
   <p><a href="/how-locality-pay-works/">How locality pay works</a> ·
   <a href="/grades/">All grades</a> · <a href="/compare/">Compare areas</a> ·
-  <a href="/about/">About</a> · <a href="/contact/">Contact</a> ·
+  <a href="/methodology/">Methodology</a> · <a href="/about/">About</a> ·
+  <a href="/contact/">Contact</a> ·
   <a href="/privacy/">Privacy</a> ·
   <a href="/terms/">Terms</a></p>
   <p>Data last changed {updated}. Pay tables are published once a year, so this
@@ -928,8 +941,12 @@ def main() -> int:
 
     # --- грейды
     for g in sorted(T["base"]["grades"], key=int):
+        grade_links = [(f"/gs-{x}/", f"GS-{x}", x == g)
+                       for x in sorted(T["base"]["grades"], key=int)]
         write(f"gs-{g}", P.grade_page(
             g, T, R, ranks, shell, esc, money, slug,
+            rail=side_rail("Every grade", grade_links,
+                           "Each page shows that grade in all 58 areas at once."),
             widget=calc.calc_widget(
                 zones=calc.zone_options(T, "DCB"), grade=g, step="5",
                 heading=f"What a GS-{g} earns where you are",
@@ -938,7 +955,12 @@ def main() -> int:
             js=calc_script(T, R, ranks)))
         urls.append(f"/gs-{g}/")
 
-    write("grades", P.grades_index(T, ranks, shell, esc, money))
+    grade_links = [(f"/gs-{x}/", f"GS-{x}", False)
+                   for x in sorted(T["base"]["grades"], key=int)]
+    write("grades", P.grades_index(
+        T, ranks, shell, esc, money,
+        rail=side_rail("Every grade", grade_links,
+                       "Each page shows that grade in all 58 areas at once.")))
     urls.append("/grades/")
 
     # Инструмент. Виджет здесь полный: поиск по индексу и выбор зоны, тогда как
@@ -950,18 +972,37 @@ def main() -> int:
                          note=("Gross pay from the published federal tables. Not "
                                "take-home: deductions depend on choices this page "
                                "does not ask about.")),
-        js=calc_script(T, R, ranks)))
+        js=calc_script(T, R, ranks),
+        rail=side_rail(
+        "Popular areas",
+        [(f"/locality/{slug(l['area_name'])}/", l["area_name"], False)
+        for c, l in sorted(T["localities"].items(),
+        key=lambda kv: -kv[1]["grades"]["12"]["5"]["annual"])[:10]],
+        "The ten highest-paying locality pay areas.")))
     urls.append("/calculator/")
 
     # --- сравнения зон: отдельное поисковое намерение «А или Б»
     cmp_items = []
+    # Рельс сравнений строится заранее: он одинаков на всех страницах пары и
+    # служит навигацией между ними.
+    cmp_rail = ""
     for a, b in compare.pairs(T, ranks):
         rel, html_page = compare.compare_page(a, b, T, R, ranks, L, shell, esc,
-                                              money, slug)
+                                              money, slug, cmp_rail)
         write(rel, html_page)
         urls.append(f"/{rel}/")
         cmp_items.append((rel, rel.split("/")[-1].replace("-vs-", " vs ")
                           .replace("-", " ").title()))
+    # Второй проход: теперь список пар известен, и рельс можно наполнить.
+    cmp_rail = side_rail(
+        "Other comparisons",
+        [(f"/{rel}/", title, False) for rel, title in cmp_items[:12]],
+        "Highest-paying areas against each other and against Rest of U.S.")
+    for a, b in compare.pairs(T, ranks):
+        rel, html_page = compare.compare_page(a, b, T, R, ranks, L, shell, esc,
+                                              money, slug, cmp_rail)
+        write(rel, html_page)
+
     write("compare", compare.compare_index(cmp_items, shell, esc))
     urls.append("/compare/")
 
@@ -975,11 +1016,18 @@ def main() -> int:
 
     # --- главная и статические
     (DIST / "index.html").write_text(
-        P.home(T, R, ranks, L, shell, esc, money, slug), encoding="utf-8")
+        P.home(T, R, ranks, L, shell, esc, money, slug,
+               widget=calc.calc_widget(
+                   zones=calc.zone_options(T, "DCB"), with_zip=True,
+                   note=("Gross pay from the published federal tables. Not "
+                         "take-home: deductions depend on choices this page "
+                         "does not ask about.")),
+               js=calc_script(T, R, ranks)), encoding="utf-8")
     for rel, html_ in (
         ("how-locality-pay-works", P.how_it_works(T, shell, money)),
         ("about", P.about(shell)),
         ("contact", P.contact(shell, CONTACT, OWNER)),
+        ("methodology", P.methodology(T, R, shell, money, OWNER, CONTACT)),
         ("privacy", P.privacy(shell)),
         ("terms", P.terms(shell)),
     ):
@@ -1020,9 +1068,13 @@ def main() -> int:
         # 1. отрендеренный вывод, а не исходники: кириллица не должна уехать
         if re.search(r"[\u0400-\u04FF]", h):
             problems.append(f"{rel}: кириллица в отгружаемом HTML")
-        # 2. следы сломанных вычислений
+        # 2. следы сломанных вычислений — только в ВИДИМОМ тексте.
+        #    NaN и undefined внутри <script> законны: это собственные значения
+        #    языка. Гейт существует ради того, чтобы читатель не увидел «NaN»
+        #    вместо суммы, а не ради чистоты исходника.
+        visible = re.sub(r"<script.*?</script>", " ", h, flags=re.S)
         for bad in ("NaN", "undefined", "None", "$0<", ">$0 "):
-            if bad in h:
+            if bad in visible:
                 problems.append(f"{rel}: в выводе встречается {bad!r}")
         # 3. тире там, где должна быть длина CSS или число
         if re.search(r"[\u2013\u2014](?=px|\d*px)|\d[\u2013\u2014]px", h):
@@ -1265,6 +1317,27 @@ def main() -> int:
         if not shipped:
             problems.append("файлы шрифта не скопированы в сборку")
 
+    # 16. класс без правила. Перестройка оформления выбросила правила для
+    #     блоков, оставшихся на других типах страниц: оговорка на 58 страницах
+    #     потеряла рамку, карточка ответа на 37 рассыпалась. Все прежние гейты
+    #     были зелёными — невидимый CSS ничего не ломает из того, что они умеют
+    #     проверять.
+    css_text = design.CSS
+    # Эти классы ставит скрипт во время работы, в разметке их нет.
+    RUNTIME = {"sel", "up", "down", "flat", "you", "hi", "total", "solo"}
+    seen_cls = {}
+    for f in htmls:
+        h = f.read_text(encoding="utf-8")
+        body = h[h.find("<body>"):]
+        for m in re.finditer(r'class="([^"]+)"', body):
+            for c in m.group(1).split():
+                seen_cls.setdefault(c, str(f.relative_to(DIST)))
+    orphan = sorted(c for c in seen_cls
+                    if c not in RUNTIME and f".{c}" not in css_text)
+    if orphan:
+        problems.append(f"классы без правил в CSS: {len(orphan)} — "
+                        f"{', '.join(orphan[:4])} (напр. {seen_cls[orphan[0]]})")
+
     if problems:
         print(f"\nГЕЙТ НЕ ПРОЙДЕН: {len(problems)} замечаний", file=sys.stderr)
         for p in problems[:20]:
@@ -1274,7 +1347,7 @@ def main() -> int:
     print("гейты пройдены: кириллица, битые вычисления, дисклеймер, ссылки, "
           "объём, направление, полнота охвата, пунктуация, крошки, "
           "клиентский расчёт, экранирование, управляющие символы, "
-                "внешние запросы, шрифт")
+                "внешние запросы, шрифт, стили")
     return 0
 
 

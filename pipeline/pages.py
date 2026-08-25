@@ -17,102 +17,189 @@ from __future__ import annotations
 from datetime import date
 
 
-def home(T: dict, R: dict, ranks: dict, L: dict, shell, esc, money, slug) -> str:
+def home(T: dict, R: dict, ranks: dict, L: dict, shell, esc, money, slug,
+         widget: str = "", js: str = "") -> str:
     year = T["year"]
     locs = T["localities"]
     rows = ranks["rows"]
-
-    B = [f'<h1>2026 GS pay scale, by locality</h1>']
-    B.append(f'<p class="sub">Every General Schedule rate for all {len(locs)} locality '
-             f'pay areas, recomputed from the official tables and checked cell by cell. '
-             f'Plus the thing the tables do not tell you: what each salary is actually '
-             f'worth once local prices are taken into account.</p>')
-
     top = rows[0]
     nom_top = max(rows, key=lambda r: r["nominal"])
-    B.append('<div class="answer">')
-    B.append('<span class="what">The finding most people miss</span>')
-    B.append(f'<p style="margin-top:0">At GS-{12} step {5}, the highest-paying locality '
-             f'on paper is <strong>{esc(nom_top["name"])}</strong> at '
-             f'{money(nom_top["nominal"])}. But once local prices are counted, the '
-             f'salary that goes furthest belongs to <strong>{esc(top["name"])}</strong> '
-             f'— {money(top["adjusted"])} of purchasing power from a salary of '
-             f'{money(top["nominal"])}.</p>')
-    B.append(f'<p>Locality pay tracks what private employers in a region pay, not what '
-             f'life there costs. The two are related, but not the same, and the gap is '
-             f'large enough to reverse the ranking.</p></div>')
+    gap = top["adjusted"] - (nom_top["nominal"] / (nom_top["rpp"] / 100.0))
 
-    # --- таблица всех зон
+    SECTIONS = [("find", "Find your rate"),
+                ("reversal", "The finding most people miss"),
+                ("table", "All 58 areas ranked"),
+                ("grades", "Browse by grade"),
+                ("method", "Where the numbers come from")]
+
+    B = [f'<h1>{year} GS pay scale, by locality</h1>']
+    B.append(f'<p class="sub">Every General Schedule rate for all {len(locs)} locality '
+             f'pay areas, recomputed from the official tables and checked cell by '
+             f'cell. Plus the thing the tables do not tell you: what each salary is '
+             f'actually worth once local prices are counted.</p>')
+
+    # --- 1. инструмент первым: человек пришёл за своим числом
+    B.append('<section class="q" id="find">')
+    B.append('<h2>What does your grade and step pay?</h2>')
+    B.append('<p class="q-lead">Enter a ZIP code, or pick the area from the list. '
+             'The answer is the annual, biweekly, hourly and overtime rate for that '
+             'duty station \u2014 and what it is worth after local prices.</p>')
+    B.append(widget)
+    B.append('</section>')
+
+    B.append('<div class="ad-slot ad-band">Advertisement</div>')
+
+    # --- 2. находка как сопоставление, а не как абзац
+    B.append('<section class="q" id="reversal">')
+    B.append('<h2>The highest-paying area is not the one where you end up richest</h2>')
+    B.append(f'<p class="q-lead">At GS-12 step 5 the biggest cheque in the General '
+             f'Schedule is written in <strong>{esc(nom_top["name"])}</strong>. The '
+             f'salary that goes furthest belongs to '
+             f'<strong>{esc(top["name"])}</strong>, and the gap between them is '
+             f'<strong>{money(gap)} a year</strong>.</p>')
+    B.append(f'<div class="facts">'
+             f'<div class="fact"><h3>Biggest cheque</h3>'
+             f'<span class="kpi">{money(nom_top["nominal"])}</span>'
+             f'<span class="kpi-sub">{esc(nom_top["name"])}. Local prices '
+             f'{nom_top["rpp"]:.1f} against a national average of 100, so it buys '
+             f'{money(nom_top["nominal"] / (nom_top["rpp"] / 100.0))}.</span></div>'
+             f'<div class="fact"><h3>Goes furthest</h3>'
+             f'<span class="kpi">{money(top["adjusted"])}</span>'
+             f'<span class="kpi-sub">of purchasing power in {esc(top["name"])}, from '
+             f'a salary of {money(top["nominal"])} \u2014 '
+             f'{money(nom_top["nominal"] - top["nominal"])} less on paper.</span>'
+             f'</div></div>')
+    B.append('<p>Locality pay is calculated from what <em>private employers in the '
+             'same region pay for comparable work</em>. It is not a cost-of-living '
+             'adjustment, and OPM says so plainly. The two are related, but not the '
+             'same thing, and the gap between them is large enough to turn the '
+             'ranking upside down.</p>')
+    B.append('<p>That is what the table below measures, and it is the one thing no '
+             'other reference site publishes. Every other column comes straight from '
+             'the official table; the last two are ours.</p>')
+    B.append('</section>')
+
+    # --- 3. таблица всех зон, сортируемая
+    B.append('<section class="q" id="table">')
+    B.append(f'<h2>All {len(locs)} locality pay areas, ranked by what the salary '
+             f'buys</h2>')
+    B.append('<p class="q-lead">Sorted by purchasing power rather than by the size of '
+             'the cheque. <strong>Click any column heading</strong> to sort by it '
+             'instead.</p>')
+    B.append(_home_table(T, R, ranks, L, esc, money, slug))
+    B.append('</section>')
+
+    B.append('<div class="ad-slot ad-band">Advertisement</div>')
+
+    # --- 4. грейды
+    B.append('<section class="q" id="grades">')
+    B.append('<h2>Or start from a grade</h2>')
+    B.append('<p class="q-lead">Each grade page shows that grade in every area at '
+             'once \u2014 the comparison people actually need when weighing a '
+             'move.</p>')
+    chips = "".join(f'<a href="/gs-{g}/">GS-{g}</a>'
+                    for g in sorted(T["base"]["grades"], key=int))
+    B.append(f'<div class="chips">{chips}</div>')
+    B.append('<p>There are also <a href="/compare/">side-by-side comparisons</a> of '
+             'the highest-paying areas against each other and against Rest of U.S., '
+             'and a <a href="/calculator/">full calculator</a> that will find your '
+             'area from a ZIP code.</p>')
+    B.append('</section>')
+
+    # --- 5. откуда числа
+    B.append('<section class="q" id="method">')
+    B.append('<h2>Where these numbers come from</h2>')
+    B.append(f'<p class="q-lead">Every rate on this site was recomputed from the '
+             f'published base table and the locality percentage, then checked against '
+             f'the official OPM figure. All 8,700 cells match to the dollar.</p>')
+    B.append(f'<p>Salary tables and locality percentages: U.S. Office of Personnel '
+             f'Management, {year} General Schedule salary tables. Locality pay area '
+             f'definitions: OPM, {year}. Price levels: U.S. Bureau of Economic '
+             f'Analysis Regional Price Parities, {R["bea_year"]}, shown to one decimal '
+             f'place though computed from the published three. ZIP-code-to-county '
+             f'relationships: U.S. Census Bureau 2020 ZCTA file. All are works of the '
+             f'United States government and in the public domain.</p>')
+    B.append('<p>The order of operations matters and is fixed by law: the percentage '
+             'is applied to the base rate, the result is rounded, and only then is it '
+             'checked against the statutory ceiling. Doing those steps in a different '
+             'order changes the answer at the top of the schedule, which is one '
+             'reason published figures sometimes disagree between reference '
+             'sites. <a href="/how-locality-pay-works/">How locality pay works</a> '
+             'sets out the rules in full.</p>')
+    B.append('</section>')
+
+    rail = ('<h2>On this page</h2><ol>'
+            + "".join(f'<li><a href="#{i}">{esc(lbl)}</a></li>' for i, lbl in SECTIONS)
+            + '</ol><div class="ad-slot ad-rail">Advertisement</div>')
+
+    return shell(f"{year} GS Pay Scale by Locality \u2014 all {len(locs)} areas",
+                 f"Complete {year} General Schedule pay tables for all {len(locs)} "
+                 f"locality pay areas, ranked by what each salary buys after local "
+                 f"prices, not just by the headline number.",
+                 "\n".join(B), "https://fedpayscale.com/", "home",
+                 js=js, rail=rail)
+
+
+def _home_table(T, R, ranks, L, esc, money, slug) -> str:
+    """Таблица всех зон. Сортируется по любому столбцу."""
+    locs = T["localities"]
+    rows = ranks["rows"]
     body = []
     for i, r in enumerate(rows, 1):
         code = r["code"]
         pct = locs[code]["locality_pct"]
         nrank = ranks["nominal"][code]
-        # Движение между двумя рейтингами — это и есть тезис экспоната.
-        # Голый «ранг на бумаге» заставлял читателя вычитать в уме.
         delta = nrank - i
-        move = f"+{delta}" if delta > 0 else (f"−{-delta}" if delta < 0 else "—")
-        move_cls = "up" if delta > 0 else ("down" if delta < 0 else "flat")
+        move = (f"+{delta}" if delta > 0
+                else (f"\u2212{-delta}" if delta < 0 else "\u2014"))
+        cls = "up" if delta > 0 else ("down" if delta < 0 else "flat")
         body.append(
-            f'<tr><td class="rank">{i}</td>'
-            f'<th scope="row"><a href="/locality/{slug(r["name"])}/">{esc(r["name"])}</a></th>'
-            f'<td class="num">{pct:g}%</td>'
-            f'<td class="num">{money(r["nominal"])}</td>'
-            f'<td class="num">{r["rpp"]:.1f}</td>'
-            f'<td class="num">{money(r["adjusted"])}</td>'
-            f'<td class="num {move_cls}">{move}</td></tr>')
+            f'<tr><td class="rank" data-v="{i}">{i}</td>'
+            f'<th scope="row" data-v="{esc(r["name"])}">'
+            f'<a href="/locality/{slug(r["name"])}/">{esc(r["name"])}</a></th>'
+            f'<td class="num" data-v="{pct}">{pct:g}%</td>'
+            f'<td class="num" data-v="{r["nominal"]}">{money(r["nominal"])}</td>'
+            f'<td class="num" data-v="{r["rpp"]}">{r["rpp"]:.1f}</td>'
+            f'<td class="num" data-v="{int(r["adjusted"])}">{money(r["adjusted"])}</td>'
+            f'<td class="num {cls}" data-v="{delta}">{move}</td></tr>')
 
-    # зоны без данных о ценах — показываем отдельно, а не прячем
-    missing = [c for c in locs if c not in ranks["adjusted"]]
     extra = []
-    for code in missing:
+    for code in (c for c in locs if c not in ranks["adjusted"]):
         loc = locs[code]
         cell = loc["grades"]["12"]["5"]
         extra.append(
-            f'<tr><td class="rank">—</td>'
-            f'<th scope="row"><a href="/locality/{slug(loc["area_name"])}/">'
+            f'<tr><td class="rank" data-v="99">\u2014</td>'
+            f'<th scope="row" data-v="{esc(loc["area_name"])}">'
+            f'<a href="/locality/{slug(loc["area_name"])}/">'
             f'{esc(loc["area_name"])}</a></th>'
-            f'<td class="num">{loc["locality_pct"]:g}%</td>'
-            f'<td class="num">{money(cell["annual"])}</td>'
-            f'<td class="num">—</td><td class="num">—</td>'
-            f'<td class="num flat">—</td></tr>')
+            f'<td class="num" data-v="{loc["locality_pct"]}">'
+            f'{loc["locality_pct"]:g}%</td>'
+            f'<td class="num" data-v="{cell["annual"]}">{money(cell["annual"])}</td>'
+            f'<td class="num" data-v="">\u2014</td>'
+            f'<td class="num" data-v="">\u2014</td>'
+            f'<td class="num flat" data-v="">\u2014</td></tr>')
 
-    B.append(f"""<figure class="ex">
-<div class="ex-kicker">Exhibit 1 · all {len(locs)} localities</div>
-<div class="ex-title">Ranked by what a GS-12 step 5 salary actually buys</div>
-<p class="ex-note">Sorted by purchasing power, not by the size of the cheque. The price
-column is the BEA Regional Price Parity for {R['bea_year']}, where 100 is the national
-average — below 100 is cheaper than average. The last column is the one to read: it
-shows how many places the area moves when you stop ranking by the size of the cheque and
-start ranking by what the cheque buys.</p>
-<div class="scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
-<thead><tr><th class="rank">#</th><th>Locality</th><th class="num">Locality pay</th>
-<th class="num">On paper</th><th class="num">Prices</th><th class="num">What it buys</th>
-<th class="num">Rank shift</th></tr></thead>
-<tbody>{''.join(body)}{''.join(extra)}</tbody>
-</table></div>
-<figcaption>Sources: OPM {year} General Schedule salary tables; BEA Regional Price
-Parities {R['bea_year']}. Alaska and Hawaii are whole states, so they use the state
-price index rather than a metropolitan one — an exact match for the area, not a proxy.
-Rest of U.S. is a residual drawn from every state at once and has no price index of its
-own, so it is listed without an adjusted figure rather than given an invented one.</figcaption>
-</figure>""")
+    heads = [("#", "rank"), ("Locality", ""), ("Locality pay", "num"),
+             ("On paper", "num"), ("Prices", "num"), ("What it buys", "num"),
+             ("Rank shift", "num")]
+    th = "".join(
+        f'<th class="{c}" data-sort="{n}" tabindex="0" role="button" '
+        f'aria-label="Sort by {lbl}">{lbl}</th>'
+        for n, (lbl, c) in enumerate(heads))
 
-    B.append('<h2>Browse by grade</h2>')
-    B.append('<p>Each grade page shows that grade in every locality at once, which is '
-             'the comparison people actually need when weighing a move.</p>')
-    chips = "".join(f'<a href="/gs-{g}/">GS-{g}</a>' for g in sorted(T["base"]["grades"], key=int))
-    B.append(f'<div class="chips">{chips}</div>')
-
-    return shell(f"2026 GS Pay Scale by Locality — all {len(locs)} areas | FedPay",
-                 f"Complete {year} General Schedule pay tables for all {len(locs)} "
-                 f"locality pay areas, ranked by what each salary buys after local "
-                 f"prices, not just by the headline number.",
-                 "\n".join(B), "https://fedpayscale.com/", "home")
+    return (f'<div class="scroll" tabindex="0" role="region" '
+            f'aria-label="Scrollable table"><table data-sortable>'
+            f'<thead><tr>{th}</tr></thead>'
+            f'<tbody>{"".join(body)}{"".join(extra)}</tbody></table></div>'
+            f'<p class="tlegend"><span>Sorted by purchasing power. The price column '
+            f'is the BEA Regional Price Parity for {R["bea_year"]}, where 100 is the '
+            f'national average \u2014 below 100 is cheaper.</span>'
+            f'<span>Rank shift: how many places the area moves when you stop ranking '
+            f'by the cheque and start ranking by what it buys.</span></p>')
 
 
 def grade_page(g: str, T: dict, R: dict, ranks: dict, shell, esc, money, slug,
-               widget: str = "", js: str = "") -> str:
+               rail: str = "", widget: str = "", js: str = "") -> str:
     year = T["year"]
     cap = T["ex_iv_cap"]
     base = T["base"]["grades"][g]
@@ -264,7 +351,7 @@ tables; BEA Regional Price Parities {R['bea_year']}.</figcaption>
                  "\n".join(B), f"https://fedpayscale.com/gs-{g}/", "grades",
                  crumbs=[("All localities", "/"),
                          ("All grades", "/grades/"),
-                         (f"GS-{g}", None)], js=js)
+                         (f"GS-{g}", None)], js=js, rail=rail)
 
 
 def how_it_works(T: dict, shell, money) -> str:
@@ -480,7 +567,8 @@ def sitemap(urls: list[str], domain: str) -> str:
             f'{body}</urlset>')
 
 
-def grades_index(T: dict, ranks: dict, shell, esc, money) -> str:
+def grades_index(T: dict, ranks: dict, shell, esc, money,
+                 rail: str = "") -> str:
     """Хаб по грейдам. Нужен и по смыслу, и потому что на него ведёт меню:
     гейт битых ссылок поймал отсутствие этой страницы на 78 страницах сразу."""
     year, cap = T["year"], T["ex_iv_cap"]
@@ -585,10 +673,11 @@ independently recomputed and matched to the published figures.</figcaption>
                  f"the statutory ceiling bites.",
                  "\n".join(B), "https://fedpayscale.com/grades/", "grades",
                  crumbs=[("All localities", "/"),
-                         ("All grades", None)])
+                         ("All grades", None)], rail=rail)
 
 
-def calculator(T: dict, R: dict, shell, esc, money, widget, js: str) -> str:
+def calculator(T: dict, R: dict, shell, esc, money, widget, js: str,
+               rail: str = "") -> str:
     """Инструмент и текст на одной странице."""
     year = T["year"]
     cap = T["ex_iv_cap"]
@@ -739,7 +828,7 @@ def calculator(T: dict, R: dict, shell, esc, money, widget, js: str) -> str:
                  f"step. Annual, biweekly, hourly and overtime, plus what it is worth "
                  f"after local prices.",
                  "\n".join(B), "https://fedpayscale.com/calculator/", "calc",
-                 crumbs=[("All localities", "/"), ("Pay calculator", None)], js=js)
+                 crumbs=[("All localities", "/"), ("Pay calculator", None)], js=js, rail=rail)
 
 
 def contact(shell, contact_email: str, owner: str) -> str:
@@ -808,3 +897,135 @@ def contact(shell, contact_email: str, owner: str) -> str:
                  "and what a reference site can and cannot answer.",
                  "\n".join(B), "https://fedpayscale.com/contact/", "contact",
                  crumbs=[("All localities", "/"), ("Contact", None)])
+
+
+def methodology(T: dict, R: dict, shell, money, owner: str, contact_email: str) -> str:
+    """Как получается каждое число и что останавливает публикацию."""
+    year, cap = T["year"], T["ex_iv_cap"]
+    B = ['<ol class="crumbs"><li><a href="/">All localities</a></li>'
+         '<li>Methodology</li></ol>',
+         '<h1>How these numbers are made</h1>',
+         '<p class="sub">Every figure on this site can be traced to a published '
+         'federal source and reproduced from it. This page says exactly how, and '
+         'what stops publication when something does not add up.</p>',
+
+         '<section class="q"><h2>Who publishes this</h2>',
+         f'<p class="q-lead">FedPay is published by {owner}, a limited liability '
+         f'company registered in the State of Wyoming.</p>',
+         '<p>It is a small independent publisher. It is not a newsroom, not a '
+         'consultancy, not a government body and not connected to one. Nobody pays '
+         'to appear here and there is no sponsored content of any kind. When '
+         'advertising is added it will be visually separated and labelled, and it '
+         'will have no influence on any figure or any wording on this site.</p>',
+         f'<p>The reason to trust a number here is not who wrote it. It is that you '
+         f'can check it: the source is named, the arithmetic is described, and the '
+         f'result is reproducible. Where you find that we are wrong, '
+         f'<a href="/contact/">tell us</a> \u2014 corrections are made on the page '
+         f'and move the date in the footer.</p></section>',
+
+         '<section class="q"><h2>Where every number comes from</h2>',
+         '<p class="q-lead">Four public datasets, all works of the United States '
+         'government and all in the public domain.</p>',
+         f'<p><strong>Salary tables and locality percentages.</strong> U.S. Office '
+         f'of Personnel Management, {year} General Schedule salary tables, taken '
+         f'from the machine-readable files OPM publishes rather than retyped from a '
+         f'PDF. The list of locality codes is read from OPM\u2019s own index page '
+         f'each time, never hardcoded: the number of areas has changed from 48 to 54 '
+         f'to 58, and a fixed list would silently miss a new one.</p>',
+         f'<p><strong>Locality pay area definitions.</strong> OPM, {year}. These are '
+         f'the counties and military installations that make up each area \u2014 '
+         f'920 counties across 57 areas, with Rest of U.S. defined by exclusion.</p>',
+         f'<p><strong>Price levels.</strong> U.S. Bureau of Economic Analysis '
+         f'Regional Price Parities for {R["bea_year"]}, at metropolitan level for the '
+         f'55 metropolitan areas and at state level for Alaska and Hawaii, where the '
+         f'locality area is the whole state and the state index is therefore an '
+         f'exact match rather than a proxy.</p>',
+         '<p><strong>ZIP code relationships.</strong> U.S. Census Bureau 2020 ZCTA '
+         'to county relationship file, used only to answer "which area is this ZIP '
+         'in".</p></section>',
+
+         '<section class="q"><h2>The arithmetic, in the order the law sets it</h2>',
+         '<p class="q-lead">Locality rate = base rate, multiplied by one plus the '
+         'locality percentage, rounded to the nearest dollar, and only then checked '
+         'against the statutory ceiling.</p>',
+         f'<p>That order matters. No General Schedule rate may exceed Level IV of '
+         f'the Executive Schedule, {money(cap)} in {year}. Applying the ceiling '
+         f'before rounding rather than after gives different figures at the top of '
+         f'the schedule, which is one reason published numbers occasionally disagree '
+         f'between reference sites. In {year} the ceiling binds 97 cells across 37 '
+         f'areas.</p>',
+         '<p>Two derived figures follow the same discipline. The hourly rate is the '
+         'annual rate divided by 2,087 hours, rounded to the cent. The biweekly rate '
+         'is the hourly rate multiplied by 80 \u2014 not the annual rate divided by '
+         '26, which gives a different and wrong answer. The overtime rate follows '
+         '5 U.S.C. 5542: one and a half times your hourly rate while that rate stays '
+         'at or below the GS-10 step 1 rate for your area, and above it the greater '
+         'of your own rate and one and a half times GS-10 step 1.</p>',
+         '<p>Each of those three rules was derived from the published data itself '
+         'and then checked against all 8,700 published cells. Not one disagrees.'
+         '</p></section>',
+
+         '<section class="q"><h2>What the purchasing-power figure is, and is not</h2>',
+         '<p class="q-lead">It is the salary divided by the local price level. '
+         'Nothing more elaborate than that, and nothing hidden.</p>',
+         '<p>Locality pay is calculated from what private employers in the same '
+         'region pay for comparable work. It is not a cost-of-living adjustment, and '
+         'OPM says so plainly. Dividing the salary by the BEA price index, where 100 '
+         'is the national average, gives a figure that is comparable across the '
+         'country: what the salary would have to be, at average U.S. prices, to buy '
+         'the same things.</p>',
+         '<p>Three limits are stated on every page that uses it. The price index is '
+         'published a year or more behind the pay tables. Metropolitan boundaries do '
+         'not match locality pay area boundaries exactly, so the nearest '
+         'metropolitan area is used as the proxy and named. And where two areas come '
+         'out within one percent of each other, we say they are the same rather than '
+         'pretending to a precision the data does not have.</p>',
+         '<p>Rest of U.S. is left without a figure entirely. It is a residual drawn '
+         'from every state at once, no single price index describes it, and putting '
+         '100 there would be an invention.</p></section>',
+
+         '<section class="q"><h2>What stops publication</h2>',
+         '<p class="q-lead">The build fails, and nothing ships, when any of sixteen '
+         'checks finds a problem in the finished pages.</p>',
+         '<p>The first is the strictest: every rate is recomputed independently from '
+         'the base table and the percentage and compared with the figure OPM '
+         'published. A single cell out by a dollar stops the build. On the '
+         f'{year} tables all 8,700 match.</p>',
+         '<p>The rest examine the rendered HTML rather than the source, because the '
+         'defects that matter are the ones that survive a correct-looking build: a '
+         'page that contradicts itself about whether an area gains or loses ground; '
+         'an area silently missing from a table; a broken internal link; text that '
+         'reaches the reader as an escape sequence instead of a character; a class '
+         'with no styling behind it; a request to a third-party domain. Each check '
+         'exists because that exact mistake was made here at least once.</p>',
+         '<p>Every check is proved by deliberately breaking the source and '
+         'confirming the build goes red. A check that has never failed proves '
+         'nothing.</p>',
+         '<p>Separately, the whole site is rebuilt from an empty directory before '
+         'release, so that "it builds on my machine" cannot pass for "it '
+         'builds".</p></section>',
+
+         '<section class="q"><h2>What this site deliberately does not do</h2>',
+         '<p class="q-lead">Take-home pay, tax, and advice.</p>',
+         '<p>Every figure here is gross pay: what the job pays before anything is '
+         'taken out. Take-home depends on your FERS tier, your Thrift Savings Plan '
+         'contribution and its type, your health and life insurance elections, your '
+         'filing status and the income tax of the state you live in \u2014 which is '
+         'not always the state you work in. We would rather publish one number that '
+         'is exactly right than a take-home estimate resting on half a dozen '
+         'assumptions invented on your behalf.</p>',
+         '<p>Nor does this site cover the Federal Wage System, the Senior Executive '
+         'Service, Title 38 medical positions, law enforcement officer rates or '
+         'special rate tables. Where one of those applies to you, the figure here is '
+         'a floor rather than an answer, and every page that could mislead you says '
+         'so.</p>',
+         f'<p>And nothing here is advice. FedPay publishes public federal data and '
+         f'arithmetic performed on it. Questions about your own pay belong to your '
+         f'servicing human resources office. Questions about this site belong to '
+         f'<a href="mailto:{contact_email}">{contact_email}</a>.</p></section>']
+    return shell("How FedPay Makes Its Numbers",
+                 "The sources, the arithmetic in the order the law sets it, the "
+                 "sixteen checks that stop publication, and what this site "
+                 "deliberately does not do.",
+                 "\n".join(B), "https://fedpayscale.com/methodology/", "method",
+                 crumbs=[("All localities", "/"), ("Methodology", None)])

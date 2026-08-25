@@ -326,6 +326,10 @@ CALC_JS = r"""
         cells[j].classList.toggle("sel", on);
         cells[j].setAttribute("aria-selected", on ? "true" : "false");
         cells[j].tabIndex = on ? 0 : -1;
+        /* The server marks the default cell so it is visible without script.
+           Once script is running the selection is live, and two markers on
+           the same table would contradict each other. */
+        cells[j].classList.remove("ref");
       }
     }
     function pick(g, s, moveFocus){
@@ -365,6 +369,59 @@ CALC_JS = r"""
              Math.min(10, Math.max(1, s + ds)), true);
       });
     }
+  }
+
+  /* ---- sortable tables ----
+     A 58-row table answers exactly one question: the one it happens to be
+     sorted by. Sorting turns one table into seven. The sort key lives in
+     data-v rather than being parsed out of the text: "$126,817" and "\u2212021"
+     do not sort as strings, and parsing currency symbols is a quiet source of
+     wrong answers. */
+  var sortables = document.querySelectorAll("table[data-sortable]");
+  for (var q=0;q<sortables.length;q++){
+    (function(tb){
+      var heads = tb.querySelectorAll("thead th[data-sort]");
+      var state = { col: -1, dir: 1 };
+      function sortBy(n){
+        var body = tb.tBodies[0];
+        var rows = Array.prototype.slice.call(body.rows);
+        state.dir = (state.col === n) ? -state.dir : 1;
+        state.col = n;
+        rows.sort(function(a, b){
+          var x = a.cells[n] && a.cells[n].getAttribute("data-v");
+          var y = b.cells[n] && b.cells[n].getAttribute("data-v");
+          /* A missing value is neither zero nor infinity. Rows without data go
+             last in both directions: sorted ascending by price, an area with no
+             price index used to surface at the top and read as the cheapest
+             place in the country. */
+          var ex = (x === null || x === "" || x === "-");
+          var ey = (y === null || y === "" || y === "-");
+          if (ex && ey) return 0;
+          if (ex) return 1;
+          if (ey) return -1;
+          var nx = parseFloat(x), ny = parseFloat(y);
+          var cmp;
+          if (!isNaN(nx) && !isNaN(ny)) cmp = nx - ny;
+          else cmp = String(x).localeCompare(String(y));
+          return cmp * state.dir;
+        });
+        for (var i=0;i<rows.length;i++) body.appendChild(rows[i]);
+        for (var h=0;h<heads.length;h++){
+          var on = +heads[h].getAttribute("data-sort") === n;
+          heads[h].setAttribute("aria-sort",
+            on ? (state.dir > 0 ? "ascending" : "descending") : "none");
+        }
+      }
+      for (var h=0;h<heads.length;h++){
+        (function(th){
+          var n = +th.getAttribute("data-sort");
+          th.addEventListener("click", function(){ sortBy(n); });
+          th.addEventListener("keydown", function(e){
+            if (e.key === "Enter" || e.key === " "){ e.preventDefault(); sortBy(n); }
+          });
+        })(heads[h]);
+      }
+    })(sortables[q]);
   }
 
   /* ---- area switcher in the rail ---- */

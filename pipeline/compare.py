@@ -44,7 +44,8 @@ def _adj(pay: float, rpp) -> float | None:
 
 
 def compare_page(a: str, b: str, T: dict, R: dict, ranks: dict,
-                 L: dict, shell, esc, money, slug) -> tuple:
+                 L: dict, shell, esc, money, slug,
+                 rail: str = "") -> tuple:
     """Возвращает (относительный адрес, HTML)."""
     year, cap = T["year"], T["ex_iv_cap"]
     la, lb = T["localities"][a], T["localities"][b]
@@ -182,7 +183,7 @@ comparable; the full tables for each area are linked below.</figcaption>
     return rel, shell(
         title, desc, "\n".join(B), f"https://fedpayscale.com/{rel}/", "compare",
         crumbs=[("All localities", "/"), ("Compare", "/compare/"),
-                (f"{short_a} vs {short_b}", None)])
+                (f"{short_a} vs {short_b}", None)], rail=rail)
 
 
 def _dot(name: str) -> str:

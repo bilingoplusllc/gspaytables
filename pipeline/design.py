@@ -151,6 +151,10 @@ header.site nav a[aria-current="page"]{color:var(--ink);background:var(--page)}
   text-decoration:none;font:500 13.5px/1.35 var(--face);
   border-left:2px solid transparent;margin-left:-2px}
 .rail li a:hover{color:var(--ink);border-left-color:var(--accent)}
+.rail-note{font:500 12.5px/1.5 var(--face);color:var(--muted);
+  margin:0 0 var(--s4);max-width:none}
+.rail li a[aria-current="page"]{color:var(--ink);font-weight:700;
+  border-left-color:var(--accent)}
 .rail .switch{margin-bottom:var(--s4)}
 .rail .switch label{display:block;font:700 11px/1 var(--face);letter-spacing:.1em;
   text-transform:uppercase;color:var(--muted);margin-bottom:6px}
@@ -205,6 +209,33 @@ section.q>:last-child{margin-bottom:0}
   color:var(--ink);display:block;margin-bottom:4px}
 .fact .kpi-sub{font:500 12.5px/1.4 var(--face);color:var(--muted);display:block}
 
+/* ---------- оговорка. Не цветная плашка посреди чтения, а полоса на поле:
+   тот же приём, что у заметок, чтобы текст ничем не разрывался. */
+.caveat{border-left:3px solid var(--warn);background:var(--warn-soft);
+  padding:var(--s3) var(--s3) 2px;margin:0 0 var(--s3);border-radius:0 3px 3px 0}
+.caveat p{color:var(--ink-soft);font-size:15px;line-height:1.55;max-width:64ch}
+.caveat strong:first-child{color:var(--warn);font-weight:800}
+
+/* ---------- карточка вердикта. Нужна там, где ответ не одно число в полосе,
+   а сопоставление двух зон: на страницах сравнения. */
+.answer{background:var(--card);border:1px solid var(--line);border-radius:4px;
+  margin:0 0 var(--s4);overflow:hidden}
+.answer .what{display:block;background:var(--bar);color:var(--bar-ink);
+  padding:8px var(--s4);font:700 10.5px/1.2 var(--face);
+  letter-spacing:.11em;text-transform:uppercase}
+.answer .body{padding:var(--s4)}
+.answer .big{display:block;font:800 clamp(30px,5vw,46px)/1 var(--face);
+  letter-spacing:-.03em;margin:0 0 var(--s3);color:var(--ink)}
+.answer p:last-child{margin-bottom:0}
+
+/* ---------- опорная клетка: отмечена сервером, видна и без скрипта.
+   Со скриптом её сменяет выбранная, и метка снимается. */
+table.pay td.ref{outline:2px solid var(--accent);outline-offset:-2px;
+  font-weight:700}
+table.pay td.ref::after{content:"\25C0";margin-left:6px;font-size:9px;
+  color:var(--accent)}
+table.pay td.sel::after{color:inherit}
+
 /* ---------- бухгалтерский разбор */
 .ledger{margin:0 0 var(--s3);border-top:1px solid var(--line)}
 .ledger div{display:flex;align-items:baseline;gap:var(--s2);padding:6px 0;
@@ -243,6 +274,12 @@ tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
 thead th{position:sticky;top:0;z-index:2;background:var(--bar);
   color:var(--bar-ink);font:700 11px/1.3 var(--face);letter-spacing:.07em;
   text-transform:uppercase;border-bottom:0}
+/* Заголовок как кнопка сортировки: стрелка появляется только у активного
+   столбца, чтобы шапка не превращалась в частокол значков. */
+thead th[data-sort]{cursor:pointer;user-select:none}
+thead th[data-sort]:hover{background:var(--ink)}
+thead th[aria-sort="ascending"]::after{content:"\2191";margin-left:5px}
+thead th[aria-sort="descending"]::after{content:"\2193";margin-left:5px}
 th.num,td.num{text-align:right}
 th.rank,td.rank{text-align:right;width:1%;color:var(--muted);font-weight:700}
 th[scope="row"]{font-weight:700;white-space:normal;min-width:13ch;
