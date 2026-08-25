@@ -1450,7 +1450,7 @@ def main() -> int:
         # бы оформление сразу у всех. Расширить в день подключения
         # рекламы: сеть грузит скрипты со своих хостов.
         "  Content-Security-Policy: default-src 'self'; script-src 'self'"
-        + analytics.csp_sources() + "; "
+        + analytics.csp_script_src() + "; "
         "style-src 'self' 'unsafe-inline'; img-src 'self'"
         + analytics.csp_sources() + "; font-src 'self'; "
         "connect-src 'self'"

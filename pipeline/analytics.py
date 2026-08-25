@@ -34,6 +34,9 @@ Search Console не даёт: поведение внутри сайта, ист
 """
 from __future__ import annotations
 
+import base64
+import hashlib
+
 # Ресурс «GS Pay Tables» в аккаунте BiLingoPlus, поток «GS Pay Tables — web».
 # Часовой пояс ресурса — нью-йоркский: рабочий день федерального служащего
 # идёт по восточному времени, и границы суток в отчётах должны совпадать с ним.
@@ -54,15 +57,14 @@ STRICT_REGIONS = (
 )
 
 
-def head_tag() -> str:
-    """Разметка счётчика для головы документа. Пусто, если он выключен."""
-    if not ANALYTICS_LIVE:
-        return ""
+def inline_js() -> str:
+    """Тело встроенного скрипта. Отдельно от разметки — из него считается хеш
+    для политики безопасности."""
     regions = ",".join(f"'{c}'" for c in STRICT_REGIONS)
     # Порядок важен: умолчания согласия объявляются ДО загрузки самого тега,
     # иначе первый запрос уйдёт по разрешающему умолчанию.
     return (
-        "<script>window.dataLayer=window.dataLayer||[];"
+        "window.dataLayer=window.dataLayer||[];"
         "function gtag(){dataLayer.push(arguments)}"
         "gtag('consent','default',{'ad_storage':'denied',"
         "'ad_user_data':'denied','ad_personalization':'denied',"
@@ -71,14 +73,47 @@ def head_tag() -> str:
         "'ad_user_data':'denied','ad_personalization':'denied',"
         "'analytics_storage':'granted'});"
         "gtag('js',new Date());"
-        "gtag('config','" + MEASUREMENT_ID + "');</script>"
+        "gtag('config','" + MEASUREMENT_ID + "');"
+    )
+
+
+def script_hash() -> str:
+    """sha256 встроенного скрипта в форме, которую понимает CSP.
+
+    Без него браузер молча не исполнит скрипт согласия — и счётчик заработает
+    БЕЗ региональных умолчаний, то есть ровно вопреки тому, что обещано на
+    странице приватности. Это уже случилось один раз: сборка была зелёной,
+    байты отданного совпали с собранным, а функция была мертва. Поймал только
+    браузер.
+
+    Альтернатива — добавить 'unsafe-inline' в script-src, но тогда политика
+    перестаёт защищать от единственного, от чего она здесь и защищает: от
+    исполнения чужого кода, если он однажды окажется в разметке.
+    """
+    digest = hashlib.sha256(inline_js().encode("utf-8")).digest()
+    return "'sha256-" + base64.b64encode(digest).decode("ascii") + "'"
+
+
+def head_tag() -> str:
+    """Разметка счётчика для головы документа. Пусто, если он выключен."""
+    if not ANALYTICS_LIVE:
+        return ""
+    return (
+        "<script>" + inline_js() + "</script>"
         '<script async src="https://www.googletagmanager.com/gtag/js?id='
         + MEASUREMENT_ID + '"></script>'
     )
 
 
 def csp_sources() -> str:
-    """Добавка к политике безопасности. Пусто, если счётчик выключен."""
+    """Хосты счётчика для политики безопасности. Пусто, если он выключен."""
     if not ANALYTICS_LIVE:
         return ""
     return " https://www.googletagmanager.com https://www.google-analytics.com"
+
+
+def csp_script_src() -> str:
+    """То же плюс хеш встроенного скрипта — только для script-src."""
+    if not ANALYTICS_LIVE:
+        return ""
+    return csp_sources() + " " + script_hash()
