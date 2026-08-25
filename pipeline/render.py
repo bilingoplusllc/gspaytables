@@ -1609,8 +1609,14 @@ def main() -> int:
     #     были зелёными — невидимый CSS ничего не ломает из того, что они умеют
     #     проверять.
     css_text = design.CSS
-    # Эти классы ставит скрипт во время работы, в разметке их нет.
-    RUNTIME = {"sel", "up", "down", "flat", "you", "hi", "total", "solo"}
+    # Только то, что появляется ВО ВРЕМЯ РАБОТЫ скрипта и потому не может
+    # встретиться в отгружаемой разметке. Всё, что ставит генератор, обязано
+    # проверяться: solo и wide лежали здесь по ошибке, а это модификаторы
+    # раскладки на одиннадцати и одной странице.
+    RUNTIME = {
+        "sel",   # выбранная клетка таблицы ставок
+        "you",   # строка своей области после пересчёта таблицы
+    }
     seen_cls = {}
     for f in htmls:
         h = f.read_text(encoding="utf-8")
@@ -1618,8 +1624,19 @@ def main() -> int:
         for m in re.finditer(r'class="([^"]+)"', body):
             for c in m.group(1).split():
                 seen_cls.setdefault(c, str(f.relative_to(DIST)))
-    orphan = sorted(c for c in seen_cls
-                    if c not in RUNTIME and f".{c}" not in css_text)
+
+    def styled(name: str) -> bool:
+        """Есть ли в стилях селектор ИМЕННО этого класса.
+
+        Подстрока не годится: ".bar" находится внутри ".bars", ".q" внутри
+        ".q-lead", ".in" внутри ".in-". Девять коротких имён были защищены
+        только на бумаге. Имя класса кончается там, где кончаются буквы,
+        цифры, дефис и подчёркивание.
+        """
+        return re.search(r"\." + re.escape(name) + r"(?![\w-])",
+                         css_text) is not None
+
+    orphan = sorted(c for c in seen_cls if c not in RUNTIME and not styled(c))
     if orphan:
         problems.append(f"классы без правил в CSS: {len(orphan)} — "
                         f"{', '.join(orphan[:4])} (напр. {seen_cls[orphan[0]]})")
