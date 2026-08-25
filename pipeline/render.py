@@ -58,8 +58,8 @@ FONT_PRELOAD = ""
 # поэтому выставляется в main() после их чтения.
 JS_TAG = ""
 
-THEME_LIGHT = "#f1f2f4"
-THEME_DARK = "#15171a"
+THEME_LIGHT = "#e2d8bf"
+THEME_DARK = "#100e0b"
 
 # Опорная клетка для сравнений между зонами: GS-12/5 — середина сетки,
 # самый населённый диапазон грейдов.
@@ -277,6 +277,13 @@ def document_body(body: str) -> str:
             if not head_done:
                 out.append(_titleblock(chunk))
                 head_done = True
+            elif re.fullmatch(r'\s*<div class="ad-slot[^"]*">.*?</div>\s*',
+                              chunk, re.S):
+                # Место под объявление — полоса во всю ширину листа, а не блок
+                # внутри колонки: в колонке при 320 остаётся 263 px, куда не
+                # входит даже мобильный формат. Заодно полоса разделяет два
+                # раздела с одинаковой землёй.
+                out.append(f'<div class="adzone">{chunk}</div>')
             else:
                 out.append(f'<div class="col">{chunk}</div>')
             continue

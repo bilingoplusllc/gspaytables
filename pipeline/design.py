@@ -281,8 +281,6 @@ body{margin:0;background:var(--ground);color:var(--ink);
    это не «место под рекламу», это признак недоделанного сайта на странице,
    которая продаёт себя точностью. Показывать их будем вместе с реальными
    блоками, зарезервировав высоту под конкретный формат. */
-.ad-rail{min-height:600px;width:100%}
-.ad-band{min-height:110px;margin:0 0 var(--s4)}
 
 /* ---------- типографика основной колонки */
 p{margin:0 0 var(--s3);max-width:66ch;color:var(--ink-soft)}
@@ -370,7 +368,6 @@ figure.ex{margin:0;padding:0}
   main{order:1}
   /* Четыре поля в столбик — 291 px, из них в видимую область iOS Safari
      (635 px, а не 812 «экрана устройства») попадало одно. */
-  .ad-rail{min-height:110px}
 }
 @media (max-width:640px){
   body{font-size:15.5px}
@@ -379,9 +376,27 @@ figure.ex{margin:0;padding:0}
      остаётся только то, ради чего она липкая: где, что и сколько. */
   section.q{padding:var(--s3)}
 }
+/* ---------- печать: бланк остаётся бланком, но без навигации и без земель.
+   Прежнее правило обводило каждый раздел рамкой в 1 px — печатной форме
+   рамки не нужны, ей нужны неразрезанные таблицы и видимые адреса ссылок. */
 @media print{
   html,body{background:#fff;color:#000}
-  section.q,.fact,.scroll{border:1px solid #000;break-inside:avoid}
+  .menu,.contents,.ad-slot,.answerbar,.skip,.fp-fields,.fp-hint{display:none}
+  .mast,footer{background:#fff;color:#000;border-bottom:1px solid #000}
+  .mast .brand,.mast .tagline,.mast .edition,.foot-in p,.foot-links a{color:#000}
+  .sheet{box-shadow:none}
+  section.q,section.q.paper,section.q.register,section.q.plate{
+    background:#fff;color:#000;padding:0 0 var(--sp3);break-inside:avoid}
+  .plate .fp-hero,.fp-lead .fp-hero{background:#fff;color:#000;
+    border:1px solid #000}
+  .scroll{max-height:none;overflow:visible;background:none}
+  thead th{background:#fff;color:#000;border-bottom:1px solid #000;
+    position:static}
+  tbody tr:nth-child(even) th,tbody tr:nth-child(even) td{background:#fff}
+  tr,img,figure{break-inside:avoid}
+  h1,h2{break-after:avoid}
+  main a[href^="/"]::after{content:" (fedpayscale.com" attr(href) ")";
+    font-size:11px;color:#444}
 }
 
 /* ============================================================ каркас выпуска
@@ -1094,6 +1109,36 @@ figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
 
 .rail-note{font-family:var(--sans);font-size:var(--s-fine);color:var(--ink-2);
   margin:0}
+
+/* ================================================== места под объявления
+   Сеть не подключена, места скрыты: читатель не должен видеть три пустые
+   рамки на сайте, который продаёт себя точностью. Но место существует уже
+   сейчас, с правильной зарезервированной высотой — иначе в день подключения
+   объявление раздвинет вёрстку, и работа над нулевым сдвигом пропадёт.
+
+   Формат выбирается ПО ЗАМЕРУ, а не по желанию: на 768 полоса даёт 667 px,
+   значит ни 970x250, ни 728x90 туда не входят. */
+.ad-slot{display:none;margin:0;padding:0;border:0;background:transparent}
+.ad-slot.on{display:flex;align-items:center;justify-content:center;
+  background:var(--tint-2);border-top:1px solid var(--hair);
+  border-bottom:1px solid var(--hair);
+  font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  overflow:hidden}
+/* Полоса в потоке: высота под конкретный формат на каждой ширине. */
+.ad-band.on{width:100%;min-height:280px;margin:var(--sp3) 0}
+/* Пороги считаны от ширины КОЛОНКИ, а не окна: место живёт внутри листа с
+   полями, и на окне 1010 оно всего 886 px — объявление 970 там обрезалось
+   бы. Колонка достигает 728 на окне 840 и 970 на окне 1090. */
+@media (min-width:840px){.ad-band.on{min-height:90px}}
+@media (min-width:1110px){.ad-band.on{min-height:250px}}
+/* Башня на полях: живёт в маргиналиях и держит свою ширину. */
+.ad-rail.on{width:300px;min-height:600px;margin:var(--sp3) 0 0}
+
+/* Полоса объявления во всю ширину листа. .adzone существует всегда, чтобы
+   разметка не менялась при подключении сети; высоту держит само место. */
+.adzone{padding:0 clamp(14px,2.2vw,20px)}
+.adzone .ad-band.on{margin:0 auto}
 """
 
 MARK = ""

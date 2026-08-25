@@ -25,9 +25,9 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent.parent
 
 # Палитра совпадает с сайтом.
-INK = (23, 25, 29)
-PAPER = (244, 245, 247)
-OCHRE = (200, 138, 30)
+INK = (19, 36, 64)      # тёмно-синяя плашка облика
+PAPER = (253, 250, 243)  # лист документа
+OCHRE = (123, 30, 43)   # печать облика
 MUTED = (120, 128, 140)
 
 # Шесть букв 5x7. Единица — закрашенный пиксель.
@@ -104,10 +104,10 @@ def favicon_svg() -> str:
     """Векторная иконка: её понимают все современные браузеры."""
     return (
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">'
-        '<rect width="32" height="32" fill="#17191d"/>'
-        '<rect x="5" y="7" width="22" height="4" fill="#f4f5f7"/>'
-        '<rect x="5" y="14" width="15" height="4" fill="#f4f5f7"/>'
-        '<rect x="5" y="21" width="9" height="4" fill="#c88a1e"/>'
+        '<rect width="32" height="32" fill="#132440"/>'
+        '<rect x="5" y="7" width="22" height="4" fill="#fdfaf3"/>'
+        '<rect x="5" y="14" width="15" height="4" fill="#fdfaf3"/>'
+        '<rect x="5" y="21" width="9" height="4" fill="#7b1e2b"/>'
         '</svg>')
 
 
