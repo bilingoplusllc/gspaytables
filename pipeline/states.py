@@ -113,31 +113,31 @@ def state_page(st: str, zones: dict, T: dict, R: dict, ranks: dict,
 
     # --- факты
     facts = []
-    facts.append(f'<div class="fact"><h3>Locality pay areas</h3>'
+    facts.append(f'<div class="fact"><p class="fact-k">Locality pay areas</p>'
                  f'<span class="kpi">{n}</span>'
                  f'<span class="kpi-sub">covering federal duty stations in '
                  f'{esc(name)}.</span></div>')
     if n > 1:
-        facts.append(f'<div class="fact"><h3>Spread within the state</h3>'
+        facts.append(f'<div class="fact"><p class="fact-k">Spread within the state</p>'
                      f'<span class="kpi">{money(spread)}</span>'
                      f'<span class="kpi-sub">between the best-paid and worst-paid '
                      f'area here, at GS-{REF_GRADE} step {REF_STEP}. Same grade, '
                      f'same step, same state.</span></div>')
     else:
-        facts.append(f'<div class="fact"><h3>Locality adjustment</h3>'
+        facts.append(f'<div class="fact"><p class="fact-k">Locality adjustment</p>'
                      f'<span class="kpi">{rows[0]["pct"]:g}%</span>'
                      f'<span class="kpi-sub">on top of the nationwide base table, '
                      f'for every grade and step.</span></div>')
 
     best_adj = max((r for r in rows if r["adj"]), key=lambda r: r["adj"], default=None)
     if best_adj and n > 1 and best_adj["code"] != hi["code"]:
-        facts.append(f'<div class="fact"><h3>Goes furthest here</h3>'
+        facts.append(f'<div class="fact"><p class="fact-k">Goes furthest here</p>'
                      f'<span class="kpi">{money(best_adj["adj"])}</span>'
                      f'<span class="kpi-sub">of purchasing power in '
                      f'{esc(best_adj["name"])} — which is not the '
                      f'best-paid area in the state.</span></div>')
     elif best_adj:
-        facts.append(f'<div class="fact"><h3>What it buys</h3>'
+        facts.append(f'<div class="fact"><p class="fact-k">What it buys</p>'
                      f'<span class="kpi">{money(best_adj["adj"])}</span>'
                      f'<span class="kpi-sub">at average U.S. prices, from a salary '
                      f'of {money(best_adj["pay"])}.</span></div>')
@@ -145,13 +145,13 @@ def state_page(st: str, zones: dict, T: dict, R: dict, ranks: dict,
     # Сравнивать зону с самой собой бессмысленно: в штатах, где единственная
     # зона и есть Rest of U.S., карточка показывала «+$0».
     if hi["code"] != "RUS":
-        facts.append(f'<div class="fact"><h3>Against Rest of U.S.</h3>'
+        facts.append(f'<div class="fact"><p class="fact-k">Against Rest of U.S.</p>'
                      f'<span class="kpi">+{money(hi["pay"] - rus)}</span>'
                      f'<span class="kpi-sub">is what the best-paid area in '
                      f'{esc(name)} adds over the {money(rus)} paid outside every '
                      f'named area.</span></div>')
     else:
-        facts.append(f'<div class="fact"><h3>The rate here</h3>'
+        facts.append(f'<div class="fact"><p class="fact-k">The rate here</p>'
                      f'<span class="kpi">{money(rus)}</span>'
                      f'<span class="kpi-sub">is what a GS-{REF_GRADE} step '
                      f'{REF_STEP} is paid anywhere in {esc(name)} — the same '
@@ -190,12 +190,12 @@ def state_page(st: str, zones: dict, T: dict, R: dict, ranks: dict,
         B.append(f'<p>The spread is {money(spread)} a year on an identical grade and '
                  f'step. Locality pay is set from what private employers in each '
                  f'region pay for comparable work, so an area with a strong private '
-                 f'labour market pays more — and an area with expensive '
+                 f'labor market pays more — and an area with expensive '
                  f'housing does not, unless the two happen to coincide.</p>')
         if best_adj and best_adj["code"] != hi["code"]:
             B.append(f'<p>Which is why the best-paid area in {esc(name)} is not the '
                      f'one where the salary goes furthest. '
-                     f'<strong>{esc(hi["name"])}</strong> writes the biggest cheque '
+                     f'<strong>{esc(hi["name"])}</strong> writes the biggest paycheck '
                      f'at {money(hi["pay"])}; '
                      f'<strong>{esc(best_adj["name"])}</strong> pays '
                      f'{money(best_adj["pay"])} and leaves you '
@@ -311,7 +311,7 @@ def state_page(st: str, zones: dict, T: dict, R: dict, ranks: dict,
         else:
             gap = r0["pay"] - rus
             pct_of = int(round(100 * gap / rus)) if rus else 0
-            rank_txt = (f'#{r0["nom"]} of {ranks["n"]} by the size of the cheque'
+            rank_txt = (f'#{r0["nom"]} of {ranks["n"]} by the size of the paycheck'
                         if r0["nom"] else "unranked")
             adj_txt = (f' and #{r0["ka"]} once local prices are counted'
                        if r0["ka"] else "")
@@ -362,9 +362,9 @@ def state_page(st: str, zones: dict, T: dict, R: dict, ranks: dict,
                  f'plenty of towns nobody would associate with any of them are paid '
                  f'at the same rate. What decides it is the county.</p>'
                  f'<p>Some of these cities are not in {esc(name)} at all: an area '
-                 f'named after a city in a neighbouring state can still reach across '
+                 f'named after a city in a neighboring state can still reach across '
                  f'the line and cover counties here. That is the point of the whole '
-                 f'system — pay follows labour markets, and labour markets '
+                 f'system — pay follows labor markets, and labor markets '
                  f'ignore state borders.</p></section>')
 
     # --- место штата в стране: считается, а не пересказывается
@@ -492,11 +492,11 @@ def states_index(items: list, shell, esc) -> str:
          'one where the money goes furthest.</p></section>',
 
          '<section class="q"><h2>Why the spread inside a state can be large</h2>',
-         '<p class="q-lead">Locality pay follows private labour markets, and those '
+         '<p class="q-lead">Locality pay follows private labor markets, and those '
          'vary far more inside a state than most people expect.</p>',
          '<p>An area is set at a percentage above the nationwide base table, and '
          'that percentage is derived from what private employers in the region pay '
-         'for comparable work. A state containing both a major metropolitan labour '
+         'for comparable work. A state containing both a major metropolitan labor '
          'market and a stretch of countryside will therefore contain both a '
          'high-percentage area and, in the countryside, the Rest of U.S. floor. The '
          'same grade and step, forty miles apart, on two different rates.</p>',
@@ -514,7 +514,7 @@ def states_index(items: list, shell, esc) -> str:
          '<section class="q"><h2>What these pages do not cover</h2>',
          '<p class="q-lead">The General Schedule, and only the General Schedule.</p>',
          '<p>Roughly a third of federal employees are paid from other systems: the '
-         'Federal Wage System for trades and labour positions, the Senior Executive '
+         'Federal Wage System for trades and labor positions, the Senior Executive '
          'Service, Title 38 medical positions at the Department of Veterans Affairs, '
          'and several demonstration projects. Law enforcement officers at grades '
          'GS-3 through GS-10 receive higher locality rates than the ordinary table '
@@ -555,11 +555,11 @@ def no_area_page(codes: list, T: dict, shell, esc, money, slug) -> str:
          f'geography inside those states changes federal pay by exactly nothing.</p>',
 
          f'<div class="facts">'
-         f'<div class="fact"><h3>States affected</h3>'
+         f'<div class="fact"><p class="fact-k">States affected</p>'
          f'<span class="kpi">{len(names)}</span>'
          f'<span class="kpi-sub">of the 50, plus no part of the District of '
          f'Columbia.</span></div>'
-         f'<div class="fact"><h3>The rate everywhere in them</h3>'
+         f'<div class="fact"><p class="fact-k">The rate everywhere in them</p>'
          f'<span class="kpi">{money(pay)}</span>'
          f'<span class="kpi-sub">for a GS-{REF_GRADE} step {REF_STEP} in {year}, '
          f'at {rus["locality_pct"]:g}% above the nationwide base '
@@ -592,10 +592,10 @@ def no_area_page(codes: list, T: dict, shell, esc, money, slug) -> str:
          'the President rather than by population.</p>',
          f'<p>The practical consequence inside these {len(names)} states is worth '
          f'stating plainly. Moving across the state for a federal job changes your '
-         f'commute, your rent and your neighbours. It changes your federal salary '
+         f'commute, your rent and your neighbors. It changes your federal salary '
          f'by nothing at all. A GS-{REF_GRADE} step {REF_STEP} is paid '
          f'{money(pay)} in every county of every one of them.</p>',
-         '<p>That also cuts the other way, and in your favour more often than '
+         '<p>That also cuts the other way, and in your favor more often than '
          'people expect. Locality pay is set from what private employers in a '
          'region pay, not from what living there costs — so an area with a modest '
          'percentage in a place where things are cheap can leave you better off '

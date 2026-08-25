@@ -58,6 +58,14 @@ CSS = r"""
   --muted:#5f6672;
   --line:#dcdfe4;
   --line-strong:#b3b9c2;
+  /* Рамка полей ввода отдельно от декоративных линий: 1.4.11 требует
+     3:1 именно для контролов, и затемнять ради этого все разделители
+     значит испортить страницу ради одного правила. #8c939d даёт 3.15:1
+     на белом. */
+  --control-line:#8c939d;
+  /* Тень у края прокрутки — единственная подсказка, что таблица
+     едет вбок. Чёрным она в тёмной теме исчезала. */
+  --shade:rgba(0,0,0,.16);
   --bar:#17191d;
   --bar-ink:#f4f5f7;
   --accent:#8a5a06;
@@ -73,7 +81,7 @@ CSS = r"""
     color-scheme:dark;
     --page:#15171a; --card:#1d2024; --ink:#e9ebee; --ink-soft:#c2c7cf;
     --muted:#9aa1ac;
-    --line:#2c3036; --line-strong:#575e67;
+    --line:#2c3036; --line-strong:#575e67; --control-line:#6f7784; --shade:rgba(255,255,255,.22); --control-line:#6f7784; --shade:rgba(255,255,255,.22);
     --bar:#0c0d0f; --bar-ink:#e9ebee;
     --accent:#e0a44a; --accent-soft:#2a2113;
     --warn:#e58a80; --warn-soft:#2c1a18;
@@ -84,7 +92,7 @@ CSS = r"""
   color-scheme:dark;
   --page:#15171a; --card:#1d2024; --ink:#e9ebee; --ink-soft:#c2c7cf;
   --muted:#9aa1ac;
-  --line:#2c3036; --line-strong:#575e67;
+  --line:#2c3036; --line-strong:#575e67; --control-line:#6f7784; --shade:rgba(255,255,255,.22);
   --bar:#0c0d0f; --bar-ink:#e9ebee;
   --accent:#e0a44a; --accent-soft:#2a2113;
   --warn:#e58a80; --warn-soft:#2c1a18;
@@ -158,6 +166,11 @@ header.site nav a[aria-current="page"]{color:var(--ink);background:var(--page)}
   display:grid;grid-template-columns:230px minmax(0,1fr);gap:var(--s5)}
 /* Страницы без рельса: одна колонка разумной ширины, а не дыра в сетке. */
 .layout.solo{grid-template-columns:minmax(0,1fr);max-width:820px}
+/* Широкая одноколоночная: главная. Рельса нет — он дублировал верхнее меню
+   и отбирал 230 px слева, — но и 820 px колонки мало таблице на семь
+   колонок и 58 строк. */
+.layout.wide{grid-template-columns:minmax(0,1fr);max-width:1180px}
+.layout.wide .sub{max-width:60ch}
 .rail{align-self:start;position:sticky;top:96px}
 .rail h2{font:700 11px/1 var(--face);letter-spacing:.1em;text-transform:uppercase;
   color:var(--muted);margin:0 0 var(--s2);max-width:none}
@@ -179,7 +192,12 @@ header.site nav a[aria-current="page"]{color:var(--ink);background:var(--page)}
   padding:7px}
 
 /* ---------- места под рекламу: заложены в раскладку заранее */
-.ad-slot{border:1px dashed var(--line-strong);border-radius:3px;
+/* Сеть не подключена. Пустые пунктирные рамки с надписью Advertisement —
+   это не «место под рекламу», это признак недоделанного сайта на странице,
+   которая продаёт себя точностью. Показывать их будем вместе с реальными
+   блоками, зарезервировав высоту под конкретный формат. */
+.ad-slot{display:none}
+.ad-slot.on{display:flex;border:1px dashed var(--line-strong);border-radius:3px;
   display:flex;align-items:center;justify-content:center;
   font:600 10px/1 var(--face);letter-spacing:.12em;text-transform:uppercase;
   color:var(--muted);background:var(--card)}
@@ -218,7 +236,8 @@ section.q>:last-child{margin-bottom:0}
 @media (max-width:560px){.facts{grid-template-columns:minmax(0,1fr)}}
 .fact{background:var(--card);border:1px solid var(--line);border-radius:4px;
   padding:var(--s3) var(--s3) var(--s2)}
-.fact h3{font:700 10.5px/1.2 var(--face);letter-spacing:.1em;
+.fact .fact-k{margin:0;}
+.fact .fact-k{font:700 10.5px/1.2 var(--face);letter-spacing:.1em;
   text-transform:uppercase;color:var(--muted);margin:0 0 var(--s2)}
 .fact p{font-size:14px;line-height:1.5;margin-bottom:var(--s2)}
 .fact .kpi{font:800 26px/1.05 var(--face);letter-spacing:-.02em;
@@ -264,23 +283,21 @@ table.pay td.sel::after{color:inherit}
 .ledger dd.up{color:var(--up)}
 
 /* ---------- заметки на полях: оговорки больше не рвут текст */
-.withnotes{display:grid;grid-template-columns:minmax(0,1fr) 250px;
-  gap:var(--s5);align-items:start}
-.sidenote{font:500 13px/1.5 var(--face);color:var(--muted);
-  border-left:2px solid var(--accent);padding-left:var(--s3)}
 .sidenote b{display:block;font:700 10.5px/1.2 var(--face);letter-spacing:.1em;
   text-transform:uppercase;color:var(--accent);margin-bottom:6px}
-.sidenote p{font-size:13px;line-height:1.5;color:var(--muted);max-width:none}
 .sidenote p:last-child{margin-bottom:0}
 
 /* ---------- таблицы */
-.scroll{overflow-x:auto;overscroll-behavior-x:contain;
+/* overflow-x:auto делает overflow-y тоже auto, поэтому sticky в шапке
+   цеплялся за контейнер, который по вертикали не прокручивается, и не липнул
+   НИ НА ОДНОЙ странице. Ограниченная высота даёт настоящую прокрутку. */
+.scroll{overflow:auto;max-height:min(78vh,880px);overscroll-behavior-x:contain;
   -webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:4px;
   background:
     linear-gradient(to right,var(--card),transparent) 0 0/26px 100% no-repeat local,
     linear-gradient(to left,var(--card),transparent) 100% 0/26px 100% no-repeat local,
-    linear-gradient(to right,rgba(0,0,0,.16),transparent) 0 0/12px 100% no-repeat scroll,
-    linear-gradient(to left,rgba(0,0,0,.16),transparent) 100% 0/12px 100% no-repeat scroll}
+    linear-gradient(to right,var(--shade),transparent) 0 0/12px 100% no-repeat scroll,
+    linear-gradient(to left,var(--shade),transparent) 100% 0/12px 100% no-repeat scroll}
 .scroll:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 table{border-collapse:separate;border-spacing:0;width:100%;
   font:14px/1.4 var(--face)}
@@ -381,7 +398,7 @@ figcaption strong{color:var(--ink-soft)}
 .fp-field label{display:block;font:700 10.5px/1.2 var(--face);color:var(--muted);
   text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
 .fp-field select,.fp-field input{width:100%;font:500 15px/1.3 var(--face);
-  color:var(--ink);background:var(--page);border:1px solid var(--line-strong);
+  color:var(--ink);background:var(--page);border:1px solid var(--control-line);
   border-radius:3px;padding:8px}
 .fp-zipmsg:not(:empty){margin:0;padding:10px var(--s4);font-size:13.5px;
   background:var(--accent-soft);border-top:1px solid var(--line);color:var(--ink-soft)}
@@ -399,6 +416,51 @@ figcaption strong{color:var(--ink-soft)}
 .fp-out p.fp-src{margin-bottom:0;font-size:13.5px}
 .fp-note{padding:0 var(--s4) var(--s4);color:var(--muted);font-size:13.5px}
 
+/* ---------- карточка-герой: ответ выше полей, поля читаются как «уточнить»
+   Замер до правки: на 375x812 первое число стояло на y=927 — человек не видел
+   ни одного доллара без прокрутки, а инструмент разворачивался скриптом и
+   сдвигал всё ниже на 748 px. Теперь ответ отрисован на сборке и стоит первым,
+   а поля приходят следом уже видимыми. */
+/* Заголовок карточки занимал 68 px ровно между h1 и ответом и повторял h1.
+   Как надстрочная метка он весит втрое меньше и структуру заголовков не
+   ломает. */
+.fp-lead h2{border-bottom:0;padding:var(--s3) var(--s4) 0;
+  font:700 11px/1.3 var(--face);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted)}
+.fp-lead .fp-hero{padding-top:8px}
+.fp-hint{margin:0;padding:0 var(--s4) var(--s3);color:var(--muted);
+  font:500 12.5px/1.55 var(--face);background:var(--page)}
+.fp-hero{padding:var(--s4) var(--s4) var(--s3)}
+.fp-hero p.fp-what{font:700 10.5px/1.3 var(--face);color:var(--muted);
+  text-transform:uppercase;letter-spacing:.1em;margin:0 0 6px}
+.fp-hero p.fp-big{font:800 clamp(40px,7vw,60px)/1 var(--face);letter-spacing:-.035em;
+  margin:0 0 10px;color:var(--ink)}
+.fp-hero p.fp-ranks{margin:0;font:500 14.5px/1.5 var(--face);color:var(--ink-soft)}
+.fp-hero p.fp-ranks b{font-weight:800;color:var(--accent)}
+.fp-lead .fp-fields{border-top:1px solid var(--line);background:var(--page)}
+/* До инициализации поля отдаются выключенными: без скрипта они честно
+   ничего не делают, а вёрстка при включении не прыгает. */
+.fp-field select:disabled,.fp-field input:disabled{opacity:1;cursor:default}
+
+/* Ссылки грейдов с суммой внутри: «GS-12 $76,463» вместо «GS-12». */
+.chips-pay{display:grid;gap:6px;margin:var(--s3) 0;
+  grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}
+.chips-pay a{display:flex;justify-content:space-between;align-items:baseline;
+  gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:3px;
+  background:var(--card);text-decoration:none;color:var(--ink)}
+.chips-pay a:hover{border-color:var(--accent)}
+.chips-pay b{font:800 13px/1 var(--face)}
+.chips-pay span{font:500 13px/1 var(--face);color:var(--muted)}
+
+/* Заголовок-сортировщик: кликает вложенная кнопка, а <th> остаётся
+   заголовком столбца. role="button" на самом <th> стирал columnheader, и
+   таблица из 58 строк оставалась для скринридера без заголовков вообще. */
+thead th[data-sort] button{all:unset;display:block;width:100%;cursor:pointer;
+  font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit}
+thead th.num button{text-align:right}
+thead th[data-sort] button:focus-visible{outline:2px solid var(--accent);
+  outline-offset:2px}
+
 /* ---------- подвал */
 footer{background:var(--card);border-top:1px solid var(--line);margin-top:var(--s6)}
 footer .in{max-width:1320px;margin:0 auto;padding:var(--s5) var(--s4)}
@@ -413,11 +475,14 @@ footer a{color:var(--muted)}
      страницы — на странице грейда это пятнадцать ссылок до первой строки
      текста. Навигация не должна стоять между читателем и ответом. */
   main{order:1}
+  /* Четыре поля в столбик — 291 px, из них в видимую область iOS Safari
+     (635 px, а не 812 «экрана устройства») попадало одно. */
+  .fp-fields{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2) var(--s3)}
+  .fp-field.fp-wide,.fp-fields .fp-field:has(#fp-zip){grid-column:1/-1}
   .rail{order:2;position:static;display:grid;
     grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--s3)}
   .rail ol{margin-bottom:0}
   .ad-rail{min-height:110px}
-  .withnotes{grid-template-columns:minmax(0,1fr);gap:var(--s3)}
 }
 @media (max-width:640px){
   body{font-size:15.5px}

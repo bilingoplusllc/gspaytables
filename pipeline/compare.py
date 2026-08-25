@@ -97,7 +97,7 @@ def compare_page(a: str, b: str, T: dict, R: dict, ranks: dict,
                      f'<p>That is how much more a GS-{REF_GRADE} step {REF_STEP} is '
                      f'worth in <strong>{esc(winner)}</strong> than in '
                      f'{esc(loser)} once local prices are counted. Here the bigger '
-                     f'cheque and the better outcome point the same way.</p>')
+                     f'paycheck and the better outcome point the same way.</p>')
         else:
             B.append(f'<p>That is the difference in purchasing power between the two '
                      f'— less than one percent of the salary, which is inside '
@@ -556,7 +556,7 @@ def compare_index(items: list, shell, esc) -> str:
          '<p>These pages cover the highest-paying localities, where most '
          'competitive offers are made, plus Rest of U.S. For any other combination, '
          'open either locality page: each one ranks its own area against all the '
-         'others by purchasing power and names the neighbours immediately above and '
+         'others by purchasing power and names the neighbors immediately above and '
          'below it. The <a href=\"/calculator/\">pay calculator</a> will do the '
          'same for any grade, step and area, and will find your area from a ZIP '
          'code if you are not sure which one you are in.</p>']

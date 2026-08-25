@@ -26,6 +26,7 @@ import compare
 import design
 import fonts
 import icons
+import ladder
 import states
 import pages as P
 
@@ -47,12 +48,18 @@ DATA_DATE = ""
 # Правила @font-face. Читаются с диска: сборка страниц в сеть не ходит.
 FONT_CSS = ""
 
+# Предзагрузка шрифта. Без неё браузер узнаёт о файле только разобрав CSS,
+# и загрузка стартует позже, чем могла бы. Замер показал, что подмена на
+# системный стек сдвигает текст на 0,6% — компенсировать метрики не за чем,
+# а вот стартовать раньше стоит.
+FONT_PRELOAD = ""
+
 # Тег подключения внешнего скрипта. Имя содержит отпечаток данных,
 # поэтому выставляется в main() после их чтения.
 JS_TAG = ""
 
-THEME_LIGHT = "#e9e1d0"
-THEME_DARK = "#0d0c0a"
+THEME_LIGHT = "#f1f2f4"
+THEME_DARK = "#15171a"
 
 # Опорная клетка для сравнений между зонами: GS-12/5 — середина сетки,
 # самый населённый диапазон грейдов.
@@ -235,7 +242,8 @@ def jsonld(title: str, desc: str, canonical: str, crumbs: list) -> str:
 
 
 def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
-          crumbs: list = None, js: str = "", bar: str = "", rail: str = "") -> str:
+          crumbs: list = None, js: str = "", bar: str = "", rail: str = "",
+          wide: bool = False, noindex: bool = False) -> str:
     """Каркас страницы.
 
     bar  — залипающая полоса ответа. Есть на страницах, у которых ответ
@@ -246,17 +254,21 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
     """
     updated = DATA_DATE
     cur = lambda k: ' aria-current="page"' if k == nav else ""
-    layout = "layout" if rail else "layout solo"
+    # wide — раскладка без рельса и без колонки в 820 px: на главной её
+    # занимала таблица из 58 строк на семь колонок, а рельс отбирал под
+    # дубликат верхнего меню ещё 230 px слева.
+    layout = "layout" if rail else ("layout wide" if wide else "layout solo")
     rail_html = f'<aside class="rail">{rail}</aside>' if rail else ""
     return f"""<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
+{FONT_PRELOAD}
 <meta name="theme-color" content="{THEME_LIGHT}" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="{THEME_DARK}" media="(prefers-color-scheme: dark)">
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
-<link rel="canonical" href="{esc(canonical)}">
+{f'<link rel="canonical" href="{esc(canonical)}">' if canonical else ""}{'<meta name="robots" content="noindex">' if noindex else ""}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -281,6 +293,7 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
       <a href="/calculator/"{cur('calc')}>Calculator</a>
       <a href="/compare/"{cur('compare')}>Compare</a>
       <a href="/states/"{cur('states')}>States</a>
+      <a href="/promotion/"{cur('promotion')}>Promotions</a>
       <a href="/grades/"{cur('grades')}>Grades</a>
       <a href="/how-locality-pay-works/"{cur('how')}>How it works</a>
       <a href="/about/"{cur('about')}>About</a>
@@ -451,7 +464,7 @@ def locality_page(code: str, loc: dict, T: dict, R: dict, ranks: dict,
                  f'</section>')
 
     # --- 4. соседи
-    B.append(f'<section class="q" id="near">{neighbours_section(code, ranks)}</section>')
+    B.append(f'<section class="q" id="near">{neighbors_section(code, ranks)}</section>')
 
     # --- 5. где это
     B.append('<section class="q" id="where">')
@@ -504,7 +517,7 @@ def facts_grid(code, loc, T, R, ranks, ref, base_ref, n_capped, nom, adj) -> str
     ledger = "".join(
         f'<div{" class=\"total\"" if m == "total" else ""}>'
         f"<dt>{k}</dt><dd>{v}</dd></div>" for k, v, m in rows)
-    c1 = (f'<div class="fact"><h3>How the number is assembled</h3>'
+    c1 = (f'<div class="fact"><p class="fact-k">How the number is assembled</p>'
           f'<dl class="ledger">{ledger}</dl>'
           f'<p class="kpi-sub">Biweekly is the hourly rate times 80, the way OPM '
           f'derives it \u2014 not the annual rate divided by 26.</p></div>')
@@ -515,34 +528,34 @@ def facts_grid(code, loc, T, R, ranks, ref, base_ref, n_capped, nom, adj) -> str
                                                  else "No change")
         sign = ("+" if move > 0 else ("\u2212" if move < 0 else ""))
         cls = "up" if move > 0 else ("down" if move < 0 else "")
-        c2 = (f'<div class="fact"><h3>Paid #{nom}, {ordinal(adj)} in what it buys</h3>'
+        c2 = (f'<div class="fact"><p class="fact-k">Paid #{nom}, {ordinal(adj)} in what it buys</p>'
               f'<span class="kpi {cls}">{sign}{abs(move) if move else "0"}</span>'
               f'<span class="kpi-sub">{word} once local prices are counted, out of '
               f'{ranks["n"]} areas with published price data.</span></div>')
         buys = ref["annual"] / (rpp / 100.0)
-        c3 = (f'<div class="fact"><h3>What it actually buys</h3>'
+        c3 = (f'<div class="fact"><p class="fact-k">What it actually buys</p>'
               f'<span class="kpi">{money(buys)}</span>'
               f'<span class="kpi-sub">at average U.S. prices, from a salary of '
               f'{money(ref["annual"])}. Local price level {rpp:.1f} against a '
               f'national average of 100.</span></div>')
     else:
-        c2 = (f'<div class="fact"><h3>Rank</h3>'
+        c2 = (f'<div class="fact"><p class="fact-k">Rank</p>'
               f'<span class="kpi">\u2014</span>'
               f'<span class="kpi-sub">This area has no single published price index, '
               f'so it is left out of the purchasing-power ranking rather than given '
               f'an invented figure.</span></div>')
-        c3 = (f'<div class="fact"><h3>Locality adjustment</h3>'
+        c3 = (f'<div class="fact"><p class="fact-k">Locality adjustment</p>'
               f'<span class="kpi">{pct:g}%</span>'
               f'<span class="kpi-sub">on top of the nationwide base table, for every '
               f'grade and every step in this area.</span></div>')
 
     if n_capped:
-        c4 = (f'<div class="fact"><h3>Ceiling watch</h3>'
+        c4 = (f'<div class="fact"><p class="fact-k">Ceiling watch</p>'
               f'<span class="kpi">{n_capped} of 150</span>'
               f'<span class="kpi-sub">cells are pinned to the {money(cap)} statutory '
               f'ceiling. Inside that band a step increase adds nothing.</span></div>')
     else:
-        c4 = (f'<div class="fact"><h3>Ceiling watch</h3>'
+        c4 = (f'<div class="fact"><p class="fact-k">Ceiling watch</p>'
               f'<span class="kpi">Clear</span>'
               f'<span class="kpi-sub">No cell in this area reaches the {money(cap)} '
               f'ceiling, so every step increase is worth its full face '
@@ -567,13 +580,13 @@ def caveat_block(code, loc, ranks, rp):
         # Меньший номер ранга = лучше. Зона ПОДНИМАЕТСЯ, когда её ранг с учётом
         # цен меньше номинального. Ветки стояли наоборот, и страница
         # Сан-Франциско подавала падение с #1 на #21 как выигрыш.
-        body = (base + f"Here the distinction works in your favour: the area ranks "
-                f"#{nom} on the size of the cheque but #{adj} once local prices are "
+        body = (base + f"Here the distinction works in your favor: the area ranks "
+                f"#{nom} on the size of the paycheck but #{adj} once local prices are "
                 f"counted. The salary looks unremarkable and buys more than it appears "
                 f"to.")
     elif nom - adj <= -8:
         body = (base + f"Here the distinction matters a great deal. The area ranks "
-                f"#{nom} by the number on the cheque and only #{adj} once local prices "
+                f"#{nom} by the number on the paycheck and only #{adj} once local prices "
                 f"are counted — a {pct:g}% adjustment that a high cost base takes "
                 f"back.")
     else:
@@ -625,7 +638,7 @@ def mechanics_block(name, loc, T, cap, n_capped):
     return "\n".join(B)
 
 
-def neighbours_section(code, ranks):
+def neighbors_section(code, ranks):
     """Кто стоит рядом в рейтинге покупательной способности."""
     rows = ranks["rows"]
     idx = next((i for i, r in enumerate(rows) if r["code"] == code), None)
@@ -914,6 +927,37 @@ def cap_section(loc: dict, cap: int, n: int, year: int) -> str:
 # --------------------------------------------------------------------------- ранги
 
 
+def page_hero(T: dict, ranks: dict, esc, money,
+              code: str = "DCB", g: str = None, s: str = None) -> str:
+    """Готовый ответ первого экрана, посчитанный на сборке.
+
+    Зона по умолчанию — Washington-Baltimore: там работает больше федеральных
+    служащих, чем в любой другой области, и это же значение уже стоит в
+    селекте. Скрипт при инициализации перерисовывает эти три узла тем же
+    содержимым, поэтому подмены на глазах у читателя не происходит.
+
+    Ранг подписан «of 57», хотя областей 58. Разница настоящая: у одной нет
+    опубликованного индекса цен. Молчать об этом нельзя — это первое число,
+    которое человек на странице проверяет.
+    """
+    g = g or REF_GRADE
+    s = s or REF_STEP
+    loc = T["localities"][code]
+    cell = loc["grades"][g][s]
+    nom = ranks["nominal"].get(code)
+    adj = ranks["adjusted"].get(code)
+    line = (f'Of the {ranks["n"]} areas with a published price level: '
+            f'<b>#{nom}</b> on the payslip, <b>#{adj}</b> once local prices '
+            f'are counted.'
+            if nom and adj else
+            'This area has no published price level, so it carries no '
+            'purchasing-power rank.')
+    return (f'<p class="fp-what" data-what>GS-{g}, step {s} in '
+            f'{esc(loc["area_name"])}, {T["year"]}</p>'
+            f'<p class="fp-big" data-big>{money(cell["annual"])}</p>'
+            f'<p class="fp-ranks" data-ranks>{line}</p>')
+
+
 def compute_ranks(T: dict, R: dict) -> dict:
     rows = []
     for code, loc in T["localities"].items():
@@ -935,7 +979,7 @@ def compute_ranks(T: dict, R: dict) -> dict:
 
 
 def main() -> int:
-    global DATA_DATE, FONT_CSS, JS_TAG
+    global DATA_DATE, FONT_CSS, JS_TAG, FONT_PRELOAD
     T = json.loads((DATA / "paytables-2026.json").read_text(encoding="utf-8"))
     R = json.loads((DATA / "rpp-map.json").read_text(encoding="utf-8"))
     L = json.loads((DATA / "localities-2026.json").read_text(encoding="utf-8"))
@@ -944,6 +988,10 @@ def main() -> int:
     # ходит, шрифт качает fetch.py. Нет файла — страницы соберутся на
     # запасном системном стеке.
     FONT_CSS = fonts.css_from_disk()
+    _woff = sorted(fonts.FONTS.glob("*.woff2")) if fonts.available() else []
+    FONT_PRELOAD = "".join(
+        f'<link rel="preload" href="/fonts/{f.name}" as="font" '
+        f'type="font/woff2" crossorigin>' for f in _woff)
     ranks = compute_ranks(T, R)
 
     bundle_name, bundle_body = calc_bundle(T, R, ranks)
@@ -977,6 +1025,7 @@ def main() -> int:
                            "Each page shows that grade in all 58 areas at once."),
             widget=calc.calc_widget(
                 zones=calc.zone_options(T, "DCB"), grade=g, step="5",
+                hero=page_hero(T, ranks, esc, money, g=g, s="5"),
                 heading=f"What a GS-{g} earns where you are",
                 note=("Pick the locality pay area, or open the full calculator to "
                       "find it from a ZIP code.")),
@@ -996,6 +1045,7 @@ def main() -> int:
     write("calculator", P.calculator(
         T, R, shell, esc, money,
         calc.calc_widget(zones=calc.zone_options(T, "DCB"), with_zip=True,
+                         hero=page_hero(T, ranks, esc, money),
                          heading="Work out a General Schedule salary",
                          note=("Gross pay from the published federal tables. Not "
                                "take-home: deductions depend on choices this page "
@@ -1074,7 +1124,23 @@ def main() -> int:
         st_items.append(("states/no-locality-area", states.NAMES[c]))
     st_items.sort(key=lambda x: x[1])
     write("states", states.states_index(st_items, shell, esc))
-    urls.append("/compare/")
+    urls.append("/states/")
+
+    # --- лестница грейдов: типа страниц нет ни у одного конкурента
+    lad_items = [(f"promotion/gs-{g}-to-gs-{g+1}", f"GS-{g} to GS-{g+1}")
+                 for g in range(1, 15)]
+    for g in range(1, 15):
+        lad_rail = side_rail(
+            "Every promotion",
+            [(f"/promotion/gs-{x}-to-gs-{x+1}/", f"GS-{x} to GS-{x+1}", x == g)
+             for x in range(1, 15)],
+            "The step you land on is set by rule, not by negotiation.")
+        rel, html_page = ladder.ladder_page(g, T, R, ranks, shell, esc, money,
+                                            slug, lad_rail)
+        write(rel, html_page)
+        urls.append(f"/{rel}/")
+    write("promotion", ladder.ladder_index(lad_items, T, shell, esc, money))
+    urls.append("/promotion/")
 
     # Файл индексов подгружается инструментом по запросу пользователя, поэтому
     # он лежит рядом, а не внутри страницы: 203 КБ незачем возить всем.
@@ -1091,9 +1157,13 @@ def main() -> int:
         P.home(T, R, ranks, L, shell, esc, money, slug,
                widget=calc.calc_widget(
                    zones=calc.zone_options(T, "DCB"), with_zip=True,
+                   heading="What does your grade and step pay?",
+                   hero=page_hero(T, ranks, esc, money),
                    note=("Gross pay from the published federal tables. Not "
                          "take-home: deductions depend on choices this page "
-                         "does not ask about.")),
+                         "does not ask about. New to federal service? A first "
+                         "appointment is almost always step 1 \u2014 the "
+                         "default here is step 5, the middle of the grade.")),
                js=JS_TAG), encoding="utf-8")
     for rel, html_ in (
         ("how-locality-pay-works", P.how_it_works(T, shell, money)),
@@ -1116,19 +1186,16 @@ def main() -> int:
         "/*\n  X-Content-Type-Options: nosniff\n"
         "  Referrer-Policy: strict-origin-when-cross-origin\n"
         "  X-Frame-Options: DENY\n"
+        "  Cache-Control: public, max-age=0, must-revalidate\n"
         "\n"
-        "# Страницы пересобираются при каждом изменении данных, поэтому\n"
-        "# браузер обязан спрашивать заново.\n"
-        "/*.html\n  Cache-Control: public, max-age=0, must-revalidate\n"
-        "\n"
-        "# Шрифты и файл почтовых индексов меняются раз в год и весят\n"
-        "# сотни килобайт. Имена стабильны — кешируем надолго.\n"
+        "# Fonts and the ZIP lookup change once a year and carry stable\n"
+        "# names, so they may be cached indefinitely.\n"
         "/fonts/*\n  Cache-Control: public, max-age=31536000, immutable\n"
+        "/zip-zone.json\n  Cache-Control: public, max-age=604800\n"
         "\n"
-        "# Имя файла инструмента содержит отпечаток данных: при их\n"
-        "# изменении адрес сменится сам, кеш можно ставить вечный.\n"
-        "/fp.*.js\n  Cache-Control: public, max-age=31536000, immutable\n"
-        "/zip-zone.json\n  Cache-Control: public, max-age=604800\n",
+        "# The tool filename carries the data fingerprint: when the data\n"
+        "# changes the address changes with it, so this never expires.\n"
+        "/fp.*.js\n  Cache-Control: public, max-age=31536000, immutable\n",
         encoding="utf-8")
 
     print(f"страниц: {len(urls)} + 404")
@@ -1137,6 +1204,50 @@ def main() -> int:
     problems: list[str] = []
     htmls = sorted(DIST.rglob("*.html"))
     all_urls = {u.rstrip("/") for u in urls} | {"/404.html"}
+
+    # 0a. американский сайт американскими словами. Список форм, а не
+    #     словарь: ловим ровно то, что уже один раз просочилось, плюс
+    #     ближайших родственников. Смотрим и HTML, и клиентский бандл —
+    #     одно вхождение жило в JS и попадало на страницу из браузера.
+    BRIT = ("cheque", "favour", "labour", "neighbour", "centre", "colour",
+            "organise", "analyse", "programme", "whilst", "practise",
+            "licence", "defence", "traveller", "enrolment", "fulfil")
+    for f in sorted(DIST.rglob("*.html")) + sorted(DIST.glob("fp.*.js")):
+        low = f.read_text(encoding="utf-8").lower()
+        for w in BRIT:
+            if w in low:
+                problems.append(
+                    f"{f.relative_to(DIST)}: британская форма {w!r}")
+
+    # 0b. кириллица во ВСЕЙ выкладке, не только в HTML. Файл _headers
+    #     однажды уехал с русскими комментариями: гейт смотрел *.html и не
+    #     увидел его. Проверка, которая зависит от того, отдаёт ли данный
+    #     хостинг служебный файл наружу, ничего не гарантирует.
+    for f in sorted(DIST.rglob("*")):
+        if not f.is_file() or f.suffix in (".woff2", ".png", ".ico"):
+            continue
+        try:
+            body = f.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        if re.search(r"[\u0400-\u04FF]", body):
+            problems.append(f"{f.relative_to(DIST)}: кириллица в выкладке")
+
+    # 0. карта сайта против сборки, в обе стороны и без дублей.
+    #    Хаб /promotion/ однажды выпал из карты из-за копипасты в соседней
+    #    строке, и ни один гейт этого не увидел: страница была на месте, а
+    #    дубль /compare/ добивал счётчик до правильного числа.
+    smap = re.findall(r"<loc>([^<]+)</loc>",
+                      (DIST / "sitemap.xml").read_text(encoding="utf-8"))
+    for u in sorted({u for u in smap if smap.count(u) > 1}):
+        problems.append(f"карта сайта: адрес повторяется — {u}")
+    built = {"/" + f.relative_to(DIST).as_posix()[:-len("index.html")]
+             for f in htmls if f.name == "index.html"}
+    listed = {u[len(DOMAIN):] or "/" for u in smap if u.startswith(DOMAIN)}
+    for miss in sorted(built - listed):
+        problems.append(f"карта сайта: страница есть, адреса нет — {miss}")
+    for ghost in sorted(listed - built):
+        problems.append(f"карта сайта: адрес есть, страницы нет — {ghost}")
 
     for f in htmls:
         h = f.read_text(encoding="utf-8")
@@ -1197,7 +1308,7 @@ def main() -> int:
         if f.parent.parent.name != "locality":
             continue
         h = f.read_text(encoding="utf-8")
-        good = "works in your favour" in h
+        good = "works in your favor" in h
         bad = "matters a great deal" in h
         if good and bad:
             contra.append(f"{f.relative_to(DIST)}: обе формулировки сразу")
@@ -1437,7 +1548,7 @@ def main() -> int:
     print("гейты пройдены: кириллица, битые вычисления, дисклеймер, ссылки, "
           "объём, направление, полнота охвата, пунктуация, крошки, "
           "клиентский расчёт, экранирование, управляющие символы, "
-                "внешние запросы, шрифт, стили")
+                "внешние запросы, шрифт, стили, карта сайта, американское написание")
     return 0
 
 

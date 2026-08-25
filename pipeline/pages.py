@@ -26,49 +26,40 @@ def home(T: dict, R: dict, ranks: dict, L: dict, shell, esc, money, slug,
     nom_top = max(rows, key=lambda r: r["nominal"])
     gap = top["adjusted"] - (nom_top["nominal"] / (nom_top["rpp"] / 100.0))
 
-    SECTIONS = [("find", "Find your rate"),
-                ("reversal", "The finding most people miss"),
-                ("table", "All 58 areas ranked"),
-                ("grades", "Browse by grade"),
-                ("method", "Where the numbers come from")]
+    B = [f'<h1>{year} GS pay scale, ranked by what the salary actually buys</h1>']
+    B.append(f'<p class="sub">All {len(locs)} locality pay areas, checked cell by '
+             f'cell against the official OPM tables.</p>')
 
-    B = [f'<h1>{year} GS pay scale, by locality</h1>']
-    B.append(f'<p class="sub">Every General Schedule rate for all {len(locs)} locality '
-             f'pay areas, recomputed from the official tables and checked cell by '
-             f'cell. Plus the thing the tables do not tell you: what each salary is '
-             f'actually worth once local prices are counted.</p>')
+    # --- 1. ответ первым, до всякой прозы: человек пришёл за своим числом
+    B.append(f'<section class="q" id="find">{widget}</section>')
 
-    # --- 1. инструмент первым: человек пришёл за своим числом
-    B.append('<section class="q" id="find">')
-    B.append('<h2>What does your grade and step pay?</h2>')
-    B.append('<p class="q-lead">Enter a ZIP code, or pick the area from the list. '
-             'The answer is the annual, biweekly, hourly and overtime rate for that '
-             'duty station \u2014 and what it is worth after local prices.</p>')
-    B.append(widget)
-    B.append('</section>')
-
-    B.append('<div class="ad-slot ad-band">Advertisement</div>')
-
-    # --- 2. находка как сопоставление, а не как абзац
+    # --- 2. находка
     B.append('<section class="q" id="reversal">')
-    B.append('<h2>The highest-paying area is not the one where you end up richest</h2>')
-    B.append(f'<p class="q-lead">At GS-12 step 5 the biggest cheque in the General '
+    B.append('<h2>The highest-paying area is not the one where you end up '
+             'richest</h2>')
+    B.append(f'<p class="q-lead">At GS-12 step 5 the biggest paycheck in the General '
              f'Schedule is written in <strong>{esc(nom_top["name"])}</strong>. The '
              f'salary that goes furthest belongs to '
              f'<strong>{esc(top["name"])}</strong>, and the gap between them is '
              f'<strong>{money(gap)} a year</strong>.</p>')
+    # Обе карточки теперь в ОДНИХ единицах — покупательной способности. Раньше
+    # слева стояла зарплата, справа покупательная способность, одинаковым
+    # кеглем: беглый читатель сравнивал 126 817 с 121 175 и делал вывод,
+    # обратный тезису секции.
+    nom_buys = nom_top["nominal"] / (nom_top["rpp"] / 100.0)
     B.append(f'<div class="facts">'
-             f'<div class="fact"><h3>Biggest cheque</h3>'
-             f'<span class="kpi">{money(nom_top["nominal"])}</span>'
-             f'<span class="kpi-sub">{esc(nom_top["name"])}. Local prices '
-             f'{nom_top["rpp"]:.1f} against a national average of 100, so it buys '
-             f'{money(nom_top["nominal"] / (nom_top["rpp"] / 100.0))}.</span></div>'
-             f'<div class="fact"><h3>Goes furthest</h3>'
+             f'<div class="fact"><p class="fact-k">Biggest paycheck, and what it buys</p>'
+             f'<span class="kpi">{money(nom_buys)}</span>'
+             f'<span class="kpi-sub">{esc(nom_top["name"])} pays '
+             f'{money(nom_top["nominal"])}, the most in the country. Local prices '
+             f'stand at {nom_top["rpp"]:.1f} against a national average of 100, '
+             f'which is what the salary comes down to.</span></div>'
+             f'<div class="fact"><p class="fact-k">Goes furthest, and what it pays</p>'
              f'<span class="kpi">{money(top["adjusted"])}</span>'
-             f'<span class="kpi-sub">of purchasing power in {esc(top["name"])}, from '
-             f'a salary of {money(top["nominal"])} \u2014 '
-             f'{money(nom_top["nominal"] - top["nominal"])} less on paper.</span>'
-             f'</div></div>')
+             f'<span class="kpi-sub">{esc(top["name"])} pays '
+             f'{money(top["nominal"])} \u2014 '
+             f'{money(nom_top["nominal"] - top["nominal"])} less on paper, and '
+             f'{money(gap)} more once prices are counted.</span></div></div>')
     B.append('<p>Locality pay is calculated from what <em>private employers in the '
              'same region pay for comparable work</em>. It is not a cost-of-living '
              'adjustment, and OPM says so plainly. The two are related, but not the '
@@ -79,31 +70,40 @@ def home(T: dict, R: dict, ranks: dict, L: dict, shell, esc, money, slug,
              'the official table; the last two are ours.</p>')
     B.append('</section>')
 
-    # --- 3. таблица всех зон, сортируемая
+    B.append('<div class="ad-slot ad-band">Advertisement</div>')
+
+    # --- 3. таблица всех зон
     B.append('<section class="q" id="table">')
     B.append(f'<h2>All {len(locs)} locality pay areas, ranked by what the salary '
              f'buys</h2>')
-    B.append('<p class="q-lead">Sorted by purchasing power rather than by the size of '
-             'the cheque. <strong>Click any column heading</strong> to sort by it '
-             'instead.</p>')
+    B.append(f'<p class="q-lead">Dollar figures are a <strong>GS-12, step 5</strong> '
+             f'\u2014 the middle of the schedule, used here so that every area is '
+             f'compared on the same cell. Change the grade above and the table '
+             f'follows. <strong>Click any column heading</strong> to sort by '
+             f'it.</p>')
     B.append(_home_table(T, R, ranks, L, esc, money, slug))
     B.append('</section>')
 
     B.append('<div class="ad-slot ad-band">Advertisement</div>')
 
-    # --- 4. грейды
+    # --- 4. грейды: ссылка с суммой внутри, а не «Browse by grade»
     B.append('<section class="q" id="grades">')
     B.append('<h2>Or start from a grade</h2>')
     B.append('<p class="q-lead">Each grade page shows that grade in every area at '
              'once \u2014 the comparison people actually need when weighing a '
-             'move.</p>')
-    chips = "".join(f'<a href="/gs-{g}/">GS-{g}</a>'
-                    for g in sorted(T["base"]["grades"], key=int))
-    B.append(f'<div class="chips">{chips}</div>')
+             'move. Figures below are base rates, before any locality '
+             'adjustment.</p>')
+    base = T["base"]["grades"]
+    chips = "".join(
+        f'<a href="/gs-{g}/"><b>GS-{g}</b>'
+        f'<span>{money(base[str(g)]["1"]["annual"])}</span></a>'
+        for g in sorted((int(k) for k in base), key=int))
+    B.append(f'<div class="chips-pay">{chips}</div>')
     B.append('<p>There are also <a href="/compare/">side-by-side comparisons</a> of '
              'the highest-paying areas against each other and against Rest of U.S., '
-             'and a <a href="/calculator/">full calculator</a> that will find your '
-             'area from a ZIP code.</p>')
+             'a page for <a href="/promotion/">every promotion</a> from one grade to '
+             'the next, and a <a href="/calculator/">full calculator</a> that will '
+             'find your area from a ZIP code.</p>')
     B.append('</section>')
 
     # --- 5. откуда числа
@@ -128,16 +128,12 @@ def home(T: dict, R: dict, ranks: dict, L: dict, shell, esc, money, slug,
              'sets out the rules in full.</p>')
     B.append('</section>')
 
-    rail = ('<h2>On this page</h2><ol>'
-            + "".join(f'<li><a href="#{i}">{esc(lbl)}</a></li>' for i, lbl in SECTIONS)
-            + '</ol><div class="ad-slot ad-rail">Advertisement</div>')
-
     return shell(f"{year} GS Pay Scale by Locality \u2014 all {len(locs)} areas",
                  f"Complete {year} General Schedule pay tables for all {len(locs)} "
                  f"locality pay areas, ranked by what each salary buys after local "
                  f"prices, not just by the headline number.",
                  "\n".join(B), "https://fedpayscale.com/", "home",
-                 js=js, rail=rail)
+                 js=js, wide=True)
 
 
 def _home_table(T, R, ranks, L, esc, money, slug) -> str:
@@ -154,7 +150,8 @@ def _home_table(T, R, ranks, L, esc, money, slug) -> str:
                 else (f"\u2212{-delta}" if delta < 0 else "\u2014"))
         cls = "up" if delta > 0 else ("down" if delta < 0 else "flat")
         body.append(
-            f'<tr><td class="rank" data-v="{i}">{i}</td>'
+            f'<tr data-code="{code}">'
+            f'<td class="rank" data-v="{i}">{i}</td>'
             f'<th scope="row" data-v="{esc(r["name"])}">'
             f'<a href="/locality/{slug(r["name"])}/">{esc(r["name"])}</a></th>'
             f'<td class="num" data-v="{pct}">{pct:g}%</td>'
@@ -168,7 +165,8 @@ def _home_table(T, R, ranks, L, esc, money, slug) -> str:
         loc = locs[code]
         cell = loc["grades"]["12"]["5"]
         extra.append(
-            f'<tr><td class="rank" data-v="99">\u2014</td>'
+            f'<tr data-code="{code}">'
+            f'<td class="rank" data-v="99">\u2014</td>'
             f'<th scope="row" data-v="{esc(loc["area_name"])}">'
             f'<a href="/locality/{slug(loc["area_name"])}/">'
             f'{esc(loc["area_name"])}</a></th>'
@@ -179,23 +177,27 @@ def _home_table(T, R, ranks, L, esc, money, slug) -> str:
             f'<td class="num" data-v="">\u2014</td>'
             f'<td class="num flat" data-v="">\u2014</td></tr>')
 
-    heads = [("#", "rank"), ("Locality", ""), ("Locality pay", "num"),
-             ("On paper", "num"), ("Prices", "num"), ("What it buys", "num"),
-             ("Rank shift", "num")]
+    heads = [("PP rank", "rank", False), ("Locality", "", False),
+             ("Locality pay", "num", True), ("On paper", "num", True),
+             ("Prices", "num", True), ("What it buys", "num", True),
+             ("Rank shift", "num", True)]
     th = "".join(
-        f'<th class="{c}" data-sort="{n}" tabindex="0" role="button" '
-        f'aria-label="Sort by {lbl}">{lbl}</th>'
-        for n, (lbl, c) in enumerate(heads))
-
+        f'<th class="{c}" scope="col" data-sort="{n}" aria-sort="none"'
+        f'{" data-desc" if d else ""}>'
+        f'<button type="button">{lbl}</button></th>'
+        for n, (lbl, c, d) in enumerate(heads))
     return (f'<div class="scroll" tabindex="0" role="region" '
-            f'aria-label="Scrollable table"><table data-sortable>'
+            f'aria-label="All locality pay areas ranked by purchasing power">'
+            f'<table data-sortable data-home>'
             f'<thead><tr>{th}</tr></thead>'
             f'<tbody>{"".join(body)}{"".join(extra)}</tbody></table></div>'
             f'<p class="tlegend"><span>Sorted by purchasing power. The price column '
             f'is the BEA Regional Price Parity for {R["bea_year"]}, where 100 is the '
             f'national average \u2014 below 100 is cheaper.</span>'
             f'<span>Rank shift: how many places the area moves when you stop ranking '
-            f'by the cheque and start ranking by what it buys.</span></p>')
+            f'by the paycheck and start ranking by what it buys. The first '
+            f'column is that same purchasing-power rank, so it stays with its '
+            f'area when you sort by something else.</span></p>')
 
 
 def grade_page(g: str, T: dict, R: dict, ranks: dict, shell, esc, money, slug,
@@ -266,7 +268,7 @@ def grade_page(g: str, T: dict, R: dict, ranks: dict, shell, esc, money, slug,
     B.append(f"""<figure class="ex">
 <div class="ex-kicker">Exhibit 1</div>
 <div class="ex-title">GS-{g} step 5 in every locality</div>
-<p class="ex-note">Sorted by the number on the cheque. The last column divides that
+<p class="ex-note">Sorted by the number on the paycheck. The last column divides that
 number by the local price level, so it is comparable in what it buys. Cells marked ▲
 have been cut to the {money(cap)} statutory ceiling.</p>
 <div class="scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
@@ -361,16 +363,16 @@ def how_it_works(T: dict, shell, money) -> str:
              'surprise people most: locality is not cost of living, steps are not '
              'evenly spaced, and raises stop counting once you hit the ceiling.</p>')
 
-    B.append('<h2>It is a labour-market adjustment, not a cost-of-living one</h2>')
+    B.append('<h2>It is a labor-market adjustment, not a cost-of-living one</h2>')
     B.append('<p>Locality pay exists because of the Federal Employees Pay Comparability '
              'Act of 1990, which set out to close the gap between federal and '
-             'non-federal salaries in the same labour market. The comparison is against '
+             'non-federal salaries in the same labor market. The comparison is against '
              '<em>what other employers in that region pay for similar work</em>, '
              'measured by the Bureau of Labor Statistics. It is not a measure of what '
              'housing, food or childcare cost there.</p>')
     B.append('<p>The practical consequence runs through this whole site: an area can pay '
              'a large adjustment and still leave you with less, because a strong '
-             'private labour market and expensive living usually travel together but '
+             'private labor market and expensive living usually travel together but '
              'not in the same proportion.</p>')
 
     B.append('<h2>Your duty station decides, not your address</h2>')
@@ -446,7 +448,7 @@ def how_it_works(T: dict, shell, money) -> str:
              'official table cell by cell.</p>')
 
     return shell("How Locality Pay Works — the rules behind the GS number",
-                 "Locality pay is a labour-market adjustment, not a cost-of-living "
+                 "Locality pay is a labor-market adjustment, not a cost-of-living "
                  "one. How duty station, waiting periods and the statutory ceiling "
                  "set a federal salary.",
                  "\n".join(B), "https://fedpayscale.com/how-locality-pay-works/", "how")
@@ -553,9 +555,11 @@ def not_found(shell) -> str:
          '<p>If you were looking for a locality or a grade, start from the '
          '<a href="/">list of all localities</a> — every page on this site is linked '
          'from there.</p>']
+    # Пустой canonical хуже отсутствующего: он валиден и указывает на текущий
+    # адрес, то есть 404 само-канонизируется на любой запрошенный мусор.
     return shell("Page not found — FedPay",
                  "That address does not match anything on this site.",
-                 "\n".join(B), "")
+                 "\n".join(B), "", noindex=True)
 
 
 def sitemap(urls: list[str], domain: str, lastmod: str = "") -> str:
@@ -726,7 +730,7 @@ def calculator(T: dict, R: dict, shell, esc, money, widget, js: str,
              'depend on choices and circumstances this page knows nothing about: '
              'your FERS contribution tier, which depends on when you were first '
              'hired; how much you put into the Thrift Savings Plan and whether it is '
-             'traditional or Roth; which FEHB plan you carry and at what enrolment '
+             'traditional or Roth; which FEHB plan you carry and at what enrollment '
              'level; FEGLI; your filing status; and the income tax of the state you '
              'live in, which is not always the state you work in.</p>')
     B.append('<p>We would rather show one number that is exactly right than a '
@@ -742,7 +746,7 @@ def calculator(T: dict, R: dict, shell, esc, money, widget, js: str,
              'of ZIPs and fails in three situations worth knowing about.</p>')
     B.append('<p>Some ZIP codes serve post office boxes or a single large building '
              'and have no territory of their own; they are absent from the Census '
-             'file, and the calculator says so rather than guessing at a neighbour. '
+             'file, and the calculator says so rather than guessing at a neighbor. '
              'Some ZIP codes straddle a county line, and occasionally the two '
              'counties sit in different locality pay areas \u2014 about 1,400 of the '
              '33,791 do. In that case we return the area covering the larger share '
@@ -804,7 +808,7 @@ def calculator(T: dict, R: dict, shell, esc, money, widget, js: str,
 
     B.append('<h2>Pay systems this calculator does not cover</h2>')
     B.append('<p>Roughly a third of federal employees are not paid from the General '
-             'Schedule at all. Wage Grade trades and labour positions use locality '
+             'Schedule at all. Wage Grade trades and labor positions use locality '
              'wage schedules built from local prevailing rates. The Senior Executive '
              'Service, the Federal Aviation Administration, the Transportation '
              'Security Administration, Department of Veterans Affairs Title 38 '
@@ -894,7 +898,7 @@ def contact(shell, contact_email: str, owner: str) -> str:
          'and for anything serious you should go to the source rather than to '
          'us.</p>',
          '<p>What is ours is the arrangement of this site, its wording, and the '
-         'purchasing-power comparison that sits at the centre of it. If you want to '
+         'purchasing-power comparison that sits at the center of it. If you want to '
          'quote or reproduce that, write to the address above. We answer, and the '
          'answer is usually yes.</p></section>']
     return shell("Contact FedPay",
