@@ -25,6 +25,8 @@
 """
 from __future__ import annotations
 
+import ads
+
 # Адрес сайта живёт одной константой в render.py и подставляется
 # сюда на старте сборки. Домен ещё не выбран, и он обязан
 # меняться одной строкой, а не обходом шести файлов.
@@ -93,7 +95,7 @@ def ladder_page(g: int, T: dict, R: dict, ranks: dict, shell, esc, money, slug,
              f'<span class="kpi-sub">GS-{nxt} step 10 against GS-{g} step 10. This '
              f'is where the value of a promotion actually sits.</span></div>'
              f'</div>')
-    B.append('<div class="ad-slot ad-band">Advertisement</div>')
+    B.append(ads.slot("band"))
 
     # --- главная таблица
     body = "".join(

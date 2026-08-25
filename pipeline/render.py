@@ -21,10 +21,12 @@ import sys
 from datetime import date
 from pathlib import Path
 
+import ads
 import calc
 import compare
 import names
 import design
+import edition
 import fonts
 import icons
 import ladder
@@ -137,7 +139,7 @@ def side_rail(title: str, links: list, note: str = "") -> str:
         f'</a></li>' for href, label, cur in links)
     tail = f'<p class="rail-note">{note}</p>' if note else ""
     return (f'<h2>{esc(title)}</h2><ol>{items}</ol>{tail}'
-            f'<div class="ad-slot ad-rail">Advertisement</div>')
+            + ads.slot("rail"))
 
 
 def calc_bundle(T: dict, R: dict, ranks: dict) -> tuple:
@@ -232,7 +234,13 @@ def jsonld(title: str, desc: str, canonical: str, crumbs: list) -> str:
     сниппет целиком, а тема у нас денежная — доверие дороже украшений.
     """
     graph = [{
-        "@type": "WebPage", "@id": canonical, "url": canonical,
+        # Адрес опускается целиком, когда его нет. На 404 canonical
+        # пуст НАМЕРЕННО — страница не должна само-канонизироваться на
+        # запрошенный мусор, — но пустое "@id" это не «адреса нет», а
+        # «адрес равен пустой строке»: битая разметка на единственной
+        # странице, куда попадают заблудившиеся читатели.
+        "@type": "WebPage",
+        **({"@id": canonical, "url": canonical} if canonical else {}),
         "name": title, "description": desc,
         "dateModified": DATA_DATE,
         "isPartOf": {"@id": f"{DOMAIN}/#website"},
@@ -304,7 +312,7 @@ def _with_margin(inner: str) -> str:
         body = inner[:m.start()] + inner[m.end():]
         note = (f'<div class="note"><p class="note-k">Reading this table</p>'
                 f'{m.group(0)}</div>')
-    notes = note + '<div class="ad-slot ad-rail">Advertisement</div>'
+    notes = note + ads.slot("rail")
     if wide:
         return f'{body}<div class="marg marg-under">{notes}</div>'
     return (f'<div class="grid"><div>{body}</div>'
@@ -425,7 +433,7 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 <meta property="og:type" content="website"><meta property="og:site_name" content="{SITE}">
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(desc)}">
-<meta property="og:url" content="{esc(canonical)}">
+{f'<meta property="og:url" content="{esc(canonical)}">' if canonical else ""}
 <meta property="og:image" content="{DOMAIN}/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -559,7 +567,7 @@ def locality_rail(code: str, T: dict, sections: list) -> str:
     return (f'<div class="switch"><label for="rail-zone">Switch area</label>'
             f'<select id="rail-zone" data-jump>{opts}</select></div>'
             f'<h2>On this page</h2><ol>{nav}</ol>'
-            f'<div class="ad-slot ad-rail">Advertisement</div>')
+            + ads.slot("rail"))
 
 
 def locality_page(code: str, loc: dict, T: dict, R: dict, ranks: dict,
@@ -596,7 +604,7 @@ def locality_page(code: str, loc: dict, T: dict, R: dict, ranks: dict,
 
     # --- четыре факта на первом экране, вместо четырёх экранов прокрутки
     B.append(facts_grid(code, loc, T, R, ranks, ref, base_ref, n_capped, nom, adj))
-    B.append('<div class="ad-slot ad-band">Advertisement</div>')
+    B.append(ads.slot("band"))
 
     # --- 1. таблица как элемент управления
     B.append(f'<section class="q" id="rates"><h2>Every {year} rate in '
@@ -981,7 +989,8 @@ def counties_section(name, places):
     B.append(f'<figure class="ex"><div class="ex-kicker">Every county in this locality'
              f'</div><div class="ex-title">{len(counties)} places paid at this rate</div>'
              f'<ul class="counties">{chips}</ul>'
-             f'<figcaption>Source: OPM 2026 locality pay area definitions. FIPS codes '
+             f'<figcaption>Source: OPM {T_YEAR} locality pay area definitions. '
+             f'FIPS codes '
              f'are omitted here for readability. Military installations that OPM assigns '
              f'to a different locality than the county around them are listed separately '
              f'and are not shown in this list.</figcaption></figure>')
@@ -1173,8 +1182,32 @@ def compute_ranks(T: dict, R: dict) -> dict:
 
 def main() -> int:
     global DATA_DATE, FONT_CSS, JS_TAG, FONT_PRELOAD, T_YEAR, T_AREAS
-    T = json.loads((DATA / "paytables-2026.json").read_text(encoding="utf-8"))
+    # Год в данных обязан совпадать с годом издания, и проверка стоит ДО
+    # сборки: январский прогон на прошлогодних таблицах должен падать сразу
+    # и громко, а не выкладывать устаревший сайт.
+    #   Проверка идёт в два шага, потому что имя файла само содержит год.
+    # Когда OPM ещё не опубликовал таблицы, чтение падает раньше любой
+    # сверки — и оператор получает трассировку стека вместо указания, что
+    # делать. Поэтому наличие файла проверяется отдельно.
+    src = DATA / f"paytables-{edition.YEAR}.json"
+    have = sorted(p.name.removeprefix("paytables-").removesuffix(".json")
+                  for p in DATA.glob("paytables-*.json"))
+    if not src.exists():
+        print(f"ОШИБКА: нет {src.name}. Издание — {edition.YEAR}, "
+              f"а на диске: {', '.join(have) or 'ничего'}.\n"
+              f"  Если OPM опубликовал таблицы {edition.YEAR} — прогнать "
+              f"fetch.py, parse.py, localities.py, rpp.py, zips.py.\n"
+              f"  Если ещё не опубликовал — остаться на прошлом годе "
+              f"ОСОЗНАННО: GS_YEAR={have[-1] if have else 'ГОД'}.",
+              file=sys.stderr)
+        return 1
+    T = json.loads(src.read_text(encoding="utf-8"))
     T_YEAR = str(T["year"])
+    if T["year"] != edition.YEAR:
+        print(f"ОШИБКА: в {src.name} стоит год {T['year']}, а издание "
+              f"{edition.YEAR}. Файл собран не тем годом — перепрогнать "
+              f"parse.py.", file=sys.stderr)
+        return 1
     # Константа адреса раздаётся модулям страниц: обратный импорт
     # создал бы петлю, а дублировать литерал нельзя — домен ещё не
     # выбран и обязан меняться одной строкой.
@@ -1182,7 +1215,8 @@ def main() -> int:
         _m.DOMAIN = DOMAIN
     T_AREAS = str(len(T["localities"]))
     R = json.loads((DATA / "rpp-map.json").read_text(encoding="utf-8"))
-    L = json.loads((DATA / "localities-2026.json").read_text(encoding="utf-8"))
+    L = json.loads(
+        (DATA / f"localities-{edition.YEAR}.json").read_text(encoding="utf-8"))
     DATA_DATE = data_date(T, R, L)
     # Готовый блок @font-face читается с диска: сборка страниц в сеть не
     # ходит, шрифт качает fetch.py. Нет файла — страницы соберутся на
@@ -1392,6 +1426,23 @@ def main() -> int:
         "/*\n  X-Content-Type-Options: nosniff\n"
         "  Referrer-Policy: strict-origin-when-cross-origin\n"
         "  X-Frame-Options: DENY\n"
+        # Год для самого домена, без includeSubDomains и без preload:
+        # поддоменов нет, а запись в preload-списке браузеров убирается
+        # месяцами.
+        "  Strict-Transport-Security: max-age=31536000\n"
+        # Справочнику не нужны ни камера, ни микрофон, ни геолокация, ни
+        # платёжный интерфейс. Отказ объявляется явно.
+        "  Permissions-Policy: camera=(), microphone=(), geolocation=(), "
+        "payment=(), usb=(), interest-cohort=()\n"
+        # script-src без 'unsafe-inline': исполняемого встроенного кода на
+        # сайте нет вообще. style-src С 'unsafe-inline' сознательно —
+        # стили встроены одним блоком, и промах хеша на один пробел снял
+        # бы оформление сразу у всех. Расширить в день подключения
+        # рекламы: сеть грузит скрипты со своих хостов.
+        "  Content-Security-Policy: default-src 'self'; script-src 'self'; "
+        "style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; "
+        "connect-src 'self'; object-src 'none'; base-uri 'none'; "
+        "form-action 'none'; frame-ancestors 'none'\n"
         "\n"
         "# Fonts and the ZIP lookup change once a year and carry stable\n"
         "# names, so they may be cached indefinitely.\n"
@@ -1880,6 +1931,33 @@ def main() -> int:
                 problems.append(f"{f.relative_to(DIST)}: чужой домен {d}")
                 break
 
+    # 19. реклама без ads.txt. Файл нужен всем трём сетям в день
+    #     подключения, и забыть его легче всего: правка переключателя — одна
+    #     строка, а файл живёт отдельно. Гейт связывает их: включённая
+    #     реклама без ads.txt не выкладывается.
+    if ads.ADS_LIVE and not (DIST / "ads.txt").exists():
+        problems.append("реклама включена, а ads.txt нет — сети его требуют")
+    if not ads.ADS_LIVE:
+        lit = [f.relative_to(DIST) for f in htmls
+               if "ad-slot ad-" in f.read_text(encoding="utf-8")
+               and " on\"" in f.read_text(encoding="utf-8")]
+        if lit:
+            problems.append(f"реклама выключена, а класс on есть на {len(lit)}")
+
+    # 18. год издания на страницах. Год стоял литералом в шести местах, и
+    #     гейт свежести пропускал это по построению: он сверял скачанный файл
+    #     с ЗАПРОШЕННЫМ годом, а запрашивали всегда один и тот же. В январе
+    #     сборка молча собрала бы прошлогодний сайт при зелёных проверках.
+    #     Этот гейт смотрит на отданное: год издания обязан быть на КАЖДОЙ
+    #     странице. Сегодня он есть на всех 164 из 164.
+    year_s = str(edition.YEAR)
+    stale = [f.relative_to(DIST) for f in htmls
+             if year_s not in f.read_text(encoding="utf-8")]
+    if stale:
+        problems.append(
+            f"год издания {year_s} отсутствует на {len(stale)} страницах "
+            f"(первая: {stale[0]})")
+
     # 17. описание страницы. Живёт в голове документа, поэтому все прочие
     #     гейты его не видят: они читают тело. Пустое описание уехало на семь
     #     зон разом, потому что набор по предложениям не брал ни одного, если
@@ -1923,7 +2001,7 @@ def main() -> int:
           "объём, направление, полнота охвата, пунктуация, крошки, "
           "клиентский расчёт, экранирование, управляющие символы, "
                 "внешние запросы, шрифт, стили, карта сайта, американское написание, табличные цифры, покрытие шрифта, совпадение гарнитуры, "
-          "правила без разметки, описание, адрес")
+          "правила без разметки, описание, адрес, год издания, реклама")
     return 0
 
 

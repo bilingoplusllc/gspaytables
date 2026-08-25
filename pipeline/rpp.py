@@ -23,6 +23,8 @@ import re
 import zipfile
 from pathlib import Path
 
+import edition
+
 HERE = Path(__file__).resolve().parent.parent
 DATA = HERE / "data"
 
@@ -130,7 +132,8 @@ def match(area_name: str, bea: list[dict]) -> dict | None:
 
 
 def build() -> dict:
-    tables = json.loads((DATA / "paytables-2026.json").read_text(encoding="utf-8"))
+    tables = json.loads(
+        (DATA / f"paytables-{edition.YEAR}.json").read_text(encoding="utf-8"))
     bea, year = load_bea(DATA / "marpp.zip")
     states, state_year = load_state(DATA / "sarpp.zip")
     if state_year != year:

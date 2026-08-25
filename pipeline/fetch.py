@@ -17,6 +17,8 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
+import edition
+
 import fonts
 
 BASE = "https://www.opm.gov"
@@ -52,7 +54,9 @@ def get(url: str, tries: int = 3) -> bytes:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--year", type=int, default=2026)
+    # Год издания приходит из одной константы, а не литералом: с зашитым
+    # годом январская пересборка молча собрала бы прошлогодние таблицы.
+    ap.add_argument("--year", type=int, default=edition.YEAR)
     args = ap.parse_args()
     year = args.year
 

@@ -29,6 +29,8 @@ import json
 import zipfile
 from pathlib import Path
 
+import edition
+
 HERE = Path(__file__).resolve().parent.parent
 DATA = HERE / "data"
 
@@ -62,7 +64,8 @@ def build() -> int:
     if not SRC.exists():
         raise SystemExit(f"нет файла {SRC} — сначала pipeline/fetch.py")
 
-    locs = json.loads((DATA / "localities-2026.json").read_text(encoding="utf-8"))
+    locs = json.loads(
+        (DATA / f"localities-{edition.YEAR}.json").read_text(encoding="utf-8"))
 
     # округ -> зона. Берём только пятизначные коды: девятизначные в файле OPM
     # обозначают военные объекты, а не округа, и по индексу их не найти.

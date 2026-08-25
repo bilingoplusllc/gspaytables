@@ -14,6 +14,8 @@
 """
 from __future__ import annotations
 
+import ads
+
 # Адрес сайта живёт одной константой в render.py и подставляется
 # сюда на старте сборки. Домен ещё не выбран, и он обязан
 # меняться одной строкой, а не обходом шести файлов.
@@ -78,7 +80,7 @@ def home(T: dict, R: dict, ranks: dict, L: dict, shell, esc, money, slug,
              'the official table; the last two are ours.</p>')
     B.append('</section>')
 
-    B.append('<div class="ad-slot ad-band">Advertisement</div>')
+    B.append(ads.slot("band"))
 
     # --- 3. таблица всех зон
     B.append('<section class="q" id="table">')
@@ -92,7 +94,7 @@ def home(T: dict, R: dict, ranks: dict, L: dict, shell, esc, money, slug,
     B.append(_home_table(T, R, ranks, L, esc, money, slug))
     B.append('</section>')
 
-    B.append('<div class="ad-slot ad-band">Advertisement</div>')
+    B.append(ads.slot("band"))
 
     # --- 4. грейды: ссылка с суммой внутри, а не «Browse by grade»
     B.append('<section class="q" id="grades">')

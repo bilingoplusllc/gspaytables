@@ -22,6 +22,8 @@ import re
 import sys
 from pathlib import Path
 
+import edition
+
 HERE = Path(__file__).resolve().parent.parent
 RAW = HERE / "data" / "raw"
 DATA = HERE / "data"
@@ -92,7 +94,7 @@ def parse(year: int, wanted: dict[str, str]) -> dict:
     return areas
 
 
-def main(year: int = 2026) -> int:
+def main(year: int = edition.YEAR) -> int:
     tables = json.loads((DATA / f"paytables-{year}.json").read_text(encoding="utf-8"))
     wanted = {c: l["area_name"] for c, l in tables["localities"].items()}
 

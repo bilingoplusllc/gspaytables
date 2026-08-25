@@ -17,6 +17,8 @@
 """
 from __future__ import annotations
 
+import ads
+
 # Адрес сайта живёт одной константой в render.py и подставляется
 # сюда на старте сборки. Домен ещё не выбран, и он обязан
 # меняться одной строкой, а не обходом шести файлов.
@@ -162,7 +164,7 @@ def state_page(st: str, zones: dict, T: dict, R: dict, ranks: dict,
                      f'{REF_STEP} is paid anywhere in {esc(name)} — the same '
                      f'figure as everywhere else outside a named area.</span></div>')
     B.append(f'<div class="facts">{"".join(facts[:4])}</div>')
-    B.append('<div class="ad-slot ad-band">Advertisement</div>')
+    B.append(ads.slot("band"))
 
     # --- таблица зон штата
     body = []
@@ -571,7 +573,7 @@ def no_area_page(codes: list, T: dict, shell, esc, money, slug) -> str:
          f'table.</span></div></div>',
 
          f'<ul class="chips-plain">{chips}</ul>',
-         '<div class="ad-slot ad-band">Advertisement</div>',
+         ads.slot("band"),
 
          '<section class="q" id="why-one-page">',
          '<h2>Why one page and not eight</h2>',

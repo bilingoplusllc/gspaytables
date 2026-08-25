@@ -25,6 +25,8 @@ import xml.etree.ElementTree as ET
 from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
+import edition
+
 NS = {"p": "http://schemas.datacontract.org/2004/07/PayTables.Business"}
 HERE = Path(__file__).resolve().parent.parent
 RAW = HERE / "data" / "raw"
@@ -134,7 +136,7 @@ def verify(base: dict, loc: dict, cap: int) -> list[str]:
     return problems
 
 
-def main(year: int = 2026) -> int:
+def main(year: int = edition.YEAR) -> int:
     src = RAW / str(year)
     if not src.exists():
         print(f"нет данных за {year} — сначала fetch.py", file=sys.stderr)
