@@ -35,11 +35,14 @@ HERE = Path(__file__).resolve().parent.parent
 DATA = HERE / "data"
 DIST = HERE / "dist"
 
-SITE = "FedPay"
+# Имя сайта одной строкой, как и адрес. Прежнее отличалось от
+# имени лидера ниши одним слогом, и путаница в выдаче работала
+# против нас.
+SITE = "GS Pay Tables"
 TAGLINE = "What the federal pay tables actually mean"
-DOMAIN = "https://fedpayscale.com"
+DOMAIN = "https://gspaytables.com"
 OWNER = "BiLingoPlus LLC"
-CONTACT = "hello@fedpayscale.com"
+CONTACT = "hello@gspaytables.com"
 
 # Цвет строки браузера на мобильных: должен совпадать с фоном страницы,
 # иначе над сайтом висит чужая полоса.
@@ -256,8 +259,8 @@ def jsonld(title: str, desc: str, canonical: str, crumbs: list) -> str:
             + "</script>")
 
 
-SEAL_MAST = '<svg class="seal" viewBox="0 0 100 100" role="img" aria-label="FedPay mark: an independent reference, not a government seal"><defs><path id="mt" d="M14,50 A36,36 0 0 1 86,50"></path><path id="mb" d="M17,50 A33,33 0 0 0 83,50"></path></defs><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="42.5"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="29"></circle><text class="s-t"><textPath href="#mt" startOffset="50%" text-anchor="middle">INDEPENDENT</textPath></text><text class="s-t"><textPath href="#mb" startOffset="50%" text-anchor="middle">REFERENCE</textPath></text><text class="s-mono" x="50" y="47" text-anchor="middle">GS</text><rect class="s-step" x="36" y="56" width="6" height="4"></rect><rect class="s-step" x="43" y="53" width="6" height="7"></rect><rect class="s-step" x="50" y="50" width="6" height="10"></rect><rect class="s-step" x="57" y="47" width="6" height="13"></rect></svg>'
-SEAL_FOOT = '<svg class="seal foot-seal" viewBox="0 0 100 100" role="img" aria-label="FedPay mark: an independent reference, not a government seal"><defs><path id="ft" d="M14,50 A36,36 0 0 1 86,50"></path><path id="fb" d="M17,50 A33,33 0 0 0 83,50"></path></defs><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="42.5"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="29"></circle><text class="s-t"><textPath href="#ft" startOffset="50%" text-anchor="middle">INDEPENDENT</textPath></text><text class="s-t"><textPath href="#fb" startOffset="50%" text-anchor="middle">REFERENCE</textPath></text><text class="s-mono" x="50" y="47" text-anchor="middle">GS</text><rect class="s-step" x="36" y="56" width="6" height="4"></rect><rect class="s-step" x="43" y="53" width="6" height="7"></rect><rect class="s-step" x="50" y="50" width="6" height="10"></rect><rect class="s-step" x="57" y="47" width="6" height="13"></rect></svg>'
+SEAL_MAST = '<svg class="seal" viewBox="0 0 100 100" role="img" aria-label="GS Pay Tables mark: an independent reference, not a government seal"><defs><path id="mt" d="M14,50 A36,36 0 0 1 86,50"></path><path id="mb" d="M17,50 A33,33 0 0 0 83,50"></path></defs><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="42.5"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="29"></circle><text class="s-t"><textPath href="#mt" startOffset="50%" text-anchor="middle">INDEPENDENT</textPath></text><text class="s-t"><textPath href="#mb" startOffset="50%" text-anchor="middle">REFERENCE</textPath></text><text class="s-mono" x="50" y="47" text-anchor="middle">GS</text><rect class="s-step" x="36" y="56" width="6" height="4"></rect><rect class="s-step" x="43" y="53" width="6" height="7"></rect><rect class="s-step" x="50" y="50" width="6" height="10"></rect><rect class="s-step" x="57" y="47" width="6" height="13"></rect></svg>'
+SEAL_FOOT = '<svg class="seal foot-seal" viewBox="0 0 100 100" role="img" aria-label="GS Pay Tables mark: an independent reference, not a government seal"><defs><path id="ft" d="M14,50 A36,36 0 0 1 86,50"></path><path id="fb" d="M17,50 A33,33 0 0 0 83,50"></path></defs><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="42.5"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="29"></circle><text class="s-t"><textPath href="#ft" startOffset="50%" text-anchor="middle">INDEPENDENT</textPath></text><text class="s-t"><textPath href="#fb" startOffset="50%" text-anchor="middle">REFERENCE</textPath></text><text class="s-mono" x="50" y="47" text-anchor="middle">GS</text><rect class="s-step" x="36" y="56" width="6" height="4"></rect><rect class="s-step" x="43" y="53" width="6" height="7"></rect><rect class="s-step" x="50" y="50" width="6" height="10"></rect><rect class="s-step" x="57" y="47" width="6" height="13"></rect></svg>'
 # Год выпуска нужен шапке. Ставится в main() вместе с остальными
 # значениями, зависящими от данных.
 T_YEAR = ""
@@ -427,7 +430,7 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<style>{FONT_CSS}{strip_css_comments(design.CSS)}</style>
+<style>{FONT_CSS}{strip_css_comments(design.CSS).replace('@HOST@', DOMAIN.split('//', 1)[-1])}</style>
 {jsonld(title, desc, canonical, crumbs or [])}
 </head><body{" class=\"withbar\"" if bar else ""}>
 <a class="skip" href="#content">Skip to content</a>
@@ -1854,14 +1857,22 @@ def main() -> int:
     #     мимо константы, и любой пропуск при смене домена отдал бы
     #     canonical, sitemap или og:url чужому сайту.
     host = DOMAIN.split("//", 1)[-1]
+    # Ищем домены в ЛЮБОЙ записи, а не только со схемой. Прежний гейт смотрел
+    # на `http://…` и потому не увидел домен, зашитый голым в стилях печати:
+    # смена адреса одной строкой прошла мимо него, и на 165 страницах остался
+    # чужой домен.
+    #   schema.org и www.w3.org — словари разметки, по ним никто не ходит;
+    #   .gov — источники, на которые мы обязаны ссылаться.
+    ALLOWED = {host, "schema.org", "www.w3.org"}
     for f in htmls:
         h = f.read_text(encoding="utf-8")
-        for m in re.finditer(r"https?://([a-z0-9.-]+)", h):
-            # schema.org и www.w3.org — словари разметки, а не ссылки:
-            # они объявляют словарь, по ним никто не ходит.
-            if m.group(1) not in (host, "schema.org", "www.w3.org"):
-                problems.append(
-                    f"{f.relative_to(DIST)}: чужой адрес {m.group(1)}")
+        for m in re.finditer(
+                r"\b([a-z0-9][a-z0-9-]*(?:\.[a-z0-9-]+)+)\b", h):
+            d = m.group(1)
+            if d.rsplit(".", 1)[-1] not in ("com", "org", "net", "io", "co"):
+                continue
+            if d not in ALLOWED:
+                problems.append(f"{f.relative_to(DIST)}: чужой домен {d}")
                 break
 
     # 17. описание страницы. Живёт в голове документа, поэтому все прочие
