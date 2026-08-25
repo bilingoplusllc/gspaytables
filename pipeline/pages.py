@@ -85,7 +85,7 @@ column is the BEA Regional Price Parity for {R['bea_year']}, where 100 is the na
 average — below 100 is cheaper than average. The last column is the one to read: it
 shows how many places the area moves when you stop ranking by the size of the cheque and
 start ranking by what the cheque buys.</p>
-<div class="scroll"><table>
+<div class="scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
 <thead><tr><th class="rank">#</th><th>Locality</th><th class="num">Locality pay</th>
 <th class="num">On paper</th><th class="num">Prices</th><th class="num">What it buys</th>
 <th class="num">Rank shift</th></tr></thead>
@@ -111,7 +111,8 @@ own, so it is listed without an adjusted figure rather than given an invented on
                  "\n".join(B), "https://fedpayscale.com/", "home")
 
 
-def grade_page(g: str, T: dict, R: dict, ranks: dict, shell, esc, money, slug) -> str:
+def grade_page(g: str, T: dict, R: dict, ranks: dict, shell, esc, money, slug,
+               widget: str = "", js: str = "") -> str:
     year = T["year"]
     cap = T["ex_iv_cap"]
     base = T["base"]["grades"][g]
@@ -181,7 +182,7 @@ def grade_page(g: str, T: dict, R: dict, ranks: dict, shell, esc, money, slug) -
 <p class="ex-note">Sorted by the number on the cheque. The last column divides that
 number by the local price level, so it is comparable in what it buys. Cells marked ▲
 have been cut to the {money(cap)} statutory ceiling.</p>
-<div class="scroll"><table>
+<div class="scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
 <thead><tr><th class="rank">#</th><th>Locality</th><th class="num">Salary</th>
 <th class="num">Prices</th><th class="num">What it buys</th></tr></thead>
 <tbody>{''.join(body)}</tbody>
@@ -201,7 +202,7 @@ tables; BEA Regional Price Parities {R['bea_year']}.</figcaption>
     cells = "".join(f'<td class="num">{money(base[str(s)]["annual"])}</td>'
                     for s in range(1, 11))
     heads = "".join(f'<th class="num">{s}</th>' for s in range(1, 11))
-    B.append(f'<div class="scroll"><table><thead><tr><th>Step</th>{heads}</tr></thead>'
+    B.append(f'<div class="scroll" tabindex="0" role="region" aria-label="Scrollable table"><table><thead><tr><th>Step</th>{heads}</tr></thead>'
              f'<tbody><tr><th scope="row">Base</th>{cells}</tr></tbody></table></div>')
 
     # Расписание ступеней считается арифметически и у каждого грейда своё
@@ -222,7 +223,7 @@ tables; BEA Regional Price Parities {R['bea_year']}.</figcaption>
              f'7, and three years each for steps 8 to 10. Starting at step 1, reaching '
              f'the top of GS-{g} takes <strong>{cum} years</strong> and adds '
              f'{money(total_gain)} to the base rate before any locality payment.</p>')
-    B.append(f'<div class="scroll"><table><thead><tr><th>Reaching</th>'
+    B.append(f'<div class="scroll" tabindex="0" role="region" aria-label="Scrollable table"><table><thead><tr><th>Reaching</th>'
              f'<th class="num">Wait (years)</th><th class="num">Years from start</th>'
              f'<th class="num">Base increase</th></tr></thead>'
              f'<tbody>{"".join(rows2)}</tbody></table></div>')
@@ -231,6 +232,11 @@ tables; BEA Regional Price Parities {R['bea_year']}.</figcaption>
              'the first year than it appears. The waiting period also pauses during '
              'periods of non-pay status beyond a threshold, so long unpaid absences '
              'push the next increase further out.</p>')
+
+    # Инструмент: грейд уже выбран, меняется зона — ровно то, ради чего сюда
+    # приходят («сколько GS-13 платят там-то»).
+    if widget:
+        B.append(widget)
 
     B.append('<h2>Moving between grades</h2>')
     gi = int(g)
@@ -258,7 +264,7 @@ tables; BEA Regional Price Parities {R['bea_year']}.</figcaption>
                  "\n".join(B), f"https://fedpayscale.com/gs-{g}/", "grades",
                  crumbs=[("All localities", "/"),
                          ("All grades", "/grades/"),
-                         (f"GS-{g}", None)])
+                         (f"GS-{g}", None)], js=js)
 
 
 def how_it_works(T: dict, shell, money) -> str:
@@ -512,7 +518,7 @@ def grades_index(T: dict, ranks: dict, shell, esc, money) -> str:
 payment — nobody is paid these. The next two show the lowest and highest actual
 step-5 salary across all {len(locs)} localities. The last column counts how many cells in
 that grade are pinned to the {money(cap)} statutory ceiling somewhere in the country.</p>
-<div class="scroll"><table>
+<div class="scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
 <thead><tr><th>Grade</th><th class="num">Base step 1</th><th class="num">Base step 5</th>
 <th class="num">Base step 10</th><th class="num">Lowest actual</th>
 <th class="num">Highest actual</th><th class="num">At ceiling</th></tr></thead>
@@ -581,3 +587,157 @@ independently recomputed and matched to the published figures.</figcaption>
                  "\n".join(B), "https://fedpayscale.com/grades/", "grades",
                  crumbs=[("All localities", "/"),
                          ("All grades", None)])
+
+
+def calculator(T: dict, R: dict, shell, esc, money, widget, js: str) -> str:
+    """Инструмент и текст на одной странице."""
+    year = T["year"]
+    cap = T["ex_iv_cap"]
+    locs = T["localities"]
+    lo = min(l["locality_pct"] for l in locs.values())
+    hi = max(l["locality_pct"] for l in locs.values())
+    base5 = T["base"]["grades"]["12"]["5"]["annual"]
+
+    B = ['<ol class="crumbs"><li><a href="/">All localities</a></li>'
+         '<li>Pay calculator</li></ol>']
+    B.append(f'<h1>GS pay calculator, {year}</h1>')
+    B.append(f'<p class="sub">Enter a ZIP code, a grade and a step. The answer is '
+             f'the annual, biweekly, hourly and overtime rate for that duty station, '
+             f'plus the one thing other calculators leave out: what the salary is '
+             f'worth once local prices are counted.</p>')
+
+    B.append(widget)
+
+    B.append('<h2>What this works out</h2>')
+    B.append(f'<p>Every General Schedule salary is one base rate multiplied by one '
+             f'locality percentage. The base table is the same everywhere in the '
+             f'country; the percentage depends only on the duty station, and in '
+             f'{year} it runs from {lo:g}% to {hi:g}%. A GS-12 step 5 starts from a '
+             f'base of {money(base5)} and finishes somewhere between '
+             f'{money(round(base5 * (1 + lo / 100)))} and '
+             f'{money(round(base5 * (1 + hi / 100)))} depending on nothing but '
+             f'geography.</p>')
+    B.append(f'<p>The order matters and is fixed by law. The percentage is applied '
+             f'to the base rate, the result is rounded to the nearest dollar, and '
+             f'only then is it checked against the statutory ceiling of '
+             f'{money(cap)} \u2014 Level IV of the Executive Schedule. Doing those '
+             f'steps in a different order changes the answer at the top of the '
+             f'schedule, which is one reason published figures sometimes disagree '
+             f'between reference sites. Every rate this calculator produces was '
+             f'checked against the published OPM table cell by cell: all 8,700 of '
+             f'them match to the dollar.</p>')
+
+    B.append('<h2>What it does not include</h2>')
+    B.append('<p>This is <strong>gross pay</strong> \u2014 what the job pays before '
+             'anything is taken out. It is not take-home pay. Federal deductions '
+             'depend on choices and circumstances this page knows nothing about: '
+             'your FERS contribution tier, which depends on when you were first '
+             'hired; how much you put into the Thrift Savings Plan and whether it is '
+             'traditional or Roth; which FEHB plan you carry and at what enrolment '
+             'level; FEGLI; your filing status; and the income tax of the state you '
+             'live in, which is not always the state you work in.</p>')
+    B.append('<p>We would rather show one number that is exactly right than a '
+             'take-home estimate built on half a dozen assumptions we invented for '
+             'you. Every figure here comes from a published federal table.</p>')
+
+    B.append('<h2>Why the ZIP code sometimes fails</h2>')
+    B.append('<p>Locality is decided by your <strong>duty station</strong> \u2014 '
+             'the place you physically report to \u2014 and duty stations are '
+             'assigned to counties, not to ZIP codes. To answer by ZIP we join the '
+             'Census Bureau\u2019s ZIP-code-to-county file to the OPM list of '
+             'counties in each locality pay area. That works for the great majority '
+             'of ZIPs and fails in three situations worth knowing about.</p>')
+    B.append('<p>Some ZIP codes serve post office boxes or a single large building '
+             'and have no territory of their own; they are absent from the Census '
+             'file, and the calculator says so rather than guessing at a neighbour. '
+             'Some ZIP codes straddle a county line, and occasionally the two '
+             'counties sit in different locality pay areas \u2014 about 1,400 of the '
+             '33,791 do. In that case we return the area covering the larger share '
+             'of the ZIP\u2019s land, which is right far more often than not but is '
+             'not a guarantee. And a few military installations are assigned by OPM '
+             'to a different locality than the county around them; the base gate can '
+             'be a pay boundary.</p>')
+    B.append('<p>When the answer matters \u2014 a job offer, a relocation, a '
+             'grievance \u2014 confirm it with your servicing HR office. What this '
+             'page can tell you exactly is what each locality pays. Which locality '
+             'you are in is a question about your paperwork.</p>')
+
+    B.append('<h2>The line other calculators do not print</h2>')
+    B.append(f'<p>Locality pay is calculated from what <em>private employers in the '
+             f'same region pay for comparable work</em>. It is not a cost-of-living '
+             f'adjustment, and OPM says so plainly. The two are related but they are '
+             f'not the same thing, and the gap between them is large enough to '
+             f'reverse the ranking of the highest-paying areas.</p>')
+    B.append(f'<p>So alongside the salary this calculator divides it by the local '
+             f'price level \u2014 the Bureau of Economic Analysis Regional Price '
+             f'Parity for {R["bea_year"]}, where 100 is the national average, '
+             f'shown here to one decimal place though computed from the '
+             f'published three \u2014 '
+             f'and tells you where that leaves you against the other localities. On '
+             f'paper the best-paid GS-12 in the country works in San Jose\u2013San '
+             f'Francisco\u2013Oakland. Once prices are counted, the salary that goes '
+             f'furthest belongs to Laredo, Texas.</p>')
+    B.append('<p>Two cautions on that comparison. The price index is published a '
+             'year or more behind the pay tables, and metropolitan boundaries do not '
+             'match locality boundaries exactly, so the nearest metropolitan area is '
+             'used as the proxy. Where two areas come out within one percent of each '
+             'other, the calculator says they are the same rather than pretending to '
+             'a precision the data does not have.</p>')
+
+    B.append('<h2>Overtime, and why it is often worth less than you expect</h2>')
+    B.append('<p>For most federal employees an overtime hour is paid at one and a '
+             'half times the hourly rate. Above a threshold it is not. Under '
+             '5 U.S.C. 5542, once your own hourly rate exceeds the hourly rate for '
+             'GS-10 step 1 in your locality, the overtime hour is paid at the '
+             '<em>greater</em> of your own rate and one and a half times that GS-10 '
+             'step 1 rate \u2014 whichever is larger, not both.</p>')
+    B.append('<p>The practical effect surprises people. A GS-13 or GS-14 working an '
+             'extra hour is frequently paid exactly their ordinary hourly rate for '
+             'it, with no premium at all, because their own rate has already '
+             'overtaken the capped figure. The calculator prints the overtime rate '
+             'for the cell you chose and says plainly when it has stopped being a '
+             'premium.</p>')
+
+    B.append('<h2>When the next step arrives</h2>')
+    B.append('<p>Step increases are not a raise you negotiate; they arrive on a '
+             'fixed schedule as long as performance is acceptable. One year each to '
+             'reach steps 2, 3 and 4; two years each to reach steps 5, 6 and 7; '
+             'three years each to reach steps 8, 9 and 10. From step 1 to step 10 is '
+             'eighteen years at the same grade.</p>')
+    B.append('<p>A promotion to a higher grade restarts that clock, which is why a '
+             'promotion landing a month before a step increase was due can be worth '
+             'less in the first year than it looks. Long periods in non-pay status '
+             'push the waiting period out as well.</p>')
+
+    B.append('<h2>Pay systems this calculator does not cover</h2>')
+    B.append('<p>Roughly a third of federal employees are not paid from the General '
+             'Schedule at all. Wage Grade trades and labour positions use locality '
+             'wage schedules built from local prevailing rates. The Senior Executive '
+             'Service, the Federal Aviation Administration, the Transportation '
+             'Security Administration, Department of Veterans Affairs Title 38 '
+             'medical positions and several demonstration projects each run their own '
+             'systems.</p>')
+    B.append('<p>Two adjustments sit on top of the General Schedule and are not '
+             'modelled here. <strong>Special rate tables</strong> cover occupations '
+             'where the government struggles to recruit; where one applies, the '
+             'employee receives the higher of the special rate and the locality rate '
+             '\u2014 never the two added together. <strong>Law enforcement '
+             'officers</strong> at grades GS-3 through GS-10 are entitled to higher '
+             'locality rates than the ordinary table shows. If either applies to you, '
+             'the figure here is a floor rather than an answer.</p>')
+
+    B.append('<h2>Where the numbers come from</h2>')
+    B.append(f'<p>Salary tables and locality percentages: U.S. Office of Personnel '
+             f'Management, {year} General Schedule salary tables. Locality pay area '
+             f'definitions: OPM, {year}. Price levels: U.S. Bureau of Economic '
+             f'Analysis Regional Price Parities, {R["bea_year"]}. ZIP-code-to-county '
+             f'relationships: U.S. Census Bureau, 2020 ZCTA relationship file. All '
+             f'are works of the United States government and in the public '
+             f'domain.</p>')
+
+    return shell(f"GS Pay Calculator {year} \u2014 by ZIP code, with locality",
+                 f"Work out any {year} General Schedule salary by ZIP code, grade and "
+                 f"step. Annual, biweekly, hourly and overtime, plus what it is worth "
+                 f"after local prices.",
+                 "\n".join(B), "https://fedpayscale.com/calculator/", "calc",
+                 crumbs=[("All localities", "/"), ("Pay calculator", None)], js=js)

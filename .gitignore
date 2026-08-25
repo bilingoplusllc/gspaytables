@@ -2,6 +2,8 @@
 data/raw/
 data/marpp.zip
 data/sarpp.zip
+# 6,8 МБ таблицы Бюро переписи — пересобирается fetch.py, в репозитории не нужна
+data/zcta-county.txt
 data/idx.html
 
 # Сборка сайта

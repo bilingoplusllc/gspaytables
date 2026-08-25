@@ -29,6 +29,10 @@ RAW = HERE / "data" / "raw"
 BEA_ZIP = "https://apps.bea.gov/regional/zip/MARPP.zip"
 # Индексы по штатам: нужны Аляске и Гавайям, где зона = штат целиком.
 BEA_STATE_ZIP = "https://apps.bea.gov/regional/zip/SARPP.zip"
+# Связка почтовых районов с округами: нужна, чтобы отвечать на самый частый
+# вопрос темы — «какая у меня зона» — по индексу, а не по списку округов.
+CENSUS_ZCTA = ("https://www2.census.gov/geo/docs/maps-data/data/rel2020/"
+               "zcta520/tab20_zcta520_county20_natl.txt")
 
 
 def get(url: str, tries: int = 3) -> bytes:
@@ -103,7 +107,20 @@ def main() -> int:
         if not _bea(url, HERE / "data" / fname, want):
             return 1
 
-    print(f"\nготово: {ok} из {len(codes)} таблиц + BEA -> {out}")
+    zdst = HERE / "data" / "zcta-county.txt"
+    try:
+        blob = get(CENSUS_ZCTA)
+        # Файл обязан быть таблицей с разделителем «|», а не страницей ошибки.
+        first = blob[:400].decode("utf-8-sig", errors="replace")
+        if "GEOID_ZCTA5" not in first:
+            raise RuntimeError(f"это не таблица ZCTA: {first[:80]!r}")
+        zdst.write_bytes(blob)
+        print(f"  {zdst.name}: {len(blob):,} байт")
+    except RuntimeError as e:
+        print(f"  {zdst.name}: {e}", file=sys.stderr)
+        return 1
+
+    print(f"\nготово: {ok} из {len(codes)} таблиц + BEA + Census -> {out}")
     return 0 if ok == len(codes) else 1
 
 
