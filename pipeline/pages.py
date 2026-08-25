@@ -558,9 +558,14 @@ def not_found(shell) -> str:
                  "\n".join(B), "")
 
 
-def sitemap(urls: list[str], domain: str) -> str:
-    today = date.today().isoformat()
-    body = "".join(f"<url><loc>{domain}{u}</loc><lastmod>{today}</lastmod></url>"
+def sitemap(urls: list[str], domain: str, lastmod: str = "") -> str:
+    """Дата — по отпечатку ДАННЫХ, а не по времени сборки.
+
+    Ежемесячный прогон по расписанию ничего не меняет; сообщать поисковику,
+    что обновились все 104 страницы, — то же враньё, что и «обновлено вчера»
+    в подвале, только адресованное машине."""
+    stamp = lastmod or date.today().isoformat()
+    body = "".join(f"<url><loc>{domain}{u}</loc><lastmod>{stamp}</lastmod></url>"
                    for u in urls)
     return ('<?xml version="1.0" encoding="UTF-8"?>\n'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'

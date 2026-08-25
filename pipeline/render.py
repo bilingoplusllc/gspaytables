@@ -25,6 +25,7 @@ import calc
 import compare
 import design
 import fonts
+import icons
 import pages as P
 
 HERE = Path(__file__).resolve().parent.parent
@@ -44,6 +45,10 @@ DATA_DATE = ""
 
 # Правила @font-face. Читаются с диска: сборка страниц в сеть не ходит.
 FONT_CSS = ""
+
+# Тег подключения внешнего скрипта. Имя содержит отпечаток данных,
+# поэтому выставляется в main() после их чтения.
+JS_TAG = ""
 
 THEME_LIGHT = "#e9e1d0"
 THEME_DARK = "#0d0c0a"
@@ -114,15 +119,24 @@ def side_rail(title: str, links: list, note: str = "") -> str:
             f'<div class="ad-slot ad-rail">Advertisement</div>')
 
 
-def calc_script(T: dict, R: dict, ranks: dict) -> str:
-    """Данные и код инструмента, встроенные в страницу.
+def calc_bundle(T: dict, R: dict, ranks: dict) -> tuple:
+    """Возвращает (имя файла, содержимое) для внешнего скрипта.
 
-    Данных пара килобайт: клиент пересчитывает ставки из базовой таблицы и
-    процента, а не возит готовые. Это законно ровно потому, что parse.py
-    доказал совпадение пересчёта с публикацией OPM на всех 8 700 клетках.
+    Данные и код одинаковы на каждой странице: клиент считает ставки сам, и ему
+    нужны те же 150 базовых чисел и 58 процентов везде. Встроенный в страницу
+    скрипт кешировать невозможно, поэтому он выносится в файл, а отпечаток в
+    имени гарантирует, что при изменении данных адрес сменится сам — старый кеш
+    не выстрелит устаревшими ставками.
     """
-    return ("<script>window.__FP=" + calc.calc_data(T, R, ranks, slug) + ";</script>"
-            "<script>" + calc.CALC_JS + "</script>")
+    body = ("window.__FP=" + calc.calc_data(T, R, ranks, slug) + ";\n"
+            + calc.CALC_JS)
+    fp = hashlib.sha256(body.encode("utf-8")).hexdigest()[:12]
+    return f"fp.{fp}.js", body
+
+
+def calc_script(name: str) -> str:
+    """Тег подключения. defer: разметка уже разобрана, гонки нет."""
+    return f'<script src="/{name}" defer></script>'
 
 
 def cities(area_name: str) -> list:
@@ -242,12 +256,21 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{esc(canonical)}">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website"><meta property="og:site_name" content="{SITE}">
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(desc)}">
+<meta property="og:url" content="{esc(canonical)}">
+<meta property="og:image" content="{DOMAIN}/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <style>{FONT_CSS}{strip_css_comments(design.CSS)}</style>
 {jsonld(title, desc, canonical, crumbs or [])}
 </head><body>
+<a class="skip" href="#content">Skip to content</a>
 <header class="site">
   <div class="masthead">
     <a class="brand" href="/">{SITE}</a>
@@ -265,7 +288,7 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 {bar}
 <div class="{layout}">
 {rail_html}
-<main>
+<main id="content">
 {body}
 </main>
 </div>
@@ -462,7 +485,7 @@ def locality_page(code: str, loc: dict, T: dict, R: dict, ranks: dict,
 
     return shell(title, d, "\n".join(B), f"{DOMAIN}/locality/{slug(name)}/", "home",
                  crumbs=[("All localities", "/"), (name, None)],
-                 js=calc_script(T, R, ranks),
+                 js=JS_TAG,
                  bar=answer_bar(code, loc, T, ranks, rp),
                  rail=locality_rail(code, T, SECTIONS))
 
@@ -910,7 +933,7 @@ def compute_ranks(T: dict, R: dict) -> dict:
 
 
 def main() -> int:
-    global DATA_DATE, FONT_CSS
+    global DATA_DATE, FONT_CSS, JS_TAG
     T = json.loads((DATA / "paytables-2026.json").read_text(encoding="utf-8"))
     R = json.loads((DATA / "rpp-map.json").read_text(encoding="utf-8"))
     L = json.loads((DATA / "localities-2026.json").read_text(encoding="utf-8"))
@@ -920,6 +943,9 @@ def main() -> int:
     # запасном системном стеке.
     FONT_CSS = fonts.css_from_disk()
     ranks = compute_ranks(T, R)
+
+    bundle_name, bundle_body = calc_bundle(T, R, ranks)
+    JS_TAG = calc_script(bundle_name)
 
     if DIST.exists():
         for p in sorted(DIST.rglob("*"), reverse=True):
@@ -952,7 +978,7 @@ def main() -> int:
                 heading=f"What a GS-{g} earns where you are",
                 note=("Pick the locality pay area, or open the full calculator to "
                       "find it from a ZIP code.")),
-            js=calc_script(T, R, ranks)))
+            js=JS_TAG))
         urls.append(f"/gs-{g}/")
 
     grade_links = [(f"/gs-{x}/", f"GS-{x}", False)
@@ -972,7 +998,7 @@ def main() -> int:
                          note=("Gross pay from the published federal tables. Not "
                                "take-home: deductions depend on choices this page "
                                "does not ask about.")),
-        js=calc_script(T, R, ranks),
+        js=JS_TAG,
         rail=side_rail(
         "Popular areas",
         [(f"/locality/{slug(l['area_name'])}/", l["area_name"], False)
@@ -1009,6 +1035,8 @@ def main() -> int:
     # Файл индексов подгружается инструментом по запросу пользователя, поэтому
     # он лежит рядом, а не внутри страницы: 203 КБ незачем возить всем.
     shutil.copyfile(DATA / "zip-zone.json", DIST / "zip-zone.json")
+    icons.write_all(DIST)
+    (DIST / bundle_name).write_text(bundle_body, encoding="utf-8")
     if fonts.available():
         (DIST / "fonts").mkdir(exist_ok=True)
         for f in list(fonts.FONTS.glob("*.woff2")) + [fonts.FONTS / "LICENSE.txt"]:
@@ -1022,7 +1050,7 @@ def main() -> int:
                    note=("Gross pay from the published federal tables. Not "
                          "take-home: deductions depend on choices this page "
                          "does not ask about.")),
-               js=calc_script(T, R, ranks)), encoding="utf-8")
+               js=JS_TAG), encoding="utf-8")
     for rel, html_ in (
         ("how-locality-pay-works", P.how_it_works(T, shell, money)),
         ("about", P.about(shell)),
@@ -1035,7 +1063,8 @@ def main() -> int:
         urls.append(f"/{rel}/")
 
     (DIST / "404.html").write_text(P.not_found(shell), encoding="utf-8")
-    (DIST / "sitemap.xml").write_text(P.sitemap(urls, DOMAIN), encoding="utf-8")
+    (DIST / "sitemap.xml").write_text(P.sitemap(urls, DOMAIN, DATA_DATE),
+                                      encoding="utf-8")
     (DIST / "robots.txt").write_text(
         f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n", encoding="utf-8")
     (DIST / "_redirects").write_text("/index.html  /  301\n", encoding="utf-8")
@@ -1051,6 +1080,10 @@ def main() -> int:
         "# Шрифты и файл почтовых индексов меняются раз в год и весят\n"
         "# сотни килобайт. Имена стабильны — кешируем надолго.\n"
         "/fonts/*\n  Cache-Control: public, max-age=31536000, immutable\n"
+        "\n"
+        "# Имя файла инструмента содержит отпечаток данных: при их\n"
+        "# изменении адрес сменится сам, кеш можно ставить вечный.\n"
+        "/fp.*.js\n  Cache-Control: public, max-age=31536000, immutable\n"
         "/zip-zone.json\n  Cache-Control: public, max-age=604800\n",
         encoding="utf-8")
 
@@ -1082,10 +1115,15 @@ def main() -> int:
         # 4. дисклеймер обязателен на каждой странице — FTC Impersonation Rule
         if "not affiliated with" not in h:
             problems.append(f"{rel}: нет дисклеймера о неаффилированности")
-        # 5. внутренние ссылки должны вести на существующие страницы
+        # 5. внутренние ссылки должны вести на существующее — на страницу
+        #    ИЛИ на файл. Иконки и шрифты лежат в сборке файлами, и проверка
+        #    только по списку страниц объявляла их битыми.
         for href in set(re.findall(r'href="(/[^"#?]*)"', h)):
-            if href.rstrip("/") not in all_urls:
-                problems.append(f"{rel}: ссылка в никуда {href}")
+            if href.rstrip("/") in all_urls:
+                continue
+            if (DIST / href.lstrip("/")).exists():
+                continue
+            problems.append(f"{rel}: ссылка в никуда {href}")
 
     # 6. объём текста — только для КОНТЕНТНЫХ страниц.
     #    404, политика, условия и «о сайте» существуют не ради объёма, и
@@ -1099,7 +1137,7 @@ def main() -> int:
         if rel.name == "404.html" or rel.parts[0] in SERVICE:
             continue
         h = f.read_text(encoding="utf-8")
-        body = h[h.find("<main>"):h.find("</main>")]
+        body = h[h.find("<main"):h.find("</main>")]
         w = len(re.sub(r"\s+", " ", re.sub("<[^>]+>", " ", body)).split())
         if w < 700:
             thin.append(f"{rel} ({w} слов)")
@@ -1189,14 +1227,22 @@ def main() -> int:
     # браузер. Первая версия гейта читала исходный словарь и потому пропустила
     # подложенную порчу отгружаемых данных: проверялось намерение, а не
     # артефакт.
-    sample = (DIST / "locality" / slug(next(iter(T["localities"].values()))["area_name"])
-              / "index.html").read_text(encoding="utf-8")
-    m = re.search(r"window\.__FP=(\{.*?\});</script>", sample, re.S)
-    if not m:
-        problems.append("на странице зоны нет данных инструмента")
+    # Данные уехали в отдельный файл, и проверять надо ЕГО: именно он попадёт
+    # в браузер. Заодно убеждаемся, что страницы на него ссылаются.
+    bundles = list(DIST.glob("fp.*.js"))
+    if len(bundles) != 1:
+        problems.append(f"файлов инструмента в сборке: {len(bundles)}, нужен один")
         shipped = None
     else:
-        shipped = json.loads(m.group(1))
+        src = bundles[0].read_text(encoding="utf-8")
+        m = re.search(r"window\.__FP=(\{.*?\});", src, re.S)
+        shipped = json.loads(m.group(1)) if m else None
+        if shipped is None:
+            problems.append("в файле инструмента нет данных")
+        linked = sum(1 for f in htmls if bundles[0].name in
+                     f.read_text(encoding="utf-8"))
+        if linked == 0:
+            problems.append("ни одна страница не подключает файл инструмента")
 
     if shipped:
         if shipped.get("cap") != cap:

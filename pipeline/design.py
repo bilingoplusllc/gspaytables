@@ -92,6 +92,22 @@ CSS = r"""
 }
 
 *{box-sizing:border-box}
+
+/* Переход по якорю обязан учитывать липкую полосу: без этого заголовок
+   раздела встаёт ровно под неё, и ссылка ведёт мимо цели. */
+:root{--stick:64px}
+[id]{scroll-margin-top:var(--stick)}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Ссылка «к содержимому»: видна только при фокусе с клавиатуры. Никакого
+   position:absolute — она просто схлопнута в точку, пока не понадобится. */
+.skip{display:inline-block;width:1px;height:1px;overflow:hidden;
+  white-space:nowrap;clip-path:inset(50%)}
+.skip:focus-visible{width:auto;height:auto;overflow:visible;clip-path:none;
+  margin:var(--s2);padding:var(--s2) var(--s3);background:var(--card);
+  color:var(--ink);border:2px solid var(--accent);border-radius:3px;
+  text-decoration:none;font-weight:700}
 html{-webkit-text-size-adjust:100%;background:var(--page)}
 body{margin:0;background:var(--page);color:var(--ink);
   font:16px/1.6 var(--face);font-variant-numeric:tabular-nums;
@@ -409,6 +425,7 @@ footer a{color:var(--muted)}
   /* На телефоне липкая полоса в две строки съедала пятую часть экрана.
      Вторичные числа стоят в карточке сразу под ней, поэтому в полосе
      остаётся только то, ради чего она липкая: где, что и сколько. */
+  :root{--stick:52px}
   .ab-more{display:none}
   .ab-in{gap:var(--s3);padding:8px var(--s3)}
   .ab-where{font-size:11px;max-width:none;flex:1 1 100%}
