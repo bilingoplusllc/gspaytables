@@ -20,6 +20,9 @@ import ads
 # сюда на старте сборки. Домен ещё не выбран, и он обязан
 # меняться одной строкой, а не обходом шести файлов.
 DOMAIN = ""
+# Адрес для связи приходит из той же константы render.py, что и домен:
+# литерал здесь означал бы, что смена почты требует обхода файлов.
+CONTACT = ""
 
 from datetime import date
 
@@ -591,9 +594,54 @@ def terms(shell) -> str:
          '<h2>No government affiliation</h2>',
          '<p>GS Pay Tables is not affiliated with, endorsed by, or connected to the U.S. Office '
          'of Personnel Management or any other government agency, and does not claim to '
-         'be an official source.</p>']
+         'be an official source.</p>',
+         '<h2>Using the site</h2>',
+         '<p>Read it, quote it, print it, link to it. There is nothing to sign up for and '
+         'nothing to buy. What you may not do: copy the pages wholesale to republish them '
+         'as your own, scrape the site at a rate that degrades it for other readers, or '
+         'present the figures as an official government source. Automated access for '
+         'research is fine at a human pace; if you need the whole dataset, the underlying '
+         'OPM and BEA files are public and linked from the '
+         '<a href="/methodology/">methodology page</a> — take them from the source rather '
+         'than from us.</p>',
+         '<h2>No warranty, and the limit of what you can claim</h2>',
+         '<p>The site is provided as it is, with no warranty of any kind: not that it is '
+         'accurate, not that it is complete, not that it will be available when you need '
+         'it. Every figure is checked against the source before publication, and that is '
+         'the whole of the assurance offered.</p>',
+         '<p>To the fullest extent the law allows, the publisher is not liable for any '
+         'loss arising from use of this site — including a decision about a job, a move, '
+         'a salary negotiation or a benefit, taken in reliance on a figure here. Pay is '
+         'set by your agency under statute and regulation, not by this site. If a number '
+         'matters to you, confirm it with your servicing HR office before you act on '
+         'it.</p>',
+         '<h2>Links to other sites</h2>',
+         '<p>Pages here link to OPM, the Bureau of Economic Analysis, the Census Bureau '
+         'and the Code of Federal Regulations. Those sites are not ours: we do not '
+         'control what they publish and are not responsible for it. A link is a '
+         'citation, not an endorsement.</p>',
+         '<h2>Advertising</h2>',
+         '<p>This site does not carry advertising today. If it does later, advertisements '
+         'will be visually distinct from the reference material, and no advertiser will '
+         'have any say in the figures, the rankings or the wording of a page — the '
+         'numbers come from a build that has no idea advertising exists. What advertising '
+         'means for your data is set out on the <a href="/privacy/">privacy page</a>, '
+         'which is rewritten before anything new starts loading, not after.</p>',
+         '<h2>Changes</h2>',
+         '<p>These terms may change; the date at the top of this page says when they last '
+         'did. Changes apply from the day they are published. There is no account to '
+         'notify, so if this matters to you, check the date.</p>',
+         '<h2>Governing law</h2>',
+         '<p>GS Pay Tables is published by BiLingoPlus LLC, a Wyoming limited liability '
+         'company. These terms are governed by the laws of the State of Wyoming, United '
+         'States, without regard to conflict-of-law rules. Nothing here removes a right '
+         'you have under the mandatory consumer law of the country you live in.</p>',
+         '<h2>Contact</h2>',
+         f'<p>Questions about these terms, corrections to a figure, or anything else: '
+         f'<a href="mailto:{CONTACT}">{CONTACT}</a>. Corrections are the most useful '
+         f'mail we get — say which page and what you expected.</p>']
     return shell("Terms — GS Pay Tables", "Terms of use for GS Pay Tables: what the pay figures are, what they are not, "
-                 "and the limits of relying on an independent reference.",
+                 "how you may reuse them, and the limits of relying on an independent reference.",
                  "\n".join(B), f"{DOMAIN}/terms/")
 
 

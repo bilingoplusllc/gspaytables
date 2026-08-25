@@ -1223,6 +1223,7 @@ def main() -> int:
     # выбран и обязан меняться одной строкой.
     for _m in (compare, ladder, P, states):
         _m.DOMAIN = DOMAIN
+        _m.CONTACT = CONTACT
     T_AREAS = str(len(T["localities"]))
     R = json.loads((DATA / "rpp-map.json").read_text(encoding="utf-8"))
     L = json.loads(
