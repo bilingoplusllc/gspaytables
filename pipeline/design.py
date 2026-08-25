@@ -1,4 +1,4 @@
-"""Оформление FedPay — «приборная панель ведомости».
+"""Оформление GS Pay Tables — «приборная панель ведомости».
 
 ПОЧЕМУ ПЕРЕДЕЛАНО ВТОРОЙ РАЗ. Первый вариант был близнецом MileageCurve по
 решениям. Второй сменил краску и гарнитуру, но оставил тот же СКЕЛЕТ: крошки,
@@ -137,7 +137,7 @@ CSS = r"""
   --sp1:7px; --sp2:14px; --sp3:27px; --sp4:54px; --sp5:81px; --sp6:108px;
 
   /* Georgia в запасном стеке стоять не может: это гарнитура соседнего
-     сайта фермы, и провал загрузки превратил бы FedPay в его двойника. */
+     сайта фермы, и провал загрузки превратил бы GS Pay Tables в его двойника. */
   --serif:"Source Serif 4","Iowan Old Style","Palatino Linotype",
     "Times New Roman",serif;
   --sans:"Libre Franklin","Helvetica Neue",Arial,sans-serif;
@@ -370,7 +370,7 @@ figure.ex{margin:0;padding:0}
   tbody tr:nth-child(even) th,tbody tr:nth-child(even) td{background:#fff}
   tr,img,figure{break-inside:avoid}
   h1,h2{break-after:avoid}
-  main a[href^="/"]::after{content:" (fedpayscale.com" attr(href) ")";
+  main a[href^="/"]::after{content:" (@HOST@" attr(href) ")";
     font-size:11px;color:#444}
 }
 

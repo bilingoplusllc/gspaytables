@@ -128,7 +128,7 @@ def fetch(specs: dict, subsets=("latin",), text: str = "") -> tuple:
             "redistribution. Full licence texts are published by the type designers\n"
             "and by the Google Fonts project at https://fonts.google.com/attribution\n"
             "\n"
-            "FedPay claims no ownership of these typefaces.\n",
+            "The publisher claims no ownership of these typefaces.\n",
             encoding="utf-8")
     files.append(lic)
     css_out = "\n".join(rules)

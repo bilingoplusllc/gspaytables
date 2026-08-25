@@ -1,4 +1,4 @@
-# FedPay
+# GS Pay Tables
 
 Federal General Schedule pay tables for every locality pay area, with one thing the
 official tables and the existing reference sites do not show: what each salary is
@@ -17,7 +17,7 @@ into 102 pages, plus a calculator that runs entirely in the browser.
 | Regional Price Parities, metro and state | U.S. Bureau of Economic Analysis | public domain |
 | ZIP code to county relationships | U.S. Census Bureau | public domain |
 
-FedPay is independent. It is not affiliated with, endorsed by, or connected to OPM or
+GS Pay Tables is independent. It is not affiliated with, endorsed by, or connected to OPM or
 any government agency.
 
 ## Build

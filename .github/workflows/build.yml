@@ -99,14 +99,14 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages project create fedpay --production-branch=main
+          command: pages project create gspaytables --production-branch=main
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=fedpay --branch=main
+          command: pages deploy dist --project-name=gspaytables --branch=main
 
   # GitHub молча отключает cron после 60 дней без активности в репозитории.
   # Ежемесячный коммит этого не допускает.
@@ -119,8 +119,8 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           date -u +"%Y-%m-%dT%H:%M:%SZ" > .keepalive
-          git config user.name "fedpay-bot"
-          git config user.email "hello@fedpayscale.com"
+          git config user.name "gspaytables-bot"
+          git config user.email "hello@gspaytables.com"
           git add .keepalive
           git diff --staged --quiet || git commit -m "chore: keepalive"
           git push
