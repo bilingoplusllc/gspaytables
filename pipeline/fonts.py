@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import re
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -51,9 +52,15 @@ def _get(url: str, tries: int = 3) -> bytes:
 def _blocks(css: str) -> list:
     """Разбирает ответ Google Fonts на отдельные правила @font-face."""
     out = []
-    for m in re.finditer(r"/\*\s*([a-z-]+)\s*\*/\s*@font-face\s*\{(.*?)\}", css, re.S):
-        subset, body = m.group(1), m.group(2)
-        url = re.search(r"url\((https://[^)]+\.woff2)\)", body)
+    # Комментарий подмножества есть только в обычном ответе. При text=
+    # подмножество одно и комментария нет вовсе — тогда считаем его
+    # "custom", и вызывающий код должен искать именно его.
+    for m in re.finditer(r"(?:/\*\s*([a-z-]+)\s*\*/\s*)?@font-face\s*\{(.*?)\}",
+                         css, re.S):
+        subset, body = (m.group(1) or "custom"), m.group(2)
+        # При запросе с text= Google отдаёт адрес вида /l/font?kit=... без
+        # расширения. Опознаём по format('woff2'), а не по имени файла.
+        url = re.search(r"url\((https://[^)]+?)\)\s*format\('woff2'\)", body)
         fam = re.search(r"font-family:\s*'([^']+)'", body)
         style = re.search(r"font-style:\s*([a-z]+)", body)
         weight = re.search(r"font-weight:\s*([0-9 ]+)", body)
@@ -68,22 +75,40 @@ def _blocks(css: str) -> list:
     return out
 
 
-def fetch(specs: dict, subsets=("latin",)) -> tuple:
+def fetch(specs: dict, subsets=("latin",), text: str = "") -> tuple:
     """Скачивает семейства и возвращает (css, список файлов).
 
     specs: {'Имя Семейства': 'спецификация осей для css2'}
+    text:  если задан, Google отдаёт гарнитуру, подрезанную РОВНО под эти
+           знаки. Экономия огромна и неочевидна: Source Serif 4 полным
+           латинским поднабором весит 119,5 КБ, а под наши 99 знаков и без
+           оси оптического размера — 35,6 КБ. Для пары «антиква плюс
+           гротеск» это разница между 148 КБ и 56 КБ на первой загрузке.
+
+           Оборотная сторона: набор знаков становится частью сборки. Если
+           на страницах появится знак, которого в наборе нет, он уедет на
+           системный запасной стек — молча. Поэтому набор составляется из
+           готовой выкладки скриптом, а не пишется руками.
     """
     FONTS.mkdir(parents=True, exist_ok=True)
     rules, files = [], []
 
     for family, spec in specs.items():
-        css = _get(CSS_API.format(spec=spec)).decode("utf-8")
-        want = [b for b in _blocks(css) if b["subset"] in subsets]
+        url = CSS_API.format(spec=spec)
+        if text:
+            url += "&text=" + urllib.parse.quote(text, safe="")
+        css = _get(url).decode("utf-8")
+        blocks = _blocks(css)
+        want = blocks if text else [b for b in blocks if b["subset"] in subsets]
         if not want:
             raise RuntimeError(f"{family}: подмножество {subsets} не найдено")
         for b in want:
             slug = re.sub(r"[^a-z0-9]+", "-", b["family"].lower()).strip("-")
             name = f"{slug}-{b['style']}-{b['subset']}.woff2"
+            # Подрезанный файл ни с чем не совпадает по составу знаков, и
+            # старый одноимённый остался бы лежать. Имя должно отличаться.
+            if text:
+                name = f"{slug}-{b['style']}-sub.woff2"
             dst = FONTS / name
             if not dst.exists():
                 dst.write_bytes(_get(b["url"]))

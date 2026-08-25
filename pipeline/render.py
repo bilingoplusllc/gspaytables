@@ -1205,6 +1205,63 @@ def main() -> int:
     htmls = sorted(DIST.rglob("*.html"))
     all_urls = {u.rstrip("/") for u in urls} | {"/404.html"}
 
+    # 0. просимая гарнитура и отгружаемая — одно и то же.
+    #    Прежний гейт шрифта убеждался, что блок @font-face есть и файл
+    #    уехал, но не сверял имена. Один тестовый вызов загрузчика — и сайт
+    #    собрался зелёным, отгружая две гарнитуры, которые CSS не просит, и
+    #    рисуясь системным стеком.
+    if FONT_CSS:
+        shipped = {m.lower() for m in
+                   re.findall(r"font-family:'([^']+)'", FONT_CSS)}
+        asked = set()
+        for stack in re.findall(r"--(?:face|serif|sans|mono)\s*:\s*([^;}]+)",
+                                design.CSS):
+            first = stack.split(",")[0].strip().strip('"\'')
+            if first and not first.startswith("var("):
+                asked.add(first.lower())
+        for name in sorted(asked - shipped):
+            problems.append(f"шрифт: CSS просит {name!r}, а он не отгружается")
+        for name in sorted(shipped - asked):
+            problems.append(f"шрифт: отгружается {name!r}, а CSS его не просит")
+
+    # 0. подрезанная гарнитура обязана покрывать каждый знак страницы.
+    #    fonts.py качает шрифты с параметром text=, то есть ровно под тот
+    #    набор знаков, что был в выкладке на момент загрузки. Появление
+    #    нового знака не ломает сборку и не даёт ошибки — он просто
+    #    отрисуется системным шрифтом посреди строки.
+    covered = set()
+    for rng in re.findall(r"unicode-range:([^;}]+)", FONT_CSS):
+        for part in rng.split(","):
+            part = part.strip().lower().lstrip("u+")
+            if not part:
+                continue
+            try:
+                if "-" in part:
+                    a, b = part.split("-", 1)
+                    covered.update(range(int(a, 16), int(b, 16) + 1))
+                else:
+                    covered.add(int(part, 16))
+            except ValueError:
+                continue
+    if covered:
+        # Знаки, которых в текстовых гарнитурах не бывает: они намеренно
+        # отданы системному стеку либо нарисованы.
+        DRAWN = set(chr(c) for c in (0x25B2, 0x25BC, 0x25C0, 0x25B6))
+        seen = {}
+        for f in htmls:
+            body = f.read_text(encoding="utf-8")
+            body = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", body, flags=re.S)
+            body = re.sub(r"<[^>]+>", " ", body)
+            body = re.sub(r"&[a-z]+;|&#\d+;", " ", body)
+            for ch in body:
+                if ch.isspace() or ch in DRAWN or ord(ch) in covered:
+                    continue
+                seen.setdefault(ch, f.relative_to(DIST))
+        for ch, where in sorted(seen.items()):
+            problems.append(
+                f"шрифт: знак U+{ord(ch):04X} {ch!r} не входит в подрезанную "
+                f"гарнитуру — {where}")
+
     # 0. табличные цифры не должны теряться в сокращении font:.
     #    CSS Fonts 4: `font:` сбрасывает font-variant-numeric в исходное
     #    значение. Объявление на body уничтожалось на КАЖДОМ элементе с
@@ -1576,7 +1633,7 @@ def main() -> int:
     print("гейты пройдены: кириллица, битые вычисления, дисклеймер, ссылки, "
           "объём, направление, полнота охвата, пунктуация, крошки, "
           "клиентский расчёт, экранирование, управляющие символы, "
-                "внешние запросы, шрифт, стили, карта сайта, американское написание, табличные цифры")
+                "внешние запросы, шрифт, стили, карта сайта, американское написание, табличные цифры, покрытие шрифта, совпадение гарнитуры")
     return 0
 
 
