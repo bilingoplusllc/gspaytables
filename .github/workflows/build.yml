@@ -43,6 +43,9 @@ jobs:
       - name: Map localities to price data
         run: python pipeline/rpp.py
 
+      - name: Build ZIP-to-locality bridge
+        run: python pipeline/zips.py
+
       - name: Render site
         run: python pipeline/render.py
 
@@ -54,7 +57,7 @@ jobs:
         run: |
           COUNT=$(find dist -name index.html | wc -l)
           echo "страниц собрано: $COUNT"
-          if [ "$COUNT" -lt 70 ]; then
+          if [ "$COUNT" -lt 95 ]; then
             echo "::error::Слишком мало страниц ($COUNT) — публикация остановлена"
             exit 1
           fi
@@ -78,8 +81,12 @@ jobs:
             exit 1
           fi
 
+          # Файл индексов подгружается инструментом по запросу: без него
+          # поиск зоны по индексу молча перестанет работать.
+          [ -s dist/zip-zone.json ] || { echo "::error::нет файла индексов"; exit 1; }
           for f in dist/404.html dist/index.html dist/privacy/index.html \
-                   dist/locality/rest-of-u-s/index.html dist/gs-12/index.html; do
+                   dist/locality/rest-of-u-s/index.html dist/gs-12/index.html \
+                   dist/calculator/index.html dist/compare/index.html; do
             [ -s "$f" ] || { echo "::error::нет файла $f"; exit 1; }
           done
           echo "независимая проверка пройдена"

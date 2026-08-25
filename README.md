@@ -5,8 +5,8 @@ official tables and the existing reference sites do not show: what each salary i
 actually worth once local prices are taken into account.
 
 The site is static. There is no database, no framework and no dependency outside the
-Python standard library; the whole thing is five scripts that turn two public datasets
-into 79 pages.
+Python standard library; the whole thing is six scripts that turn three public datasets
+into 102 pages, plus a calculator that runs entirely in the browser.
 
 ## Sources
 
@@ -14,7 +14,8 @@ into 79 pages.
 |---|---|---|
 | Salary tables, locality percentages | U.S. Office of Personnel Management | public domain (work of the U.S. government) |
 | Locality pay area definitions | U.S. Office of Personnel Management | public domain |
-| Regional Price Parities | U.S. Bureau of Economic Analysis | public domain |
+| Regional Price Parities, metro and state | U.S. Bureau of Economic Analysis | public domain |
+| ZIP code to county relationships | U.S. Census Bureau | public domain |
 
 FedPay is independent. It is not affiliated with, endorsed by, or connected to OPM or
 any government agency.
@@ -22,10 +23,11 @@ any government agency.
 ## Build
 
 ```
-python pipeline/fetch.py        # скачивает таблицы OPM и архив BEA
+python pipeline/fetch.py        # таблицы OPM, архивы BEA, связка ZIP-округ
 python pipeline/parse.py        # разбирает XML в JSON, сверяет каждую ячейку
 python pipeline/localities.py   # округа и штаты каждой зоны
-python pipeline/rpp.py          # сопоставляет зоны OPM с метро BEA
+python pipeline/rpp.py          # сопоставляет зоны с ценовыми индексами BEA
+python pipeline/zips.py         # мост «почтовый индекс -> зона»
 python pipeline/render.py       # собирает dist/
 ```
 
@@ -38,7 +40,7 @@ python pipeline/render.py       # собирает dist/
 файлом OPM. Расхождение хотя бы в одной ячейке останавливает сборку. На таблицах
 2026 года сошлись все 8 700 ячеек.
 
-`render.py` заканчивается девятью гейтами по **отрендеренному** HTML, а не по
+`render.py` заканчивается одиннадцатью гейтами по **отрендеренному** HTML, а не по
 исходникам. Каждый из них стоит там, потому что соответствующая ошибка уже была
 допущена — здесь или на соседнем проекте:
 
@@ -53,6 +55,8 @@ python pipeline/render.py       # собирает dist/
 | полнота охвата | зона молча выпала со страниц грейдов |
 | пунктуация | «Rest of U.S..» — вторая точка подряд |
 | крошки | разметка BreadcrumbList разошлась с видимой цепочкой |
+| клиентский расчёт | формула в браузере разошлась с таблицами OPM |
+| экранирование | читателю показывают \uXXXX вместо символа |
 
 Каждый гейт проверен контролем: заведомо испорченная сборка обязана падать.
 Зелёный гейт, который никогда не краснел, ничего не доказывает.
