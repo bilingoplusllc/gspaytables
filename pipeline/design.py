@@ -275,30 +275,16 @@ body{margin:0;background:var(--ground);color:var(--ink);
    колонок и 58 строк. */
 .layout.wide{grid-template-columns:minmax(0,1fr);max-width:1180px}
 .layout.wide .sub{max-width:60ch}
-.rail-note{font:500 12.5px/1.5 var(--face);color:var(--muted);
-  margin:0 0 var(--s4);max-width:none}
 
 /* ---------- места под рекламу: заложены в раскладку заранее */
 /* Сеть не подключена. Пустые пунктирные рамки с надписью Advertisement —
    это не «место под рекламу», это признак недоделанного сайта на странице,
    которая продаёт себя точностью. Показывать их будем вместе с реальными
    блоками, зарезервировав высоту под конкретный формат. */
-.ad-slot{display:none}
-.ad-slot.on{display:flex;border:1px dashed var(--line-strong);border-radius:3px;
-  display:flex;align-items:center;justify-content:center;
-  font:600 10px/1 var(--face);letter-spacing:.12em;text-transform:uppercase;
-  color:var(--muted);background:var(--card)}
 .ad-rail{min-height:600px;width:100%}
 .ad-band{min-height:110px;margin:0 0 var(--s4)}
 
 /* ---------- типографика основной колонки */
-h1{font:800 clamp(23px,2.7vw,33px)/1.2 var(--face);letter-spacing:-.025em;
-  margin:0 0 var(--s2);max-width:26ch}
-.sub{font:400 17px/1.55 var(--face);color:var(--ink-soft);max-width:62ch;
-  margin:0 0 var(--s4)}
-h2{font:700 clamp(18px,2vw,23px)/1.3 var(--face);letter-spacing:-.015em;
-  margin:0 0 var(--s3);max-width:32ch}
-h3{font:700 15px/1.35 var(--face);margin:var(--s4) 0 var(--s2)}
 p{margin:0 0 var(--s3);max-width:66ch;color:var(--ink-soft)}
 /* Ссылка наследует цвет своего окружения и опознаётся подчёркиванием, а не
    краской. Прежде она была жёстко цвета акцента — и в подвале на тёмной
@@ -313,63 +299,24 @@ a:hover{color:var(--seal)}
 section.q{background:var(--card);border:1px solid var(--line);border-radius:4px;
   padding:var(--s4);margin:0 0 var(--s4)}
 section.q>:last-child{margin-bottom:0}
-.q-lead{font:600 17px/1.5 var(--face);color:var(--ink);max-width:62ch;
-  margin:0 0 var(--s3)}
-.q-lead strong{font-weight:800}
 
 /* ---------- сетка фактов на первом экране */
 /* Ровно две колонки: при auto-fit четвёртая карточка оставалась одна в
    строке и выглядела остатком, а не частью набора. */
-.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:var(--s3);margin:0 0 var(--s4)}
 @media (max-width:560px){.facts{grid-template-columns:minmax(0,1fr)}}
-.fact{background:var(--card);border:1px solid var(--line);border-radius:4px;
-  padding:var(--s3) var(--s3) var(--s2)}
-.fact .fact-k{margin:0;}
-.fact .fact-k{font:700 10.5px/1.2 var(--face);letter-spacing:.1em;
-  text-transform:uppercase;color:var(--muted);margin:0 0 var(--s2)}
-.fact p{font-size:14px;line-height:1.5;margin-bottom:var(--s2)}
-.fact .kpi{font:800 26px/1.05 var(--face);letter-spacing:-.02em;
-  color:var(--ink);display:block;margin-bottom:4px}
-.fact .kpi-sub{font:500 12.5px/1.4 var(--face);color:var(--muted);display:block}
 
 /* ---------- оговорка. Не цветная плашка посреди чтения, а полоса на поле:
    тот же приём, что у заметок, чтобы текст ничем не разрывался. */
-.caveat{border-left:3px solid var(--warn);background:var(--warn-soft);
-  padding:var(--s3) var(--s3) 2px;margin:0 0 var(--s3);border-radius:0 3px 3px 0}
-.caveat p{color:var(--ink-soft);font-size:15px;line-height:1.55;max-width:64ch}
-.caveat strong:first-child{color:var(--warn);font-weight:800}
 
 /* ---------- карточка вердикта. Нужна там, где ответ не одно число в полосе,
    а сопоставление двух зон: на страницах сравнения. */
-.answer{background:var(--card);border:1px solid var(--line);border-radius:4px;
-  margin:0 0 var(--s4);overflow:hidden}
-.answer .what{display:block;background:var(--bar);color:var(--bar-ink);
-  padding:8px var(--s4);font:700 10.5px/1.2 var(--face);
-  letter-spacing:.11em;text-transform:uppercase}
-.answer .body{padding:var(--s4)}
-.answer .big{display:block;font:800 clamp(30px,5vw,46px)/1 var(--face);
-  letter-spacing:-.03em;margin:0 0 var(--s3);color:var(--ink)}
-.answer p:last-child{margin-bottom:0}
 
 /* ---------- опорная клетка: отмечена сервером, видна и без скрипта.
    Со скриптом её сменяет выбранная, и метка снимается. */
 
 /* ---------- бухгалтерский разбор */
-.ledger{margin:0 0 var(--s3);border-top:1px solid var(--line)}
-.ledger div{display:flex;align-items:baseline;gap:var(--s2);padding:6px 0;
-  border-bottom:1px solid var(--line)}
-.ledger dt{flex:1;font:500 13.5px/1.45 var(--face);color:var(--muted)}
-.ledger dd{margin:0;font:700 14.5px/1.45 var(--face);white-space:nowrap}
-.ledger div.total dt{color:var(--ink);font-weight:700}
-.ledger div.total{border-bottom:2px solid var(--line-strong)}
-.ledger dd.down{color:var(--warn)}
-.ledger dd.up{color:var(--up)}
 
 /* ---------- заметки на полях: оговорки больше не рвут текст */
-.sidenote b{display:block;font:700 10.5px/1.2 var(--face);letter-spacing:.1em;
-  text-transform:uppercase;color:var(--accent);margin-bottom:6px}
-.sidenote p:last-child{margin-bottom:0}
 
 /* ---------- таблицы */
 /* overflow-x:auto делает overflow-y тоже auto, поэтому sticky в шапке
@@ -387,46 +334,11 @@ section.q>:last-child{margin-bottom:0}
 
 
 /* ---------- полосы сравнения */
-.bars{margin:0;padding:0;list-style:none}
-.bars li{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,3fr) max-content;
-  gap:var(--s3);align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
-.bars li:last-child{border-bottom:0}
-.bars .nm{font:500 13px/1.35 var(--face);color:var(--muted);overflow:hidden;
-  text-overflow:ellipsis;white-space:nowrap}
-.bar{display:block;height:14px;background:var(--page);border-radius:2px}
-.bar span{display:block;height:100%;background:var(--line-strong);border-radius:2px}
-.bars li.hi .nm{color:var(--ink);font-weight:700}
-.bars li.hi .bar span{background:var(--accent)}
-.bars .v{font:700 13px/1 var(--face);text-align:right}
 
 /* ---------- подписи и источники */
 figure.ex{margin:0;padding:0}
-.ex-kicker{font:700 10.5px/1.2 var(--face);letter-spacing:.1em;
-  text-transform:uppercase;color:var(--accent);margin-bottom:6px}
-.ex-title{font:700 17px/1.3 var(--face);margin:0 0 var(--s2)}
-.ex-note{font-size:14px;line-height:1.55;color:var(--muted);max-width:66ch;
-  margin-bottom:var(--s3)}
-figcaption{font:500 12px/1.55 var(--face);color:var(--muted);
-  margin-top:var(--s3);padding-top:var(--s2);border-top:1px solid var(--line);
-  max-width:none}
-figcaption strong{color:var(--ink-soft)}
 
 /* ---------- плитки и списки */
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-  gap:var(--s3);margin:var(--s3) 0}
-.tile{border:1px solid var(--line);border-radius:4px;padding:var(--s3);
-  background:var(--page)}
-.tile .k{font:700 10.5px/1 var(--face);letter-spacing:.1em;text-transform:uppercase;
-  color:var(--muted);display:block;margin-bottom:6px}
-.tile .v{font:800 21px/1.1 var(--face);letter-spacing:-.02em}
-.tile .d{font:500 13px/1.5 var(--face);color:var(--muted);margin-top:5px}
-.chips,.chips-plain,.counties{display:flex;flex-wrap:wrap;gap:6px;margin:var(--s3) 0;
-  padding:0;list-style:none}
-.chips a,.chips-plain li,.counties li{display:inline-block;padding:5px 10px;
-  border:1px solid var(--line);border-radius:3px;font:600 13px/1.3 var(--face);
-  color:var(--ink);text-decoration:none;background:var(--page)}
-.counties li{font-weight:500;color:var(--muted)}
-.chips a:hover{border-color:var(--accent);color:var(--accent)}
 
 /* ---------- инструмент расчёта */
 
@@ -442,14 +354,6 @@ figcaption strong{color:var(--ink-soft)}
    ничего не делают, а вёрстка при включении не прыгает. */
 
 /* Ссылки грейдов с суммой внутри: «GS-12 $76,463» вместо «GS-12». */
-.chips-pay{display:grid;gap:6px;margin:var(--s3) 0;
-  grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}
-.chips-pay a{display:flex;justify-content:space-between;align-items:baseline;
-  gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:3px;
-  background:var(--card);text-decoration:none;color:var(--ink)}
-.chips-pay a:hover{border-color:var(--accent)}
-.chips-pay b{font:800 13px/1 var(--face)}
-.chips-pay span{font:500 13px/1 var(--face);color:var(--muted)}
 
 /* Заголовок-сортировщик: кликает вложенная кнопка, а <th> остаётся
    заголовком столбца. role="button" на самом <th> стирал columnheader, и
@@ -474,10 +378,6 @@ figcaption strong{color:var(--ink-soft)}
      Вторичные числа стоят в карточке сразу под ней, поэтому в полосе
      остаётся только то, ради чего она липкая: где, что и сколько. */
   section.q{padding:var(--s3)}
-  .bars li{grid-template-columns:minmax(0,1fr) max-content;gap:4px var(--s2)}
-  .bars .nm{white-space:normal;grid-column:1}
-  .bars .v{grid-column:2}
-  .bars .bar{grid-column:1 / -1;margin-top:2px}
 }
 @media print{
   html,body{background:#fff;color:#000}
@@ -699,7 +599,6 @@ h3{font-family:var(--serif);font-size:var(--s-lead);line-height:1.3;
 .q-lead{font-family:var(--serif);font-size:var(--s-lead);line-height:1.45;
   letter-spacing:-.005em;color:var(--ink-2);max-width:32em;
   margin:0 0 var(--sp3)}
-.q-lead strong{color:var(--ink);font-weight:600}
 .plate .q-lead strong{color:var(--deep-ink)}
 section.q p{max-width:34em}
 
@@ -824,7 +723,6 @@ section.q p{max-width:34em}
   .titleblock{padding-top:var(--sp2);padding-bottom:var(--sp2)}
   .docline{margin:var(--sp1) 0;gap:2px 12px}
   .docline span:not(:first-child){display:none}
-  .sub{font-size:var(--s-text);margin-top:6px}
   .rd{margin-top:var(--sp2)}
 
   section.q{padding:var(--sp3) 0}
@@ -868,7 +766,6 @@ section.q p{max-width:34em}
 }
 @media (max-width:760px){
   .notice-in{font-size:var(--s-stamp);letter-spacing:.01em}
-  h1{font-size:clamp(25px,6.4vw,29px)}
   #find .fp-calc>h2{font-size:var(--s-text);line-height:1.3}
   .titleblock{padding-bottom:var(--sp1)}
   .rd{margin-top:var(--sp1)}
@@ -894,8 +791,12 @@ section.q p{max-width:34em}
    объявляла 52 px, а замеренная высота при 375 была 112.8 — метка зоны
    уходила на свою строку, и якорные ссылки из содержания промахивались на
    61 px. Число и реальность не могут разойтись, если высота одна. */
+/* Правило полосы восстановлено: моя же чистка сняла его по префиксу —
+   селектор `.answer` совпал с началом `.answerbar`. Тот же класс ошибки,
+   что был в гейте «класс без правила», только теперь в правящем скрипте. */
 .answerbar{position:sticky;top:0;z-index:20;background:var(--band);
-  color:var(--band-ink);box-shadow:0 3px 0 var(--band),0 4px 0 var(--band-hair)}
+  color:var(--band-ink);
+  box-shadow:0 3px 0 var(--band),0 4px 0 var(--band-hair)}
 .ab-in{max-width:1180px;margin:0 auto;
   padding:0 clamp(18px,3.4vw,40px);height:56px;box-sizing:border-box;
   display:flex;align-items:center;gap:clamp(12px,2vw,26px);flex-wrap:nowrap}
@@ -937,12 +838,10 @@ section.q p{max-width:34em}
    его краю, и смещение на высоту полосы оставляло бы внутри контейнера
    пустую полосу в 44-56 px, над которой уезжали бы строки. */
 body{--stick:0px}
-body.withbar{--stick:56px}
 @media (max-width:760px){
   .ab-in{height:44px;gap:10px}
   .ab-more{display:none}
   .ab-pick label{display:none}
-  body.withbar{--stick:44px}
 }
 @media (max-width:520px){
   .ab-where{display:none}
@@ -1080,6 +979,121 @@ tbody th .full{display:block;font-family:var(--sans);font-size:var(--s-stamp);
   line-height:1.4;color:var(--ink-3);white-space:nowrap;overflow:hidden;
   text-overflow:ellipsis;max-width:26ch;margin-top:1px}
 tbody th a{white-space:nowrap}
+
+/* ================================================ врезки чисел и перечни
+   Ни одной рамки вокруг блока: числа отделяются тяжёлой линейкой сверху,
+   как графы в бланке. Число набирается антиквой, подпись — гротеском
+   прописными. */
+.facts{display:grid;gap:0 clamp(26px,3.4vw,52px);
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  margin:var(--sp3) 0 0}
+.fact{padding:var(--sp2) 0;border:0;border-radius:0;background:transparent;
+  border-top:3px solid var(--rule)}
+.fact .fact-k{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2);
+  margin:0 0 var(--sp1)}
+.fact .kpi{display:block;font-family:var(--serif);font-size:var(--s-kpi);
+  line-height:1.05;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
+.fact .kpi-sub{display:block;font-family:var(--sans);font-size:var(--s-fine);
+  line-height:1.5;color:var(--ink-2);margin-top:var(--sp1);max-width:32em}
+
+/* ---------- ведомость слагаемых: как расчётная часть формы */
+.ledger{margin:var(--sp3) 0 0;border-top:3px solid var(--heavy)}
+.ledger div{display:flex;justify-content:space-between;gap:16px;
+  padding:8px 0;border-bottom:1px solid var(--hair)}
+.ledger dt{font-family:var(--sans);font-size:var(--s-fine);color:var(--ink-2);
+  margin:0}
+.ledger dd{margin:0;font-family:var(--sans);font-size:var(--s-fine);
+  font-weight:700;white-space:nowrap}
+.ledger div.total{border-bottom:0;border-top:1px solid var(--heavy);
+  padding-top:11px;margin-top:3px}
+.ledger div.total dt{color:var(--ink);font-weight:600}
+.ledger div.total dd{font-family:var(--serif);font-size:var(--s-lead);
+  font-weight:600}
+
+/* ---------- ответ на странице сравнения */
+.answer{border:0;border-radius:0;background:transparent;
+  border-top:3px solid var(--heavy);padding:var(--sp2) 0 0;margin:var(--sp3) 0 0}
+.answer .what{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2);margin:0}
+.answer .big{display:block;font-family:var(--serif);font-size:var(--s-kpi);
+  line-height:1.1;font-weight:600;letter-spacing:-.02em;margin:var(--sp1) 0 0}
+.answer .body{display:block;font-family:var(--sans);font-size:var(--s-fine);
+  line-height:1.5;color:var(--ink-2);margin-top:var(--sp1);max-width:40em}
+
+/* ---------- полосы величин. Полоса всегда идёт рядом с числом, а шкала
+   объявлена в подписи: полоса без объявленной шкалы врёт ровно так, как
+   соврала гистограмма с неравными корзинами на соседнем сайте. */
+.bars{margin:var(--sp2) 0 0;padding:0;list-style:none}
+.bars li{display:grid;grid-template-columns:minmax(0,1fr) max-content;
+  gap:3px 14px;align-items:baseline;padding:7px 0;
+  border-bottom:1px solid var(--hair)}
+.bars .nm{font-family:var(--serif);font-size:var(--s-fine);color:var(--ink)}
+.bars .v{font-family:var(--sans);font-size:var(--s-fine);font-weight:700;
+  text-align:right;white-space:nowrap}
+.bar{grid-column:1/-1;display:block;height:9px;background:var(--tint-2);
+  border-radius:0}
+.bar span{display:block;height:100%;background:var(--band);border-radius:0}
+.bars li.hi .bar span{background:var(--seal-fill)}
+.bars li.hi .nm{font-weight:600}
+
+/* ---------- экспонат: то, чего нет ни у кого, помечено как приложение */
+.ex{margin:var(--sp3) 0 0;border-top:3px solid var(--heavy);
+  padding-top:var(--sp2)}
+.ex-kicker{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--seal);margin:0}
+.ex-title{font-family:var(--serif);font-size:var(--s-lead);font-weight:600;
+  line-height:1.3;margin:var(--sp1) 0 var(--sp2);max-width:30em}
+.ex-note{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
+  color:var(--ink-2);margin:var(--sp2) 0 0;max-width:44em}
+figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
+  color:var(--ink-2);margin-top:var(--sp2)}
+
+/* ---------- плитки потолка */
+.grid2{display:grid;gap:0 clamp(20px,3vw,44px);
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin:var(--sp2) 0 0}
+.tile{border:0;border-radius:0;background:transparent;
+  border-top:1px solid var(--rule);padding:var(--sp2) 0}
+.tile .k{display:block;font-family:var(--sans);font-size:var(--s-stamp);
+  font-weight:600;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink-2)}
+.tile .v{display:block;font-family:var(--serif);font-size:var(--s-lead);
+  font-weight:600;margin:2px 0 4px}
+.tile .d{display:block;font-family:var(--sans);font-size:var(--s-fine);
+  line-height:1.5;color:var(--ink-2)}
+
+/* ---------- перечни: не «плашки», а строки указателя */
+.chips,.chips-plain,.counties{display:flex;flex-wrap:wrap;gap:0 0;
+  margin:var(--sp2) 0 0;padding:0;list-style:none}
+.chips a,.chips-plain li,.counties li{display:inline-block;
+  font-family:var(--sans);font-size:var(--s-fine);color:var(--ink);
+  text-decoration:none;padding:5px 0;margin-right:0;border:0;border-radius:0}
+.chips a::after,.chips-plain li:not(:last-child)::after,
+.counties li:not(:last-child)::after{content:"";display:inline-block;width:1px;
+  height:.75em;margin:0 11px -.05em;background:var(--rule)}
+.chips a:hover{color:var(--seal);text-decoration:underline}
+
+.chips-pay{display:grid;gap:0;margin:var(--sp2) 0 0;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.chips-pay a{display:flex;justify-content:space-between;align-items:baseline;
+  gap:10px;padding:9px 0;border:0;border-radius:0;background:transparent;
+  border-bottom:1px solid var(--hair);text-decoration:none;color:var(--ink);
+  margin-right:clamp(16px,2.4vw,34px)}
+.chips-pay a:hover{border-bottom-color:var(--seal)}
+.chips-pay b{font-family:var(--sans);font-size:var(--s-fine);font-weight:700}
+.chips-pay span{font-family:var(--sans);font-size:var(--s-fine);
+  color:var(--ink-2)}
+
+/* ---------- оговорка: отступ и линейка вместо рамки. Курсива нет — его
+   начертание не вшито, а наклонять римское значит подделывать. */
+.caveat{border:0;border-radius:0;background:transparent;
+  border-left:3px solid var(--seal-fill);padding:2px 0 2px var(--sp2);
+  margin:var(--sp3) 0 0;color:var(--ink-2);max-width:38em}
+.caveat p{margin:0}
+.caveat strong{color:var(--ink)}
+
+.rail-note{font-family:var(--sans);font-size:var(--s-fine);color:var(--ink-2);
+  margin:0}
 """
 
 MARK = ""
