@@ -76,6 +76,7 @@ CSS = r"""
   --s1:4px; --s2:8px; --s3:14px; --s4:22px; --s5:34px; --s6:52px;
   --face:"Archivo","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
 }
+
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
     color-scheme:dark;
@@ -516,6 +517,22 @@ footer a{color:var(--muted)}
   .scroll{overflow:visible;background:none}
   table{font-size:9pt}
 }
+/* ---------- табличные цифры: восстановление после сокращений font:
+   На body объявлено font-variant-numeric:tabular-nums, но по CSS Fonts 4
+   сокращение `font:` сбрасывает его в исходное значение — а таких сокращений
+   в этом файле больше полусотни, и среди них КАЖДЫЙ элемент с числом. Сайт
+   про деньги набирал суммы пропорциональными цифрами, объявив табличные, и
+   колонка долларов не выравнивалась по разрядам.
+   Селекторы повторены один в один: та же специфичность, более поздний
+   порядок. Иначе `.fp-hero p.fp-big` (0,1,2) побеждает общий `.fp-big`. */
+table,th,td,
+.ab-big,
+.fact .fact-k,.fact .kpi,.fact .kpi-sub,
+.ledger dt,.ledger dd,
+.fp-out p.fp-big,.fp-lines dt,.fp-lines dd,
+.fp-hero p.fp-big,.fp-hero p.fp-ranks,
+.tlegend,.chips-pay b,.chips-pay span{
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
 """
 
 MARK = ""
