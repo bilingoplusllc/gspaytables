@@ -11,6 +11,7 @@
 """
 from __future__ import annotations
 
+import hashlib
 import html
 import json
 import math
@@ -34,6 +35,14 @@ TAGLINE = "What the federal pay tables actually mean"
 DOMAIN = "https://fedpayscale.com"
 OWNER = "BiLingoPlus LLC"
 CONTACT = "hello@fedpayscale.com"
+
+# Цвет строки браузера на мобильных: должен совпадать с фоном страницы,
+# иначе над сайтом висит чужая полоса.
+# Дата последнего изменения данных. Выставляется в main() по отпечатку.
+DATA_DATE = ""
+
+THEME_LIGHT = "#e9e1d0"
+THEME_DARK = "#0d0c0a"
 
 # Опорная клетка для сравнений между зонами: GS-12/5 — середина сетки,
 # самый населённый диапазон грейдов.
@@ -64,6 +73,29 @@ def fit_desc(parts: list, limit: int = 158) -> str:
             break
         out = cand
     return out
+
+
+def data_date(T: dict, R: dict, L: dict) -> str:
+    """Дата последнего РЕАЛЬНОГО изменения данных.
+
+    Отпечаток берётся с содержимого: ставки, проценты, ценовые индексы, состав
+    зон. Не изменились — дата остаётся прежней, сколько бы раз ни пересобирали.
+    """
+    blob = json.dumps([T["year"], T["ex_iv_cap"], R["bea_year"],
+                       {c: l["locality_pct"] for c, l in T["localities"].items()},
+                       {c: v.get("rpp") for c, v in R["areas"].items()},
+                       {c: len(v.get("places", [])) for c, v in L.items()}],
+                      sort_keys=True, separators=(",", ":"))
+    fp = hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
+
+    stamp = DATA / "last-changed.txt"
+    if stamp.exists():
+        old_fp, old_date = stamp.read_text(encoding="utf-8").split()[:2]
+        if old_fp == fp:
+            return old_date
+    today = date.today().isoformat()
+    stamp.write_text(f"{fp} {today}\n", encoding="utf-8")
+    return today
 
 
 def calc_script(T: dict, R: dict, ranks: dict) -> str:
@@ -136,6 +168,7 @@ def jsonld(title: str, desc: str, canonical: str, crumbs: list) -> str:
     graph = [{
         "@type": "WebPage", "@id": canonical, "url": canonical,
         "name": title, "description": desc,
+        "dateModified": DATA_DATE,
         "isPartOf": {"@id": f"{DOMAIN}/#website"},
         "publisher": {"@id": f"{DOMAIN}/#org"},
     }, {
@@ -162,11 +195,14 @@ def jsonld(title: str, desc: str, canonical: str, crumbs: list) -> str:
 
 def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
           crumbs: list = None, js: str = "") -> str:
+    updated = DATA_DATE
     cur = lambda k: ' aria-current="page"' if k == nav else ""
     return f"""<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="{THEME_LIGHT}" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="{THEME_DARK}" media="(prefers-color-scheme: dark)">
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{esc(canonical)}">
@@ -203,7 +239,9 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
   <p><a href="/how-locality-pay-works/">How locality pay works</a> ·
   <a href="/grades/">All grades</a> · <a href="/about/">About</a> ·
   <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p>
-  <p>Built {date.today().isoformat()} · <a href="mailto:{CONTACT}">{CONTACT}</a></p>
+  <p>Data last changed {updated}. Pay tables are published once a year, so this
+  date moves when the underlying figures move, not when the site is rebuilt.<br>
+  <a href="mailto:{CONTACT}">{CONTACT}</a></p>
 </footer>
 </div>
 {js}
@@ -481,9 +519,11 @@ def compute_ranks(T: dict, R: dict) -> dict:
 
 
 def main() -> int:
+    global DATA_DATE
     T = json.loads((DATA / "paytables-2026.json").read_text(encoding="utf-8"))
     R = json.loads((DATA / "rpp-map.json").read_text(encoding="utf-8"))
     L = json.loads((DATA / "localities-2026.json").read_text(encoding="utf-8"))
+    DATA_DATE = data_date(T, R, L)
     ranks = compute_ranks(T, R)
 
     if DIST.exists():
@@ -567,7 +607,17 @@ def main() -> int:
     (DIST / "_headers").write_text(
         "/*\n  X-Content-Type-Options: nosniff\n"
         "  Referrer-Policy: strict-origin-when-cross-origin\n"
-        "  X-Frame-Options: DENY\n", encoding="utf-8")
+        "  X-Frame-Options: DENY\n"
+        "\n"
+        "# Страницы пересобираются при каждом изменении данных, поэтому\n"
+        "# браузер обязан спрашивать заново.\n"
+        "/*.html\n  Cache-Control: public, max-age=0, must-revalidate\n"
+        "\n"
+        "# Шрифты и файл почтовых индексов меняются раз в год и весят\n"
+        "# сотни килобайт. Имена стабильны — кешируем надолго.\n"
+        "/fonts/*\n  Cache-Control: public, max-age=31536000, immutable\n"
+        "/zip-zone.json\n  Cache-Control: public, max-age=604800\n",
+        encoding="utf-8")
 
     print(f"страниц: {len(urls)} + 404")
 
@@ -766,6 +816,19 @@ def main() -> int:
         problems.append(f"escape-последовательности в тексте: {len(raw_esc)} — "
                         f"{raw_esc[0]}")
 
+    # 13. управляющие символы. В CSS запись вида \00a0 означает неразрывный
+    #     пробел, но внутри обычной строки питона \0 — это нулевой байт, а
+    #     \25 — восьмеричное 025. Так на все 103 страницы уехали 0x00 и 0x15:
+    #     HTML при этом валиден, гейты зелёные, а файл технически бинарный.
+    ctl = []
+    for f in htmls:
+        s = f.read_text(encoding="utf-8")
+        hit = [c for c in s if ord(c) < 32 and c not in "\n\r\t"]
+        if hit:
+            ctl.append(f"{f.relative_to(DIST)}: {hex(ord(hit[0]))}")
+    if ctl:
+        problems.append(f"управляющие символы в выводе: {len(ctl)} — {ctl[0]}")
+
     if problems:
         print(f"\nГЕЙТ НЕ ПРОЙДЕН: {len(problems)} замечаний", file=sys.stderr)
         for p in problems[:20]:
@@ -774,7 +837,7 @@ def main() -> int:
 
     print("гейты пройдены: кириллица, битые вычисления, дисклеймер, ссылки, "
           "объём, направление, полнота охвата, пунктуация, крошки, "
-          "клиентский расчёт, экранирование")
+          "клиентский расчёт, экранирование, управляющие символы")
     return 0
 
 

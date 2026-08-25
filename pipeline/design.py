@@ -54,7 +54,7 @@
 окладов (направление 1) — глазу нужен якорь на середине из десяти колонок.
 """
 
-CSS = """
+CSS = r"""
 :root{
   color-scheme:light;
   --desk:#e9e1d0;        /* стол, на котором лежит лист */
@@ -207,7 +207,7 @@ figcaption strong{color:var(--ink)}
   background-image:repeating-linear-gradient(90deg,
     currentColor 0 .46em, transparent .46em .66em)}
 .bars li.hi .nm{color:var(--ink);font-weight:700}
-.bars li.hi .nm::before{content:"\\25B6\\00a0";color:var(--stamp)}
+.bars li.hi .nm::before{content:"\25B6\00a0";color:var(--stamp)}
 .bars li.hi .bar span{color:var(--stamp)}
 .bars li.hi .bar{border-bottom-color:var(--stamp)}
 .bars .v{font:700 13px/1 var(--mono);text-align:right}
@@ -257,12 +257,12 @@ tbody tr th.capped,tbody tr td.capped{
   background-image:repeating-linear-gradient(45deg,
     var(--hatch) 0 2px, transparent 2px 6px);
   font-weight:700}
-tbody tr td.capped::before{content:"\\25B2";float:left;font-size:11px;
+tbody tr td.capped::before{content:"\25B2";float:left;font-size:11px;
   line-height:1.78;color:var(--stamp)}
 
 /* своя строка в рейтинге соседей: цвет и знак */
 tbody tr.you th,tbody tr.you td{background:var(--stamp-soft);font-weight:700}
-tbody tr.you th[scope="row"]::after{content:"\\00a0\\25C0";color:var(--stamp)}
+tbody tr.you th[scope="row"]::after{content:"\00a0\25C0";color:var(--stamp)}
 /* Только background-color: сокращённое свойство сбрасывало background-image
    и вместе с ним штриховку потолка — двойное кодирование пропадало от
    движения мыши. */

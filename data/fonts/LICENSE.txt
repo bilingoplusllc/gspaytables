@@ -1,0 +1,6 @@
+The typefaces served from /fonts/ are used under the SIL Open Font
+License 1.1 or the Apache License 2.0, which permit self-hosting and
+redistribution. Full licence texts are published by the type designers
+and by the Google Fonts project at https://fonts.google.com/attribution
+
+FedPay claims no ownership of these typefaces.
