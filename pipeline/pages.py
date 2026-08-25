@@ -524,7 +524,8 @@ def privacy(shell) -> str:
          'correct and delete personal information, and to opt out of its sale or of '
          'targeted advertising. This site does not sell or share personal information '
          'and runs no advertising today.</p>']
-    return shell("Privacy — FedPay", "What FedPay collects and what it does not.",
+    return shell("Privacy — FedPay", "What FedPay collects and what it does not: no analytics, no advertising "
+                 "cookies, no accounts, and no third-party requests of any kind.",
                  "\n".join(B), "https://fedpayscale.com/privacy/")
 
 
@@ -551,7 +552,8 @@ def terms(shell) -> str:
          '<p>FedPay is not affiliated with, endorsed by, or connected to the U.S. Office '
          'of Personnel Management or any other government agency, and does not claim to '
          'be an official source.</p>']
-    return shell("Terms — FedPay", "Terms of use for FedPay.",
+    return shell("Terms — FedPay", "Terms of use for FedPay: what the pay figures are, what they are not, "
+                 "and the limits of relying on an independent reference.",
                  "\n".join(B), "https://fedpayscale.com/terms/")
 
 
@@ -564,7 +566,8 @@ def not_found(shell) -> str:
     # Пустой canonical хуже отсутствующего: он валиден и указывает на текущий
     # адрес, то есть 404 само-канонизируется на любой запрошенный мусор.
     return shell("Page not found — FedPay",
-                 "That address does not match anything on this site.",
+                 "That address does not match anything on this site. Every page is linked "
+                 "from the list of all 58 locality pay areas — start there.",
                  "\n".join(B), "", noindex=True)
 
 

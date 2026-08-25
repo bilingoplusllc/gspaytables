@@ -220,9 +220,12 @@ def ladder_page(g: int, T: dict, R: dict, ranks: dict, shell, esc, money, slug,
              f'measure the order changes considerably.</p></section>')
 
     title = f"GS-{g} to GS-{nxt} Promotion: Step, Raise and Timing"
-    desc = (f"Promoted from GS-{g} to GS-{nxt}, the step you land on is set by "
-            f"rule. From step 1 the base increase is {money(first['gain'])}; from "
-            f"step 10 it is {money(last['gain'])}. Full table and the reason why.")
+    # Влезать обязано при ЛЮБОМ грейде: суммы растут с грейдом, и описание,
+    # подобранное на удачном, вылезало за 160 знаков на двенадцати из
+    # четырнадцати страниц.
+    desc = (f"GS-{g} to GS-{nxt}: which step you land on, and what the promotion "
+            f"is worth. From step 1 it adds {money(first['gain'])} to base pay; "
+            f"from step 10, {money(last['gain'])}.")
     rel = f"promotion/gs-{g}-to-gs-{nxt}"
     return rel, shell(
         title, desc, "\\n".join(B), f"https://fedpayscale.com/{rel}/", "promotion",

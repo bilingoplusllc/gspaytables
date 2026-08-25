@@ -23,6 +23,7 @@ from pathlib import Path
 
 import calc
 import compare
+import names
 import design
 import fonts
 import icons
@@ -89,7 +90,16 @@ def fit_desc(parts: list, limit: int = 158) -> str:
         if len(cand) > limit:
             break
         out = cand
-    return out
+    if out:
+        return out
+    # Не поместилось ни одного предложения целиком. Пустое описание хуже
+    # обрезанного: поисковик соберёт сниппет сам, из первого попавшегося
+    # куска страницы. Режем первое предложение по границе слова.
+    first = (parts[0] if parts else "").strip()
+    if len(first) <= limit:
+        return first
+    cut = first[:limit].rsplit(" ", 1)[0].rstrip(" ,;\u2014-")
+    return cut
 
 
 def data_date(T: dict, R: dict, L: dict) -> str:
@@ -650,12 +660,30 @@ def locality_page(code: str, loc: dict, T: dict, R: dict, ranks: dict,
     cs = cities(name)
     covers = ("Covers " + ", ".join(cs[:-1]) + " and " + cs[-1] + "."
               if len(cs) > 1 else (f"Covers {cs[0]}." if cs else ""))
+    # Сниппет ведёт с переворота ранга: это единственное, чего нет ни у
+    # одного конкурента. Прежде все 58 описаний начинались со ставки и
+    # процента — ровно то же, что пишут federalpay и generalschedule, то
+    # есть в выдаче мы были неотличимы.
+    lead = ""
+    if nom and adj:
+        n = ranks["n"]
+        who = names.short_name(name) if len(name) > 26 else name
+        if adj > nom:
+            lead = (f"{who} pays {ordinal(nom)}-most of the {n} ranked areas "
+                    f"\u2014 and {ordinal(adj)} once local prices are counted.")
+        elif adj < nom:
+            lead = (f"{who} ranks {ordinal(nom)} of {n} on the payslip and "
+                    f"{ordinal(adj)} once local prices are counted \u2014 "
+                    f"the salary goes further than the number suggests.")
+        else:
+            lead = (f"{who} holds {ordinal(nom)} of {n} both on the payslip "
+                    f"and after local prices.")
     d = fit_desc([p for p in [
-        f"GS-12 step 5 in {name} is {money(ref['annual'])} in {year} \u2014 "
+        lead,
+        f"GS-12 step 5 is {money(ref['annual'])} in {year}, "
         f"{pct:g}% locality pay.",
-        covers,
+        covers if not lead else "",
         "All 15 grades and 10 steps, checked against the official table.",
-        "Plus what the salary is worth after local prices.",
     ] if p])
 
     return shell(title, d, "\n".join(B), f"{DOMAIN}/locality/{slug(name)}/", "home",
@@ -1810,6 +1838,19 @@ def main() -> int:
 
     orphan = sorted(c for c in seen_cls if c not in RUNTIME and not styled(c))
 
+    # 17. описание страницы. Живёт в голове документа, поэтому все прочие
+    #     гейты его не видят: они читают тело. Пустое описание уехало на семь
+    #     зон разом, потому что набор по предложениям не брал ни одного, если
+    #     первое не помещалось в лимит.
+    for f in htmls:
+        h = f.read_text(encoding="utf-8")
+        m = re.search(r'<meta name="description" content="(.*?)">', h, re.S)
+        if not m or not m.group(1).strip():
+            problems.append(f"{f.relative_to(DIST)}: пустое описание")
+        elif not 70 <= len(m.group(1)) <= 160:
+            problems.append(f"{f.relative_to(DIST)}: описание в "
+                            f"{len(m.group(1))} знаков")
+
     # 17. правило без класса. Обратное направление того же гейта: стиль
     #     существует, а разметки под него нет ни на одной странице. Так
     #     дожили до уборки .layout, .solo и .wide, снятые ещё на втором
@@ -1840,7 +1881,7 @@ def main() -> int:
           "объём, направление, полнота охвата, пунктуация, крошки, "
           "клиентский расчёт, экранирование, управляющие символы, "
                 "внешние запросы, шрифт, стили, карта сайта, американское написание, табличные цифры, покрытие шрифта, совпадение гарнитуры, "
-          "правила без разметки")
+          "правила без разметки, описание")
     return 0
 
 
