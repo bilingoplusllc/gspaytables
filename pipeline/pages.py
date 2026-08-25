@@ -487,6 +487,20 @@ def about(shell) -> str:
              'Analysis. They lag the pay tables by about two years, and metropolitan '
              'boundaries do not line up exactly with locality boundaries, so the nearest '
              'metropolitan area is used as a proxy and labelled as such.</p>')
+    B.append('<h2>How the pages are written</h2>')
+    B.append('<p>Every figure on this site is computed by an automated build from '
+             'published government data, and every one of them is checked against the '
+             'source before the site goes out. The writing around the figures is '
+             'reviewed before publication. Where a number rests on an approximation '
+             'rather than a published value — the price level of a locality is the '
+             'clearest case — the page says so on the page, not in a footnote.</p>')
+    B.append('<p>Author credit belongs to BiLingoPlus LLC, the publisher. There are no '
+             'invented expert personas here and no bylines: nothing on this site is an '
+             'opinion that would need one. What can be checked instead is the method, '
+             'and it is set out in full on the '
+             '<a href="/methodology/">methodology page</a> — the four sources, the order '
+             'of the arithmetic as the statute sets it, and the checks that stop '
+             'publication when they fail.</p>')
     B.append('<h2>Corrections</h2>')
     B.append('<p>If a figure here is wrong, say which page and what you expected. '
              'Corrections are made against the source data, not against the page.</p>')

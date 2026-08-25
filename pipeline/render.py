@@ -252,6 +252,15 @@ def jsonld(title: str, desc: str, canonical: str, crumbs: list) -> str:
     }, {
         "@type": "Organization", "@id": f"{DOMAIN}/#org",
         "name": OWNER, "url": f"{DOMAIN}/", "email": CONTACT,
+        # Для темы про деньги граф сущностей — самое дешёвое место
+        # предъявить издателя: знак и способ связи, а не только имя.
+        # Подписи у страниц нет и не будет, поэтому вес доверия несёт
+        # организация, и она должна быть описана полностью.
+        "logo": f"{DOMAIN}/og.png",
+        "contactPoint": {
+            "@type": "ContactPoint", "contactType": "editorial",
+            "email": CONTACT, "url": f"{DOMAIN}/contact/",
+        },
     }]
     if crumbs:
         graph.append({
