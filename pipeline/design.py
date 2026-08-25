@@ -1139,6 +1139,37 @@ figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
    разметка не менялась при подключении сети; высоту держит само место. */
 .adzone{padding:0 clamp(14px,2.2vw,20px)}
 .adzone .ad-band.on{margin:0 auto}
+
+/* ================================================== поля документа
+   У бланка есть поля, и на них выносят пометки — как сбоку печатают «см.
+   п. 4». Сюда уходит легенда таблицы: под таблицей её не читают, потому что
+   глаз уже уехал дальше. Сюда же встаёт рекламная башня — в одноколоночном
+   документе ей иначе негде стоять. */
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp3) 0}
+@media (min-width:1000px){
+  /* Колонка полей меряется по содержимому: пока сеть не подключена и на поле
+     нет ничего, кроме скрытой башни, она занимает ноль и содержание
+     пользуется всей шириной. */
+  .grid{grid-template-columns:minmax(0,1fr) auto;
+    gap:0 clamp(26px,3.6vw,56px)}
+  .marg{max-width:300px}
+}
+.marg{min-width:0}
+.marg .note{border-top:1px solid var(--rule);padding-top:9px;
+  margin-bottom:var(--sp3)}
+.marg .note:last-child{margin-bottom:0}
+.marg .note-k{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--seal);
+  margin:0 0 5px}
+.marg .tlegend{margin:0}
+.marg .ad-rail.on{margin-top:var(--sp3)}
+
+/* Широкая таблица полей себе позволить не может: главная ведомость на семь
+   граф сжималась с 965 до 634. Её пометки и башня встают под таблицей. */
+.marg-under{display:flex;flex-wrap:wrap;align-items:flex-start;
+  gap:var(--sp3) clamp(26px,3.6vw,56px);margin-top:var(--sp2)}
+.marg-under .note{flex:1 1 320px;max-width:44em}
+.marg-under .ad-rail.on{flex:none;margin-top:0}
 """
 
 MARK = ""

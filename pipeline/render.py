@@ -254,6 +254,45 @@ T_AREAS = ""
 PLATE_IDS = {"reversal", "worth"}
 
 
+def _with_margin(inner: str) -> str:
+    """Раздел с таблицей получает поля документа.
+
+    На поля уходит легенда таблицы: сейчас она стоит под таблицей строкой
+    мелкого шрифта, которую не читают, потому что глаз уже уехал дальше. На
+    поле, рядом с таблицей, она читается тогда, когда нужна. Туда же встаёт
+    рекламная башня: в одноколоночном документе ей иначе негде стоять, а это
+    третье и самое доходное место.
+
+    Если легенды нет, полей не будет: пустое поле хуже его отсутствия.
+    """
+    if '<div class="scroll"' not in inner:
+        return inner
+    # Поля стоят 300 px плюс отбивка. Широкая таблица столько отдать не
+    # может: главная ведомость на семь граф сжималась с 965 до 634 и начинала
+    # ехать вбок на десктопе — то есть поля покупались ценой самого ценного,
+    # что на странице есть. Считаем графы: до шести включительно поля по
+    # карману, дальше пометки и башня встают ПОД таблицей.
+    head = re.search(r"<thead>(.*?)</thead>", inner, re.S)
+    cols = len(re.findall(r"<th", head.group(1))) if head else 99
+    wide = cols > 6
+    # Легенда таблицы, если она есть, уходит на поле: под таблицей её не
+    # читают, потому что глаз уже уехал дальше. Если легенды нет, на поле
+    # остаётся одна башня, и колонка полей сжимается до нуля, пока сеть не
+    # подключена, — она меряется по содержимому, а не задана шириной.
+    m = re.search(r'<p class="tlegend">(.*?)</p>', inner, re.S)
+    body = inner
+    note = ""
+    if m:
+        body = inner[:m.start()] + inner[m.end():]
+        note = (f'<div class="note"><p class="note-k">Reading this table</p>'
+                f'{m.group(0)}</div>')
+    notes = note + '<div class="ad-slot ad-rail">Advertisement</div>'
+    if wide:
+        return f'{body}<div class="marg marg-under">{notes}</div>'
+    return (f'<div class="grid"><div>{body}</div>'
+            f'<aside class="marg">{notes}</aside></div>')
+
+
 def document_body(body: str) -> str:
     """Превращает тело страницы в лист документа.
 
@@ -297,7 +336,7 @@ def document_body(body: str) -> str:
             ground = "paper" if idx % 2 == 0 else "register"
             idx += 1
         out.append(f'<section class="q {ground}"{attrs}>'
-                   f'<div class="col">{inner}</div></section>')
+                   f'<div class="col">{_with_margin(inner)}</div></section>')
 
     return "\n".join(out)
 
@@ -327,7 +366,10 @@ def _titleblock(chunk: str) -> str:
                  chunk, re.S)
     if m:
         head, rest = m.group(1), m.group(2)
-    tail = f'<div class="col">{rest}</div>' if rest.strip() else ""
+    # На страницах грейдов и повышений главная таблица стоит ДО первого
+    # раздела, то есть в этом хвосте. Поля ей нужны так же.
+    tail = (f'<div class="col">{_with_margin(rest)}</div>'
+            if rest.strip() else "")
     return (f'<div class="titleblock col">{crumbs}{line}{head}'
             f'<p class="rd"></p></div>{tail}')
 
