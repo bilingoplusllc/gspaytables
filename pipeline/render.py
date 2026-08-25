@@ -1217,7 +1217,12 @@ def main() -> int:
         for stack in re.findall(r"--(?:face|serif|sans|mono)\s*:\s*([^;}]+)",
                                 design.CSS):
             first = stack.split(",")[0].strip().strip('"\'')
-            if first and not first.startswith("var("):
+            # Родовые семейства и системный стек шрифтом не являются:
+            # требовать для них @font-face бессмысленно.
+            GENERIC = {"system-ui", "ui-sans-serif", "ui-serif", "ui-monospace",
+                       "sans-serif", "serif", "monospace", "cursive",
+                       "-apple-system"}
+            if first and not first.startswith("var(") and first not in GENERIC:
                 asked.add(first.lower())
         for name in sorted(asked - shipped):
             problems.append(f"шрифт: CSS просит {name!r}, а он не отгружается")

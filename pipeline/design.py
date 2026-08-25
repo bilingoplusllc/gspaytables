@@ -51,53 +51,191 @@ gstakehomepay. Зелёный и рыжий остаются только зна
 CSS = r"""
 :root{
   color-scheme:light;
-  --page:#f1f2f4;
-  --card:#ffffff;
-  --ink:#17191d;
-  --ink-soft:#3d424b;
-  --muted:#5f6672;
-  --line:#dcdfe4;
-  --line-strong:#b3b9c2;
-  /* Рамка полей ввода отдельно от декоративных линий: 1.4.11 требует
-     3:1 именно для контролов, и затемнять ради этого все разделители
-     значит испортить страницу ради одного правила. #8c939d даёт 3.15:1
-     на белом. */
-  --control-line:#8c939d;
-  /* Тень у края прокрутки — единственная подсказка, что таблица
-     едет вбок. Чёрным она в тёмной теме исчезала. */
-  --shade:rgba(0,0,0,.16);
-  --bar:#17191d;
-  --bar-ink:#f4f5f7;
-  --accent:#8a5a06;
-  --accent-soft:#fdf3e0;
-  --warn:#9a2f28;
-  --warn-soft:#fbeceb;
-  --up:#20603f;
-  --s1:4px; --s2:8px; --s3:14px; --s4:22px; --s5:34px; --s6:52px;
-  --face:"Archivo","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+
+  /* ---------- земли: три хроматические поверхности вместо трёх серых.
+     Сегодняшний сайт различал блоки рамкой в 1 px при контрасте карточки
+     к фону 1.12:1 — глаз видел линию, а не объект. Здесь разделяет
+     смена земли, и лист к столу даёт 1.40:1 без единой рамки. */
+  --ground:#e2d8bf;      /* стол, на котором лежит документ */
+  --sheet:#fdfaf3;       /* лист документа */
+  --tint:#f1e7cc;        /* тонированный регистр: зебра, полоса штемпелей */
+  --tint-2:#e6dab9;      /* полоса подписей и рекламы */
+
+  /* ---------- чернила: три слоя, а не один */
+  --ink:#191610;         /* текст и заголовки */
+  --ink-2:#544c3b;       /* служебный слой: метки, источники, сноски */
+  --ink-3:#7c7360;       /* третий слой: заглушки, отключённое */
+
+  /* ---------- глубокая полоса. В тёмной теме ОСТАЁТСЯ тёмной:
+     шапка, меню и подвал должны читаться полосами при любой теме. */
+  --deep:#132440;
+  --deep-ink:#f7f2e3;
+  --deep-ink-2:#c2cde0;
+  --deep-hair:rgba(247,242,227,.30);
+
+  /* ---------- плашка. В тёмной теме ИНВЕРТИРУЕТСЯ в пергамент: ордер
+     ответа, шапка ведомости и штемпель обязаны остаться самыми громкими
+     поверхностями страницы, а не утонуть в фоне. В светлой теме численно
+     совпадает с --deep, и это совпадение намеренное, а не дубль. */
+  --band:#132440;
+  --band-ink:#f7f2e3;
+  --band-ink-2:#c2cde0;
+  --band-hair:rgba(247,242,227,.30);
+
+  /* ---------- акцент-печать. Работает ЗАЛИВКОЙ, а не цветом букв:
+     прежняя охра существовала только как цвет глифов на 67 прогонах и
+     хроматических поверхностей не давала ни одной. */
+  --seal:#7b1e2b;
+  --seal-fill:#7b1e2b;
+  --seal-on:#fdf6ef;
+
+  /* ---------- направление: цвет числа и заливка полосы отдельно */
+  --gain:#1c5138;
+  --loss:#7b1e2b;
+  --gain-fill:#2f6a4a;
+  --loss-fill:#8d2733;
+  --loss-soft:#f2d6cf;
+
+  /* ---------- линейки трёх весов вместо одной в 1 px на всю страницу */
+  --hair:rgba(25,22,16,.17);
+  --rule:rgba(25,22,16,.44);
+  --heavy:#132440;
+
+  /* ---------- контролы */
+  --field:#fffdf8;
+  --field-line:#8a8067;
+  --focus:#7b1e2b;
+  /* Кольцо фокуса на тёмной плашке: --focus на --band даёт 1.52:1, то
+     есть на меню и на кнопках заголовков столбцов фокуса не видно. */
+  --focus-on-band:#f2d6cf;
+
+  /* ---------- подсказка о боковой прокрутке. У облика её нет вовсе, а
+     таблица ставок занимает 731 px в контейнере 315 px. */
+  --shade:rgba(25,22,16,.20);
+
+  /* ---------- единственная глубина: оттиск листа на столе */
+  --sheet-shadow:0 1px 0 rgba(25,22,16,.20),0 18px 34px -22px rgba(25,22,16,.60);
+
+  /* ---------- шкала кеглей: восемь ступеней, у каждой своя работа.
+     Было шестнадцать кеглей, одиннадцать из них стиснуты в полосу
+     10.5-17 px с шагом в полпикселя — сложность без иерархии. */
+  --s-stamp:13px;                     /* прописная метка в 1-3 слова */
+  --s-fine:15px;                      /* служебный слой */
+  --s-text:17px;                      /* проза и ведомость */
+  --s-lead:21px;                      /* лид раздела */
+  --s-head:27px;                      /* заголовок раздела */
+  --s-kpi:34px;                       /* число во врезке */
+  --s-title:clamp(29px,3.5vw,40px);   /* заголовок выпуска */
+  --s-figure:clamp(42px,8.4vw,64px);  /* число ответа */
+
+  /* ---------- ритм привязан к строке прозы: 17 x 1.62 = 27.5.
+     Прежде на всю страницу было два зазора, и промежуток между разделами
+     был МЕНЬШЕ одной строки текста. */
+  --sp1:7px; --sp2:14px; --sp3:27px; --sp4:54px; --sp5:81px; --sp6:108px;
+
+  /* Georgia в запасном стеке стоять не может: это гарнитура соседнего
+     сайта фермы, и провал загрузки превратил бы FedPay в его двойника. */
+  --serif:"Source Serif 4","Iowan Old Style","Palatino Linotype",
+    "Times New Roman",serif;
+  --sans:"Libre Franklin","Helvetica Neue",Arial,sans-serif;
+
+  /* ---------- алиасы прежних имён. Существуют ровно затем, чтобы шаг
+     смены краски не тронул ни одного селектора: скелет старый, краска
+     новая, гейт «класс без правила» зелёный. Уходят по мере того, как
+     каждый блок переписывается на новый словарь. */
+  --page:var(--ground);
+  --card:var(--sheet);
+  --ink-soft:var(--ink-2);
+  --muted:var(--ink-2);
+  --line:var(--hair);
+  --line-strong:var(--rule);
+  --control-line:var(--field-line);
+  --bar:var(--band);
+  --bar-ink:var(--band-ink);
+  --accent:var(--seal);
+  --accent-soft:var(--tint);
+  --warn:var(--loss);
+  --warn-soft:var(--loss-soft);
+  --up:var(--gain);
+  --s1:7px; --s2:14px; --s3:27px; --s4:27px; --s5:54px; --s6:81px;
+  --face:var(--sans);
 }
 
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
     color-scheme:dark;
-    --page:#15171a; --card:#1d2024; --ink:#e9ebee; --ink-soft:#c2c7cf;
-    --muted:#9aa1ac;
-    --line:#2c3036; --line-strong:#575e67; --control-line:#6f7784; --shade:rgba(255,255,255,.22); --control-line:#6f7784; --shade:rgba(255,255,255,.22);
-    --bar:#0c0d0f; --bar-ink:#e9ebee;
-    --accent:#e0a44a; --accent-soft:#2a2113;
-    --warn:#e58a80; --warn-soft:#2c1a18;
-    --up:#63c795;
+    --ground:#100e0b;
+    --sheet:#302c25;
+    --tint:#423c30;
+    --tint-2:#4e4739;
+    --ink:#f2ead7;
+    --ink-2:#c8bda2;
+    --ink-3:#9e947f;
+    --deep:#1e2a41;
+    --deep-ink:#f0e8d6;
+    --deep-ink-2:#b9c3d6;
+    --deep-hair:rgba(240,232,214,.24);
+    --band:#e7dcc0;
+    --band-ink:#171207;
+    --band-ink-2:#5b5136;
+    --band-hair:rgba(23,18,7,.28);
+    --seal:#e8a49b;
+    --seal-fill:#8d2733;
+    --seal-on:#fdf6ef;
+    --gain:#93cfa8;
+    --loss:#e8a49b;
+    --gain-fill:#3f8a62;
+    --loss-fill:#b0454a;
+    --loss-soft:#5a3a34;
+    --hair:rgba(242,234,215,.20);
+    --rule:rgba(242,234,215,.46);
+    --heavy:#e7dcc0;
+    --field:#26231d;
+    --field-line:#9a8f76;
+    --focus:#e8a49b;
+    --focus-on-band:#5a3a34;
+    --shade:rgba(242,234,215,.24);
+    --sheet-shadow:0 0 0 1px rgba(242,234,215,.10),0 20px 40px -26px #000;
   }
 }
+/* Блок-близнец обязателен. Медиазапрос даёт системную тему и оставляет
+   возможность вручную вернуться в светлую; этот блок даёт ручное
+   переключение выше по приоритету. Слить их в один — сломать одно из
+   двух. */
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --page:#15171a; --card:#1d2024; --ink:#e9ebee; --ink-soft:#c2c7cf;
-  --muted:#9aa1ac;
-  --line:#2c3036; --line-strong:#575e67; --control-line:#6f7784; --shade:rgba(255,255,255,.22);
-  --bar:#0c0d0f; --bar-ink:#e9ebee;
-  --accent:#e0a44a; --accent-soft:#2a2113;
-  --warn:#e58a80; --warn-soft:#2c1a18;
-  --up:#63c795;
+  --ground:#100e0b;
+  --sheet:#302c25;
+  --tint:#423c30;
+  --tint-2:#4e4739;
+  --ink:#f2ead7;
+  --ink-2:#c8bda2;
+  --ink-3:#9e947f;
+  --deep:#1e2a41;
+  --deep-ink:#f0e8d6;
+  --deep-ink-2:#b9c3d6;
+  --deep-hair:rgba(240,232,214,.24);
+  --band:#e7dcc0;
+  --band-ink:#171207;
+  --band-ink-2:#5b5136;
+  --band-hair:rgba(23,18,7,.28);
+  --seal:#e8a49b;
+  --seal-fill:#8d2733;
+  --seal-on:#fdf6ef;
+  --gain:#93cfa8;
+  --loss:#e8a49b;
+  --gain-fill:#3f8a62;
+  --loss-fill:#b0454a;
+  --loss-soft:#5a3a34;
+  --hair:rgba(242,234,215,.20);
+  --rule:rgba(242,234,215,.46);
+  --heavy:#e7dcc0;
+  --field:#26231d;
+  --field-line:#9a8f76;
+  --focus:#e8a49b;
+  --focus-on-band:#5a3a34;
+  --shade:rgba(242,234,215,.24);
+  --sheet-shadow:0 0 0 1px rgba(242,234,215,.10),0 20px 40px -26px #000;
 }
 
 *{box-sizing:border-box}
@@ -315,7 +453,12 @@ thead th[data-sort]:hover{background:var(--ink)}
 thead th[aria-sort="ascending"]::after{content:"\2191";margin-left:5px}
 thead th[aria-sort="descending"]::after{content:"\2193";margin-left:5px}
 th.num,td.num{text-align:right}
-th.rank,td.rank{text-align:right;width:1%;color:var(--muted);font-weight:700}
+/* Приглушённый цвет колонки рангов относится к ТЕЛУ таблицы. В шапке она
+   лежит на тёмной плашке, и служебные чернила давали там 1.83:1 — ровно тот
+   дефект, что нашли в макете, только здесь его создавала специфичность:
+   .rank (0,1,1) перебивал thead th (0,0,2). */
+tbody th.rank,tbody td.rank{color:var(--ink-2)}
+th.rank,td.rank{text-align:right;width:1%;font-weight:700}
 th[scope="row"]{font-weight:700;white-space:normal;min-width:13ch;
   background:var(--card)}
 tbody tr:nth-child(even) td{background:var(--page)}
