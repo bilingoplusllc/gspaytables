@@ -1044,8 +1044,10 @@ def page_hero(T: dict, ranks: dict, esc, money,
             if nom and adj else
             'This area has no published price level, so it carries no '
             'purchasing-power rank.')
+    # Год здесь не печатается: он уже стоит в строке выпуска и в заголовке,
+    # а на телефоне название зоны и без него занимает пять строк.
     return (f'<p class="fp-what" data-what>GS-{g}, step {s} in '
-            f'{esc(loc["area_name"])}, {T["year"]}</p>'
+            f'{esc(loc["area_name"])}</p>'
             f'<p class="fp-big" data-big>{money(cell["annual"])}</p>'
             f'<p class="fp-ranks" data-ranks>{line}</p>')
 

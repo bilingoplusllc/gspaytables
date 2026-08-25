@@ -249,9 +249,9 @@ html{scroll-behavior:smooth}
 
 /* Ссылка «к содержимому»: видна только при фокусе с клавиатуры. Никакого
    position:absolute — она просто схлопнута в точку, пока не понадобится. */
-.skip{display:inline-block;width:1px;height:1px;overflow:hidden;
+.skip{display:block;width:0;height:0;overflow:hidden;
   white-space:nowrap;clip-path:inset(50%)}
-.skip:focus-visible{width:auto;height:auto;overflow:visible;clip-path:none;
+.skip:focus-visible{display:inline-block;width:auto;height:auto;overflow:visible;clip-path:none;
   margin:var(--s2);padding:var(--s2) var(--s3);background:var(--card);
   color:var(--ink);box-shadow:inset 0 0 0 2px var(--seal-fill);
   text-decoration:none;font-weight:700}
@@ -503,33 +503,6 @@ figcaption strong{color:var(--ink-soft)}
 .chips a:hover{border-color:var(--accent);color:var(--accent)}
 
 /* ---------- инструмент расчёта */
-.fp-calc{border:1px solid var(--line);border-radius:4px;background:var(--card);
-  margin:0 0 var(--s4)}
-.fp-calc h2{margin:0;padding:var(--s3) var(--s4);border-bottom:1px solid var(--line);
-  font-size:15px;letter-spacing:0}
-.fp-fields{display:flex;flex-wrap:wrap;gap:var(--s3);padding:var(--s3) var(--s4)}
-.fp-field{flex:1 1 150px}
-.fp-field.fp-wide{flex:2 1 280px}
-.fp-field label{display:block;font:700 10.5px/1.2 var(--face);color:var(--muted);
-  text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
-.fp-field select,.fp-field input{width:100%;font:500 15px/1.3 var(--face);
-  color:var(--ink);background:var(--page);border:1px solid var(--control-line);
-  border-radius:3px;padding:8px}
-.fp-zipmsg:not(:empty){margin:0;padding:10px var(--s4);font-size:13.5px;
-  background:var(--accent-soft);border-top:1px solid var(--line);color:var(--ink-soft)}
-.fp-out{padding:var(--s4)}
-.fp-out p.fp-what{font:700 10.5px/1.2 var(--face);color:var(--muted);
-  text-transform:uppercase;letter-spacing:.1em;margin:0 0 var(--s2)}
-.fp-out p.fp-big{font:800 clamp(28px,5vw,42px)/1 var(--face);letter-spacing:-.03em;
-  margin:0 0 var(--s3);color:var(--ink)}
-.fp-lines{display:grid;grid-template-columns:1fr max-content;margin:0 0 var(--s4);
-  border-top:1px solid var(--line)}
-.fp-lines dt{font:500 13.5px/1.45 var(--face);color:var(--muted)}
-.fp-lines dd{margin:0;font:700 14.5px/1.45 var(--face);text-align:right}
-.fp-lines dt,.fp-lines dd{padding:6px 0;border-bottom:1px solid var(--line)}
-.fp-out p{margin-bottom:var(--s3)}
-.fp-out p.fp-src{margin-bottom:0;font-size:13.5px}
-.fp-note{padding:0 var(--s4) var(--s4);color:var(--muted);font-size:13.5px}
 
 /* ---------- карточка-герой: ответ выше полей, поля читаются как «уточнить»
    Замер до правки: на 375x812 первое число стояло на y=927 — человек не видел
@@ -539,23 +512,8 @@ figcaption strong{color:var(--ink-soft)}
 /* Заголовок карточки занимал 68 px ровно между h1 и ответом и повторял h1.
    Как надстрочная метка он весит втрое меньше и структуру заголовков не
    ломает. */
-.fp-lead h2{border-bottom:0;padding:var(--s3) var(--s4) 0;
-  font:700 11px/1.3 var(--face);letter-spacing:.1em;text-transform:uppercase;
-  color:var(--muted)}
-.fp-lead .fp-hero{padding-top:8px}
-.fp-hint{margin:0;padding:0 var(--s4) var(--s3);color:var(--muted);
-  font:500 12.5px/1.55 var(--face);background:var(--page)}
-.fp-hero{padding:var(--s4) var(--s4) var(--s3)}
-.fp-hero p.fp-what{font:700 10.5px/1.3 var(--face);color:var(--muted);
-  text-transform:uppercase;letter-spacing:.1em;margin:0 0 6px}
-.fp-hero p.fp-big{font:800 clamp(40px,7vw,60px)/1 var(--face);letter-spacing:-.035em;
-  margin:0 0 10px;color:var(--ink)}
-.fp-hero p.fp-ranks{margin:0;font:500 14.5px/1.5 var(--face);color:var(--ink-soft)}
-.fp-hero p.fp-ranks b{font-weight:800;color:var(--accent)}
-.fp-lead .fp-fields{border-top:1px solid var(--line);background:var(--page)}
 /* До инициализации поля отдаются выключенными: без скрипта они честно
    ничего не делают, а вёрстка при включении не прыгает. */
-.fp-field select:disabled,.fp-field input:disabled{opacity:1;cursor:default}
 
 /* Ссылки грейдов с суммой внутри: «GS-12 $76,463» вместо «GS-12». */
 .chips-pay{display:grid;gap:6px;margin:var(--s3) 0;
@@ -587,8 +545,6 @@ thead th[data-sort] button:focus-visible{outline:2px solid var(--accent);
   main{order:1}
   /* Четыре поля в столбик — 291 px, из них в видимую область iOS Safari
      (635 px, а не 812 «экрана устройства») попадало одно. */
-  .fp-fields{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2) var(--s3)}
-  .fp-field.fp-wide,.fp-fields .fp-field:has(#fp-zip){grid-column:1/-1}
   .ad-rail{min-height:110px}
 }
 @media (max-width:640px){
@@ -854,6 +810,188 @@ h3{font-family:var(--serif);font-size:var(--s-lead);line-height:1.3;
 .q-lead strong{color:var(--ink);font-weight:600}
 .plate .q-lead strong{color:var(--deep-ink)}
 section.q p{max-width:34em}
+
+/* ======================================================== ордер на оплату
+   Карточка ответа перестаёт быть «блоком с рамкой» и становится ордером:
+   тёмная плашка с реквизитами сверху, крупное число, подпись под чертой.
+   В тёмной теме плашка инвертируется в пергамент — самая громкая мелкая
+   поверхность страницы не должна тонуть в фоне. */
+.fp-calc{border:0;border-radius:0;background:transparent;margin:0}
+.fp-calc>h2{margin:0;padding:0;border:0;font-family:var(--serif);
+  font-size:var(--s-head);font-weight:600;letter-spacing:-.012em}
+
+.fp-lead .fp-hero{background:var(--band);color:var(--band-ink);
+  padding:var(--sp2) clamp(18px,3vw,34px) var(--sp3);margin-top:var(--sp2)}
+.fp-hero .fp-what{font-family:var(--serif);font-size:var(--s-lead);
+  line-height:1.35;color:var(--band-ink);letter-spacing:0;
+  text-transform:none;margin:0 0 var(--sp1);max-width:26em;
+  /* Две строки заранее: смена зоны перерисовывает именно эту строку, и без
+     запаса первый же выбор двигал бы число на 39 px. */
+  min-height:calc(2 * 1.35 * var(--s-lead));
+  padding-bottom:8px;border-bottom:1px solid var(--band-hair);font-weight:400}
+.fp-hero .fp-big{font-family:var(--serif);font-size:var(--s-figure);
+  line-height:1;font-weight:600;letter-spacing:-.02em;color:var(--band-ink);
+  margin:var(--sp1) 0 0}
+/* Подпись под числом — своим токеном. Наследование служебных чернил даёт
+   на этой плашке 1.83:1, и это дефект исходного макета. */
+.fp-hero .fp-ranks{font-family:var(--sans);font-size:var(--s-fine);
+  line-height:1.5;color:var(--band-ink-2);margin:var(--sp2) 0 0;
+  border-top:1px solid var(--band-hair);padding-top:9px}
+.fp-hero .fp-ranks b{color:var(--band-ink);font-weight:700}
+
+/* ---------- поля бланка: подчёркнутая строка, а не коробка */
+.fp-fields{display:grid;gap:var(--sp2) clamp(16px,2.4vw,30px);
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  padding:var(--sp3) clamp(18px,3vw,34px) 0;background:transparent;border:0}
+.fp-field{display:flex;flex-direction:column;gap:4px;min-width:0;flex:none}
+.fp-field label{font-family:var(--sans);font-size:var(--s-stamp);
+  font-weight:600;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink-2);margin:0}
+.fp-field select,.fp-field input{font-family:var(--sans);
+  font-size:var(--s-text);line-height:1.3;color:var(--ink);
+  background:var(--field);border:1px solid var(--field-line);
+  border-bottom-width:2px;border-radius:0;padding:8px 10px;width:100%;
+  min-width:0;appearance:none;-webkit-appearance:none}
+.fp-field select{background-image:
+  linear-gradient(45deg,transparent 49%,currentColor 50%,currentColor 58%,transparent 59%),
+  linear-gradient(-45deg,transparent 49%,currentColor 50%,currentColor 58%,transparent 59%);
+  background-size:7px 7px,7px 7px;
+  background-position:right 15px top 55%,right 10px top 55%;
+  background-repeat:no-repeat;padding-right:30px}
+.fp-field select:hover,.fp-field input:hover{border-color:var(--ink-2)}
+/* Выключенное поле меняет только краску: размер и отбивка неизменны, иначе
+   включение скриптом сдвинуло бы вёрстку. */
+.fp-field select:disabled,.fp-field input:disabled{color:var(--ink-3);
+  background:var(--tint);border-color:var(--hair);cursor:not-allowed;
+  opacity:1}
+.fp-field.fp-wide{grid-column:span 2}
+
+.fp-hint{font-family:var(--serif);font-size:var(--s-fine);line-height:1.55;
+  color:var(--ink-2);background:transparent;
+  padding:var(--sp2) clamp(18px,3vw,34px) 0;margin:0;max-width:44em}
+.fp-note{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
+  color:var(--ink-2);padding:var(--sp2) clamp(18px,3vw,34px) 0;margin:0;
+  max-width:44em}
+/* Отметка о приёме индекса: без :not(:empty) пустой отступ висел бы на
+   всех 75 страницах с инструментом. */
+.fp-zipmsg:not(:empty){font-family:var(--sans);font-size:var(--s-fine);
+  color:var(--seal);background:transparent;border:0;border-top:1px solid var(--rule);
+  margin:var(--sp2) clamp(18px,3vw,34px) 0;padding:9px 0 0}
+
+/* ---------- вывод скрипта: ведомость на бумаге, без рамки */
+.fp-out{padding:var(--sp3) clamp(18px,3vw,34px) 0}
+.fp-out p.fp-what{font-family:var(--sans);font-size:var(--s-stamp);
+  font-weight:600;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink-2);margin:0 0 var(--sp1)}
+.fp-out p.fp-big{font-family:var(--serif);
+  font-size:clamp(34px,6vw,var(--s-figure));line-height:1;font-weight:600;
+  letter-spacing:-.02em;margin:0 0 var(--sp2);color:var(--ink)}
+.fp-lines{display:grid;grid-template-columns:1fr max-content;
+  margin:0 0 var(--sp3);border-top:3px solid var(--heavy)}
+.fp-lines dt{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
+  color:var(--ink-2)}
+.fp-lines dd{margin:0;font-family:var(--sans);font-size:var(--s-fine);
+  font-weight:700;text-align:right;line-height:1.5}
+.fp-lines dt,.fp-lines dd{padding:7px 0;border-bottom:1px solid var(--hair)}
+.fp-out p{margin-bottom:var(--sp2);max-width:44em}
+.fp-out p.fp-src{margin-bottom:0}
+
+@media (max-width:760px){
+  /* Одна колонка полей загоняла в видимую область iOS одно поле из
+     четырёх. Два в ряд помещаются: 2 x 150 + зазор < 335. */
+  .fp-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fp-field.fp-wide{grid-column:1/-1}
+}
+
+/* ==================================== первый экран телефона: считано, не на глаз
+   После переноса каркаса цифра ответа стояла на y=1047 при видимой области
+   iOS Safari в 635 px. Разбор по элементам: шапка 138, меню 130, полоса
+   границы 62, титул 378, отступ раздела 54, заголовок инструмента 65, строка
+   выбранной клетки 122. Меню переносилось на три строки, шапка на две,
+   строка выходных данных на три.
+   Ниже — статические медиазапросы: скрипт их не трогает, поэтому нулевой
+   сдвиг вёрстки при инициализации сохраняется по построению. */
+@media (max-width:760px){
+  /* шапка в одну строку: знак меньше, подзаголовок и издание не нужны —
+     то же самое сказано полосой границы строкой ниже */
+  .mast-in{padding:9px clamp(14px,4vw,20px);gap:11px}
+  .seal{width:34px;height:34px}
+  .brand{font-size:var(--s-text)}
+  .tagline{display:none}
+
+  /* меню — горизонтальный свиток вместо переноса на три строки */
+  .menu-in{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;
+    scrollbar-width:none;padding:0 clamp(14px,4vw,20px)}
+  .menu-in::-webkit-scrollbar{display:none}
+  .menu a{white-space:nowrap;padding:8px 12px 7px;border-bottom-width:2px}
+
+  .notice-in{padding:5px clamp(14px,4vw,20px);line-height:1.35}
+
+  /* титул: один реквизит вместо четырёх, лид мельче */
+  .wrap{padding-top:0}
+  .titleblock{padding-top:var(--sp2);padding-bottom:var(--sp2)}
+  .docline{margin:var(--sp1) 0;gap:2px 12px}
+  .docline span:not(:first-child){display:none}
+  .sub{font-size:var(--s-text);margin-top:6px}
+  .rd{margin-top:var(--sp2)}
+
+  section.q{padding:var(--sp3) 0}
+  .col{padding-left:clamp(14px,4vw,20px);padding-right:clamp(14px,4vw,20px)}
+  section.q>.col::before{margin-bottom:2px}
+  /* Заголовок инструмента — на ступень ниже: он повторяет то, что и так
+     сказано номером раздела и строкой выбранной клетки. Не прячем: раздел
+     без заголовка ломает структуру документа. */
+  #find .fp-calc>h2{font-size:var(--s-lead);line-height:1.25}
+
+  .fp-lead .fp-hero{padding:11px clamp(14px,4vw,20px) var(--sp2);
+    margin-top:var(--sp2)}
+  /* Строка выбранной клетки: кегль служебного слоя и запас в четыре строки.
+     Запас нужен потому, что скрипт перерисовывает именно её при смене зоны,
+     а названия зон различаются вчетверо по длине — от «Laredo, TX» до
+     «Atlanta--Athens-Clarke County--Sandy Springs, GA-AL». Без запаса первый
+     же выбор двигал бы число над собой. */
+  .fp-hero .fp-what{font-size:var(--s-fine);line-height:1.4;
+    min-height:calc(4 * 1.4 * var(--s-fine));margin-bottom:6px;padding-bottom:6px}
+  .fp-hero .fp-big{font-size:clamp(34px,9vw,44px)}
+  .fp-hero .fp-ranks{margin-top:var(--sp2);padding-top:7px}
+  .fp-fields{padding:var(--sp2) clamp(14px,4vw,20px) 0}
+}
+@media (max-width:400px){
+  /* На 320 длинное название зоны занимает пять строк. */
+  .fp-hero .fp-what{min-height:calc(5 * 1.4 * var(--s-fine))}
+}
+
+/* ---------- добор первого экрана, по замеру стека, а не на глаз.
+   375: шапка 52 + меню 39 + полоса 55 + титул 233 + отступ 50 + заголовок 53
+   + строка клетки 105 = число на 618 при сгибе 635. Ниже снято 108.
+   1280: то же самое даёт 705 при сгибе 800; снято 67. */
+.notice-in{padding-top:6px;padding-bottom:6px}
+.docline{margin:var(--sp1) 0}
+.titleblock{padding-bottom:var(--sp2)}
+.rd{margin-top:var(--sp2)}
+@media (min-width:761px){
+  .mast-in{padding-top:11px;padding-bottom:10px}
+  .docline{font-size:var(--s-stamp);gap:3px 16px}
+  section.q{padding-top:var(--sp3);padding-bottom:var(--sp4)}
+}
+@media (max-width:760px){
+  .notice-in{font-size:var(--s-stamp);letter-spacing:.01em}
+  h1{font-size:clamp(25px,6.4vw,29px)}
+  #find .fp-calc>h2{font-size:var(--s-text);line-height:1.3}
+  .titleblock{padding-bottom:var(--sp1)}
+  .rd{margin-top:var(--sp1)}
+  section.q{padding-top:var(--sp2)}
+  .fp-lead .fp-hero{margin-top:var(--sp1);padding-top:9px}
+  /* Кегль служебного слоя и запас в пять строк: название зоны различается
+     вчетверо по длине, а перерисовывает эту строку скрипт. */
+  .fp-hero .fp-what{font-size:var(--s-stamp);line-height:1.4;
+    min-height:calc(4 * 1.4 * var(--s-stamp))}
+  .fp-hero .fp-ranks{font-size:var(--s-stamp);line-height:1.45;
+    margin-top:var(--sp1);padding-top:6px}
+}
+@media (max-width:400px){
+  .fp-hero .fp-what{min-height:calc(5 * 1.4 * var(--s-stamp))}
+}
 """
 
 MARK = ""
