@@ -242,7 +242,6 @@ CSS = r"""
 
 /* Переход по якорю обязан учитывать липкую полосу: без этого заголовок
    раздела встаёт ровно под неё, и ссылка ведёт мимо цели. */
-:root{--stick:64px}
 [id]{scroll-margin-top:var(--stick)}
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
@@ -264,29 +263,6 @@ body{margin:0;background:var(--ground);color:var(--ink);
 
 /* ---------- ПОЛОСА ОТВЕТА: главное структурное отличие.
    Липнет к верху, поэтому ответ никогда не уезжает из виду. */
-.answerbar{position:sticky;top:0;z-index:20;background:var(--bar);
-  color:var(--bar-ink);border-bottom:1px solid var(--line-strong)}
-.ab-in{max-width:1320px;margin:0 auto;padding:10px var(--s4);
-  display:flex;align-items:center;gap:var(--s4);flex-wrap:wrap}
-.ab-where{font:600 12px/1.35 var(--face);letter-spacing:.04em;
-  text-transform:uppercase;opacity:.72;max-width:30ch}
-.ab-pick{display:flex;align-items:center;gap:6px;font:600 12px/1 var(--face)}
-.ab-pick label{opacity:.75;letter-spacing:.06em;text-transform:uppercase}
-.ab-pick select{font:600 14px/1 var(--face);color:var(--bar-ink);
-  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.30);
-  border-radius:3px;padding:6px 7px}
-.ab-pick select option{color:#17191d;background:#fff}
-.ab-main{display:flex;align-items:baseline;gap:8px;margin-left:auto}
-.ab-big{font:800 clamp(22px,3.2vw,32px)/1 var(--face);letter-spacing:-.03em}
-.ab-unit{font:600 11px/1 var(--face);letter-spacing:.08em;text-transform:uppercase;
-  opacity:.7}
-.ab-more{display:flex;gap:var(--s4);flex-wrap:wrap}
-.ab-more div{display:flex;flex-direction:column;gap:2px}
-.ab-more .v{font:700 15px/1 var(--face)}
-.ab-more .k{font:600 10px/1 var(--face);letter-spacing:.08em;
-  text-transform:uppercase;opacity:.66}
-.ab-more .down{color:#f0a59c}
-.ab-more .up{color:#8fdcb4}
 
 /* ---------- раскладка: рельс и основная колонка */
 /* Страницы без рельса: одна колонка разумной ширины, а не дыра в сетке. */
@@ -552,11 +528,6 @@ thead th[data-sort] button:focus-visible{outline:2px solid var(--accent);
   /* На телефоне липкая полоса в две строки съедала пятую часть экрана.
      Вторичные числа стоят в карточке сразу под ней, поэтому в полосе
      остаётся только то, ради чего она липкая: где, что и сколько. */
-  :root{--stick:52px}
-  .ab-more{display:none}
-  .ab-in{gap:var(--s3);padding:8px var(--s3)}
-  .ab-where{font-size:11px;max-width:none;flex:1 1 100%}
-  .ab-main{margin-left:auto}
   section.q{padding:var(--s3)}
   table{font-size:13px}
   th,td{padding:6px 8px}
@@ -566,7 +537,6 @@ thead th[data-sort] button:focus-visible{outline:2px solid var(--accent);
   .bars .bar{grid-column:1 / -1;margin-top:2px}
 }
 @media print{
-  .answerbar{position:static}
   html,body{background:#fff;color:#000}
   section.q,.fact,.scroll{border:1px solid #000;break-inside:avoid}
   thead th,.answerbar{background:#fff !important;color:#000 !important;
@@ -991,6 +961,69 @@ section.q p{max-width:34em}
 }
 @media (max-width:400px){
   .fp-hero .fp-what{min-height:calc(5 * 1.4 * var(--s-stamp))}
+}
+
+/* ==================================== корешок формы: липкая полоса ответа
+   Не панель приложения, а поле формы, повторяющееся на каждом листе: та же
+   земля, что у ордера, реквизиты слева, поля бланка в середине, число
+   справа. Ни скруглений, ни тени.
+
+   Высота задаётся ЯВНО, а не набирается отступами. Прежде переменная --stick
+   объявляла 52 px, а замеренная высота при 375 была 112.8 — метка зоны
+   уходила на свою строку, и якорные ссылки из содержания промахивались на
+   61 px. Число и реальность не могут разойтись, если высота одна. */
+.answerbar{position:sticky;top:0;z-index:20;background:var(--band);
+  color:var(--band-ink);box-shadow:0 3px 0 var(--band),0 4px 0 var(--band-hair)}
+.ab-in{max-width:1180px;margin:0 auto;
+  padding:0 clamp(18px,3.4vw,40px);height:56px;box-sizing:border-box;
+  display:flex;align-items:center;gap:clamp(12px,2vw,26px);flex-wrap:nowrap}
+.ab-where{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--band-ink-2);
+  flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.ab-pick{display:flex;align-items:center;gap:7px;flex:none}
+.ab-pick label{font-family:var(--sans);font-size:var(--s-stamp);
+  font-weight:600;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--band-ink-2)}
+.ab-pick select{font-family:var(--sans);font-size:var(--s-fine);
+  font-weight:600;color:var(--band-ink);background:transparent;
+  border:0;border-bottom:1px solid var(--band-hair);border-radius:0;
+  padding:2px 2px 1px;appearance:none;-webkit-appearance:none}
+.ab-pick select:hover{border-bottom-color:var(--band-ink)}
+.ab-pick select option{color:#191610;background:#fdfaf3}
+.ab-pick select:focus-visible{outline-color:var(--focus-on-band)}
+.ab-main{display:flex;align-items:baseline;gap:8px;margin-left:auto;flex:none}
+.ab-big{font-family:var(--serif);font-size:clamp(21px,2.6vw,27px);
+  line-height:1;font-weight:600;letter-spacing:-.02em;color:var(--band-ink)}
+.ab-unit{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--band-ink-2)}
+.ab-more{display:flex;gap:clamp(14px,2vw,26px);flex:none}
+.ab-more div{display:flex;flex-direction:column;gap:1px}
+.ab-more .v{font-family:var(--sans);font-size:var(--s-fine);font-weight:700;
+  line-height:1.2;color:var(--band-ink)}
+.ab-more .k{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--band-ink-2);
+  line-height:1.2}
+
+/* ---------- одна переменная кормит и отступ якоря, и липкую шапку таблицы.
+   Прежде обе объявляли top:0 и спорили: полоса выигрывала, и шапка матрицы
+   ставок на 58 страницах не была видна ни разу — строки с одиннадцатой по
+   пятнадцатую читались без подписей столбцов. Гейты при этом были зелёными:
+   конфликт живёт в разложенном документе, а не в тексте. */
+/* Переменная кормит ОТСТУП ЯКОРЯ. Липкой шапке таблицы она не нужна:
+   таблица лежит в своём контейнере с ограниченной высотой, шапка липнет к
+   его краю, и смещение на высоту полосы оставляло бы внутри контейнера
+   пустую полосу в 44-56 px, над которой уезжали бы строки. */
+body{--stick:0px}
+body.withbar{--stick:56px}
+@media (max-width:760px){
+  .ab-in{height:44px;gap:10px}
+  .ab-more{display:none}
+  .ab-pick label{display:none}
+  body.withbar{--stick:44px}
+}
+@media (max-width:520px){
+  .ab-where{display:none}
 }
 """
 

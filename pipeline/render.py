@@ -355,7 +355,7 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 <meta name="twitter:card" content="summary_large_image">
 <style>{FONT_CSS}{strip_css_comments(design.CSS)}</style>
 {jsonld(title, desc, canonical, crumbs or [])}
-</head><body>
+</head><body{" class=\"withbar\"" if bar else ""}>
 <a class="skip" href="#content">Skip to content</a>
 <header class="mast">
   <div class="mast-in">
