@@ -26,6 +26,7 @@ import compare
 import design
 import fonts
 import icons
+import states
 import pages as P
 
 HERE = Path(__file__).resolve().parent.parent
@@ -279,6 +280,7 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
       <a href="/"{cur('home')}>Localities</a>
       <a href="/calculator/"{cur('calc')}>Calculator</a>
       <a href="/compare/"{cur('compare')}>Compare</a>
+      <a href="/states/"{cur('states')}>States</a>
       <a href="/grades/"{cur('grades')}>Grades</a>
       <a href="/how-locality-pay-works/"{cur('how')}>How it works</a>
       <a href="/about/"{cur('about')}>About</a>
@@ -1030,6 +1032,48 @@ def main() -> int:
         write(rel, html_page)
 
     write("compare", compare.compare_index(cmp_items, shell, esc))
+    urls.append("/compare/")
+
+    # --- штаты: у конкурента это позиция №1 в выдаче, а у нас данных больше.
+    sz = states.state_zones(L)
+    # Штаты без единой названной зоны целиком внутри Rest of U.S. — это тоже
+    # ответ, и он тоже кому-то нужен.
+    # Штаты без единой названной зоны получают ОДНУ общую страницу: различать
+    # их нечем, и восемь страниц с подставленным названием — это шаблонный
+    # контент, а не восемь ответов. Замер показал между ними 82% совпадения.
+    no_area = [s for s in states.NAMES if s not in sz]
+    # Зона -> штаты, которые она захватывает. Нужна, чтобы страницы
+    # штатов под одной зоной не говорили одно и то же.
+    zone_reach = {}
+    for s_code, zmap in sz.items():
+        for z in zmap:
+            zone_reach.setdefault(z, set()).add(s_code)
+    st_items = []
+    for st in sorted(states.NAMES, key=lambda s: states.NAMES[s]):
+        if st in no_area:
+            continue
+        # Штаты без названной зоны своей страницы не имеют: ведём на общую.
+        st_rail = side_rail(
+            "Every state",
+            [(("/states/no-locality-area/" if x in no_area
+               else f"/states/{slug(states.NAMES[x])}/"),
+              states.NAMES[x], x == st)
+             for x in sorted(states.NAMES, key=lambda z: states.NAMES[z])],
+            "Locality pay areas do not follow state lines.")
+        rel, html_page = states.state_page(st, sz[st], T, R, ranks, shell, esc,
+                                           money, slug, st_rail, zone_reach)
+        write(rel, html_page)
+        urls.append(f"/{rel}/")
+        st_items.append((rel, states.NAMES[st]))
+    write("states/no-locality-area",
+           states.no_area_page(no_area, T, shell, esc, money, slug))
+    urls.append("/states/no-locality-area/")
+    # В указателе каждый из восьми штатов назван поимённо и ведёт на общую
+    # страницу: человек ищет свой штат, а не категорию.
+    for c in sorted(no_area, key=lambda z: states.NAMES[z]):
+        st_items.append(("states/no-locality-area", states.NAMES[c]))
+    st_items.sort(key=lambda x: x[1])
+    write("states", states.states_index(st_items, shell, esc))
     urls.append("/compare/")
 
     # Файл индексов подгружается инструментом по запросу пользователя, поэтому
