@@ -311,8 +311,18 @@ def _titleblock(chunk: str) -> str:
     m = re.match(r'\s*(<ol class="crumbs">.*?</ol>)(.*)\Z', chunk, re.S)
     if m:
         crumbs, chunk = m.group(1), m.group(2)
-    return (f'<div class="titleblock col">{crumbs}{line}{chunk}'
-            f'<p class="rd"></p></div>')
+
+    # Титул берёт ровно то, чем является: заголовок и лид. Всё, что идёт
+    # дальше, — уже содержание. Прежде титул забирал ВЕСЬ ведущий кусок, и на
+    # страницах грейдов и повышений внутрь него уезжала таблица.
+    head, rest = chunk, ""
+    m = re.match(r'(\s*<h1[^>]*>.*?</h1>\s*(?:<p class="sub">.*?</p>)?)(.*)\Z',
+                 chunk, re.S)
+    if m:
+        head, rest = m.group(1), m.group(2)
+    tail = f'<div class="col">{rest}</div>' if rest.strip() else ""
+    return (f'<div class="titleblock col">{crumbs}{line}{head}'
+            f'<p class="rd"></p></div>{tail}')
 
 
 def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",

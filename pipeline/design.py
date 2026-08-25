@@ -64,7 +64,10 @@ CSS = r"""
   /* ---------- чернила: три слоя, а не один */
   --ink:#191610;         /* текст и заголовки */
   --ink-2:#544c3b;       /* служебный слой: метки, источники, сноски */
-  --ink-3:#7c7360;       /* третий слой: заглушки, отключённое */
+  /* Доведён с #7c7360: на тонированной зебре тот давал 3.81:1, а именно
+     там он и стоит — официальное имя области под коротким и прочерк в
+     графе без данных. Теперь 5.20 на зебре, 6.15 на бумаге. */
+  --ink-3:#665e4e;       /* третий слой: подписи, заглушки, прочерк */
 
   /* ---------- глубокая полоса. В тёмной теме ОСТАЁТСЯ тёмной:
      шапка, меню и подвал должны читаться полосами при любой теме. */
@@ -170,7 +173,7 @@ CSS = r"""
     --tint-2:#4e4739;
     --ink:#f2ead7;
     --ink-2:#c8bda2;
-    --ink-3:#9e947f;
+    --ink-3:#b3a892;
     --deep:#1e2a41;
     --deep-ink:#f0e8d6;
     --deep-ink-2:#b9c3d6;
@@ -210,7 +213,7 @@ CSS = r"""
   --tint-2:#4e4739;
   --ink:#f2ead7;
   --ink-2:#c8bda2;
-  --ink-3:#9e947f;
+  --ink-3:#b3a892;
   --deep:#1e2a41;
   --deep-ink:#f0e8d6;
   --deep-ink-2:#b9c3d6;
@@ -351,11 +354,6 @@ section.q>:last-child{margin-bottom:0}
 
 /* ---------- опорная клетка: отмечена сервером, видна и без скрипта.
    Со скриптом её сменяет выбранная, и метка снимается. */
-table.pay td.ref{outline:2px solid var(--accent);outline-offset:-2px;
-  font-weight:700}
-table.pay td.ref::after{content:"\25C0";margin-left:6px;font-size:9px;
-  color:var(--accent)}
-table.pay td.sel::after{color:inherit}
 
 /* ---------- бухгалтерский разбор */
 .ledger{margin:0 0 var(--s3);border-top:1px solid var(--line)}
@@ -377,64 +375,16 @@ table.pay td.sel::after{color:inherit}
 /* overflow-x:auto делает overflow-y тоже auto, поэтому sticky в шапке
    цеплялся за контейнер, который по вертикали не прокручивается, и не липнул
    НИ НА ОДНОЙ странице. Ограниченная высота даёт настоящую прокрутку. */
-.scroll{overflow:auto;max-height:min(78vh,880px);overscroll-behavior-x:contain;
-  -webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:4px;
-  background:
-    linear-gradient(to right,var(--card),transparent) 0 0/26px 100% no-repeat local,
-    linear-gradient(to left,var(--card),transparent) 100% 0/26px 100% no-repeat local,
-    linear-gradient(to right,var(--shade),transparent) 0 0/12px 100% no-repeat scroll,
-    linear-gradient(to left,var(--shade),transparent) 100% 0/12px 100% no-repeat scroll}
-.scroll:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-table{border-collapse:separate;border-spacing:0;width:100%;
-  font:14px/1.4 var(--face)}
-th,td{padding:7px 10px;text-align:left;white-space:nowrap;
-  border-bottom:1px solid var(--line)}
-tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
-thead th{position:sticky;top:0;z-index:2;background:var(--bar);
-  color:var(--bar-ink);font:700 11px/1.3 var(--face);letter-spacing:.07em;
-  text-transform:uppercase;border-bottom:0}
 /* Заголовок как кнопка сортировки: стрелка появляется только у активного
    столбца, чтобы шапка не превращалась в частокол значков. */
-thead th[data-sort]{cursor:pointer;user-select:none}
-thead th[data-sort]:hover{background:var(--ink)}
-thead th[aria-sort="ascending"]::after{content:"\2191";margin-left:5px}
-thead th[aria-sort="descending"]::after{content:"\2193";margin-left:5px}
-th.num,td.num{text-align:right}
 /* Приглушённый цвет колонки рангов относится к ТЕЛУ таблицы. В шапке она
    лежит на тёмной плашке, и служебные чернила давали там 1.83:1 — ровно тот
    дефект, что нашли в макете, только здесь его создавала специфичность:
    .rank (0,1,1) перебивал thead th (0,0,2). */
-tbody th.rank,tbody td.rank{color:var(--ink-2)}
-th.rank,td.rank{text-align:right;width:1%;font-weight:700}
-th[scope="row"]{font-weight:700;white-space:normal;min-width:13ch;
-  background:var(--card)}
-tbody tr:nth-child(even) td{background:var(--page)}
-tbody tr:nth-child(even) th[scope="row"]{background:var(--page)}
 
-table.pay th[scope="row"]{position:sticky;left:0;z-index:1;white-space:nowrap;
-  min-width:7ch;border-right:2px solid var(--line-strong)}
-table.pay thead th:first-child{position:sticky;left:0;z-index:3;
-  border-right:2px solid var(--line-strong)}
-table.pay th.gut,table.pay td.gut{border-left:2px solid var(--line-strong)}
 
 /* клетка как элемент управления: выбирается мышью и с клавиатуры */
-table.pay td.cell{cursor:pointer}
-table.pay td.cell:hover{background:var(--accent-soft)}
-table.pay td.sel,table.pay td.sel:hover{background:var(--bar);
-  color:var(--bar-ink);font-weight:700}
-table.pay td.sel::after{content:"\25C0";margin-left:6px;font-size:9px}
 
-td.capped{background-color:var(--warn-soft);
-  background-image:repeating-linear-gradient(45deg,
-    rgba(154,47,40,.20) 0 2px, transparent 2px 6px);font-weight:700}
-td.capped::before{content:"\25B2";float:left;font-size:10px;line-height:1.9;
-  color:var(--warn)}
-tbody tr.you th,tbody tr.you td{background:var(--accent-soft);font-weight:700}
-td.up{color:var(--up);font-weight:700}
-td.down{color:var(--warn);font-weight:700}
-td.flat{color:var(--muted)}
-.tlegend{font:500 12px/1.5 var(--face);color:var(--muted);margin:var(--s2) 0 0;
-  display:flex;gap:var(--s4);flex-wrap:wrap;max-width:none}
 
 /* ---------- полосы сравнения */
 .bars{margin:0;padding:0;list-style:none}
@@ -504,11 +454,6 @@ figcaption strong{color:var(--ink-soft)}
 /* Заголовок-сортировщик: кликает вложенная кнопка, а <th> остаётся
    заголовком столбца. role="button" на самом <th> стирал columnheader, и
    таблица из 58 строк оставалась для скринридера без заголовков вообще. */
-thead th[data-sort] button{all:unset;display:block;width:100%;cursor:pointer;
-  font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit}
-thead th.num button{text-align:right}
-thead th[data-sort] button:focus-visible{outline:2px solid var(--accent);
-  outline-offset:2px}
 
 /* ---------- подвал */
 .disclaimer{color:var(--ink-soft);font-weight:600}
@@ -529,8 +474,6 @@ thead th[data-sort] button:focus-visible{outline:2px solid var(--accent);
      Вторичные числа стоят в карточке сразу под ней, поэтому в полосе
      остаётся только то, ради чего она липкая: где, что и сколько. */
   section.q{padding:var(--s3)}
-  table{font-size:13px}
-  th,td{padding:6px 8px}
   .bars li{grid-template-columns:minmax(0,1fr) max-content;gap:4px var(--s2)}
   .bars .nm{white-space:normal;grid-column:1}
   .bars .v{grid-column:2}
@@ -539,28 +482,7 @@ thead th[data-sort] button:focus-visible{outline:2px solid var(--accent);
 @media print{
   html,body{background:#fff;color:#000}
   section.q,.fact,.scroll{border:1px solid #000;break-inside:avoid}
-  thead th,.answerbar{background:#fff !important;color:#000 !important;
-    border-bottom:2px solid #000}
-  td.capped,tr.you td,td.sel{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .scroll{overflow:visible;background:none}
-  table{font-size:9pt}
 }
-/* ---------- табличные цифры: восстановление после сокращений font:
-   На body объявлено font-variant-numeric:tabular-nums, но по CSS Fonts 4
-   сокращение `font:` сбрасывает его в исходное значение — а таких сокращений
-   в этом файле больше полусотни, и среди них КАЖДЫЙ элемент с числом. Сайт
-   про деньги набирал суммы пропорциональными цифрами, объявив табличные, и
-   колонка долларов не выравнивалась по разрядам.
-   Селекторы повторены один в один: та же специфичность, более поздний
-   порядок. Иначе `.fp-hero p.fp-big` (0,1,2) побеждает общий `.fp-big`. */
-table,th,td,
-.ab-big,
-.fact .fact-k,.fact .kpi,.fact .kpi-sub,
-.ledger dt,.ledger dd,
-.fp-out p.fp-big,.fp-lines dt,.fp-lines dd,
-.fp-hero p.fp-big,.fp-hero p.fp-ranks,
-.tlegend,.chips-pay b,.chips-pay span{
-  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
 
 /* ============================================================ каркас выпуска
    Шапка перестаёт быть строкой ссылок и становится ШАПКОЙ ВЫПУСКА: знак
@@ -1025,6 +947,139 @@ body.withbar{--stick:56px}
 @media (max-width:520px){
   .ab-where{display:none}
 }
+
+/* ======================================================== ведомость и сетка
+   Два разных документа. Ведомость — перечень областей, её набирают антиквой
+   и просторно. Тарифная сетка — 8 700 клеток, её печатают служебной
+   гарнитурой и плотно: при плотности ведомости она растянулась бы примерно
+   на 1200 px в окне 330, то есть на 3.6 экрана боковой прокрутки. */
+.scroll{overflow:auto;max-height:calc(min(74vh,760px) - var(--stick));
+  overscroll-behavior-x:contain;
+  border-top:3px solid var(--heavy);border-bottom:3px solid var(--heavy);
+  /* Признак боковой прокрутки: два градиента на местных координатах дают
+     край листа, два на прокрутке — тень. Тень видна только с той стороны,
+     куда ещё можно ехать. У макета этого нет вовсе, а при 375 таблица едет
+     вбок в 2.3 раза. */
+  background:
+    linear-gradient(to right,var(--sheet),transparent) 0 0/22px 100% no-repeat local,
+    linear-gradient(to left,var(--sheet),transparent) 100% 0/22px 100% no-repeat local,
+    linear-gradient(to right,var(--shade),transparent) 0 0/12px 100% no-repeat scroll,
+    linear-gradient(to left,var(--shade),transparent) 100% 0/12px 100% no-repeat scroll}
+
+table{width:100%;border-collapse:separate;border-spacing:0;
+  font-family:var(--serif);font-size:var(--s-text);line-height:1.35}
+thead th{position:sticky;top:0;z-index:2;
+  background:var(--band);color:var(--band-ink);
+  font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;text-align:left;padding:0;
+  border-bottom:1px solid var(--band)}
+thead th:not(:has(button)){padding:12px 16px}
+thead th button{all:unset;display:block;width:100%;box-sizing:border-box;
+  padding:12px 16px;cursor:pointer;color:inherit;font-family:var(--sans);
+  font-size:var(--s-stamp);font-weight:600;line-height:1.3;
+  letter-spacing:.1em;text-transform:uppercase}
+thead th button:hover{background:var(--seal-fill);color:var(--seal-on)}
+thead th:focus-within{outline:2px solid var(--focus-on-band);outline-offset:-2px}
+thead th.num button,thead th.num{text-align:right}
+thead th[aria-sort="ascending"] button::after{content:"";display:inline-block;
+  width:0;height:0;margin-left:7px;vertical-align:.1em;
+  border-left:4px solid transparent;border-right:4px solid transparent;
+  border-bottom:5px solid currentColor}
+thead th[aria-sort="descending"] button::after{content:"";display:inline-block;
+  width:0;height:0;margin-left:7px;vertical-align:.1em;
+  border-left:4px solid transparent;border-right:4px solid transparent;
+  border-top:5px solid currentColor}
+
+tbody th{text-align:left;font-weight:400;font-family:var(--serif);
+  padding:11px 16px;border-bottom:1px solid var(--hair);
+  background:var(--sheet)}
+tbody td{padding:11px 16px;border-bottom:1px solid var(--hair);
+  white-space:nowrap;background:var(--sheet)}
+tbody td.num{text-align:right}
+tbody td.rank{font-family:var(--sans);font-size:var(--s-fine);font-weight:600;
+  color:var(--ink-2);width:1%;padding-left:20px;text-align:right}
+tbody tr:nth-child(even) th,tbody tr:nth-child(even) td{background:var(--tint)}
+tbody tr:hover th,tbody tr:hover td{background:var(--tint-2)}
+/* Опорная линия каждые десять строк: ведомость на 58 строк без них не
+   читается, а линия работает при любой сортировке. */
+tbody tr:nth-child(10n) th,tbody tr:nth-child(10n) td{
+  border-bottom:1px solid var(--rule)}
+tbody th a{text-decoration:underline;text-decoration-color:var(--hair);
+  text-decoration-thickness:1px;text-underline-offset:.2em}
+tbody th a:hover{text-decoration-color:var(--seal)}
+tbody tr.you th,tbody tr.you td{background:var(--loss-soft);font-weight:600}
+tbody tr.you th{box-shadow:inset 4px 0 0 var(--seal-fill)}
+td.up{color:var(--gain);font-weight:600}
+td.down{color:var(--loss);font-weight:600}
+td.flat{color:var(--ink-3)}
+
+.tlegend{display:grid;gap:5px;margin:10px 0 0;font-family:var(--sans);
+  font-size:var(--s-fine);line-height:1.5;color:var(--ink-2);max-width:52em}
+
+/* ---------- тарифная сетка: та же разлиновка, но плотнее и служебным
+   шрифтом. 8 700 клеток — это таблица, а не перечень. */
+table.pay{font-family:var(--sans);font-size:var(--s-fine);width:auto;
+  min-width:100%}
+table.pay tbody th,table.pay tbody td{padding:7px 10px;white-space:nowrap;
+  line-height:1.3}
+table.pay thead th{padding:0}
+table.pay thead th button{padding:9px 10px}
+table.pay thead th:not(:has(button)){padding:9px 10px;text-align:right}
+table.pay tbody th[scope="row"]{position:sticky;left:0;z-index:1;
+  font-family:var(--sans);font-weight:600;min-width:7ch;
+  border-right:2px solid var(--rule)}
+table.pay thead th:first-child{position:sticky;left:0;z-index:3;
+  border-right:2px solid var(--rule)}
+table.pay th.gut,table.pay td.gut{border-left:2px solid var(--rule)}
+table.pay td.cell{text-align:right;cursor:pointer}
+table.pay td.cell:hover{background:var(--tint-2);
+  box-shadow:inset 0 0 0 1px var(--rule)}
+/* Выбранная клетка получает ту же краску, что корешок формы и колонтитул
+   ведомости: одна плашка на весь документ, а не третий акцент. */
+table.pay td.sel{background:var(--band);color:var(--band-ink);font-weight:700}
+table.pay td.ref{box-shadow:inset 0 0 0 2px var(--seal-fill)}
+table.pay td.capped{color:var(--loss)}
+table.pay td.cell:focus-visible{outline:2px solid var(--focus);
+  outline-offset:-2px}
+
+@media (max-width:760px){
+  tbody th,tbody td{padding:9px 12px}
+  tbody td.rank{padding-left:12px}
+  /* Графа наименования примораживается к краю. Липкий столбец обязан иметь
+     непрозрачный фон во ВСЕХ четырёх состояниях, иначе сквозь него видны
+     уезжающие цифры. */
+  table:not(.pay) tbody th{position:sticky;left:0;z-index:1;
+    border-right:1px solid var(--rule)}
+  table:not(.pay) thead th:nth-child(2){position:sticky;left:0;z-index:3;
+    border-right:1px solid var(--band-hair)}
+  table.pay tbody th[scope="row"]{min-width:6ch}
+  .scroll{max-height:calc(min(70vh,620px) - var(--stick))}
+}
+
+/* ---------- табличные цифры: восстановление после сокращений font:
+   По CSS Fonts 4 сокращение `font:` сбрасывает font-variant-numeric в
+   исходное значение. Объявление на body уничтожается на каждом элементе,
+   который набран сокращением, а это все элементы с числами. Сайт про деньги
+   набирал бы суммы пропорциональными цифрами, объявив табличные.
+   Селекторы повторены один в один: та же специфичность, более поздний
+   порядок. Блок тает по мере того, как старые сокращения уходят вместе с
+   перенесёнными компонентами. */
+table,th,td,
+.ab-big,
+.fact .fact-k,.fact .kpi,.fact .kpi-sub,
+.ledger dt,.ledger dd,
+.fp-out p.fp-big,.fp-lines dt,.fp-lines dd,
+.fp-hero .fp-big,.fp-hero .fp-ranks,
+.tlegend,.chips-pay b,.chips-pay span{
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* Графа наименования: короткое имя крупно, официальное — мелко и одной
+   строкой. Прежде официальное имя переносилось на шесть строк, и строки
+   ведомости прыгали от 42 до 180 px. */
+tbody th .full{display:block;font-family:var(--sans);font-size:var(--s-stamp);
+  line-height:1.4;color:var(--ink-3);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;max-width:26ch;margin-top:1px}
+tbody th a{white-space:nowrap}
 """
 
 MARK = ""
