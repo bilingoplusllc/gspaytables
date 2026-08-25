@@ -634,8 +634,12 @@ def locality_page(code: str, loc: dict, T: dict, R: dict, ranks: dict,
 
     # --- 7. инструмент
     B.append('<section class="q" id="work-it-out">')
+    # Готовый ответ прямо в разметке, для этой зоны. Без него раздел без
+    # скрипта показывал заголовок и пустоту: инструмент прятался целиком,
+    # чтобы не оставлять мёртвых полей.
     B.append(calc.calc_widget(
         fixed=code, grade=REF_GRADE, step=REF_STEP,
+        hero=page_hero(T, ranks, esc, money, code=code),
         heading="Work out a different grade and step",
         note=("Rates are recomputed from the published base table and this area's "
               "percentage, in the order the law sets: percentage first, rounding "
