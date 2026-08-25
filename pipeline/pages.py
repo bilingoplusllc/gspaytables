@@ -17,6 +17,9 @@ from __future__ import annotations
 from datetime import date
 
 
+import names
+
+
 def home(T: dict, R: dict, ranks: dict, L: dict, shell, esc, money, slug,
          widget: str = "", js: str = "") -> str:
     year = T["year"]
@@ -153,7 +156,9 @@ def _home_table(T, R, ranks, L, esc, money, slug) -> str:
             f'<tr data-code="{code}">'
             f'<td class="rank" data-v="{i}">{i}</td>'
             f'<th scope="row" data-v="{esc(r["name"])}">'
-            f'<a href="/locality/{slug(r["name"])}/">{esc(r["name"])}</a></th>'
+            f'<a href="/locality/{slug(r["name"])}/">'
+            f'{esc(names.short_name(r["name"]))}</a>'
+            f'<span class="full">{esc(r["name"])}</span></th>'
             f'<td class="num" data-v="{pct}">{pct:g}%</td>'
             f'<td class="num" data-v="{r["nominal"]}">{money(r["nominal"])}</td>'
             f'<td class="num" data-v="{r["rpp"]}">{r["rpp"]:.1f}</td>'
@@ -169,7 +174,8 @@ def _home_table(T, R, ranks, L, esc, money, slug) -> str:
             f'<td class="rank" data-v="99">\u2014</td>'
             f'<th scope="row" data-v="{esc(loc["area_name"])}">'
             f'<a href="/locality/{slug(loc["area_name"])}/">'
-            f'{esc(loc["area_name"])}</a></th>'
+            f'{esc(names.short_name(loc["area_name"]))}</a>'
+            f'<span class="full">{esc(loc["area_name"])}</span></th>'
             f'<td class="num" data-v="{loc["locality_pct"]}">'
             f'{loc["locality_pct"]:g}%</td>'
             f'<td class="num" data-v="{cell["annual"]}">{money(cell["annual"])}</td>'

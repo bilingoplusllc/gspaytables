@@ -191,16 +191,7 @@ def _dot(name: str) -> str:
     return "" if name.rstrip().endswith(".") else "."
 
 
-def _short(name: str) -> str:
-    """Короткое имя для заголовка: первый город плюс код штата."""
-    head, _, tail = name.partition(",")
-    if head.startswith("State of"):
-        return head.replace("State of", "").strip()
-    if head.startswith("Rest of"):
-        return "Rest of U.S."
-    first = (head.split("--") if "--" in head else head.split("-"))[0].strip()
-    state = tail.strip().split("-")[0].strip() if tail else ""
-    return f"{first}, {state}" if state else first
+from names import short_name as _short
 
 
 def _threshold(sa, sb, la, lb, ra, rb, R, money, esc) -> str:

@@ -199,7 +199,10 @@ CALC_JS = r"""
        number is on the screen before this script runs at all; writing a
        second copy below it would both duplicate the figure and undo that. */
     var hBig = box.querySelector("[data-big]");
-    var head = 'GS-' + g + ', step ' + s + ' in ' + esc(zone.n) + ', ' + D.year;
+    /* The year is deliberately absent here: it is already printed in the
+       edition line and in the heading, and on a phone the area name alone
+       takes five lines and pushes the ranks below the fold. */
+    var head = 'GS-' + g + ', step ' + s + ' in ' + esc(zone.n);
     if (hBig){
       var hWhat = box.querySelector("[data-what]");
       var hRank = box.querySelector("[data-ranks]");

@@ -58,8 +58,8 @@ FONT_PRELOAD = ""
 # поэтому выставляется в main() после их чтения.
 JS_TAG = ""
 
-THEME_LIGHT = "#f1f2f4"
-THEME_DARK = "#15171a"
+THEME_LIGHT = "#e2d8bf"
+THEME_DARK = "#100e0b"
 
 # Опорная клетка для сравнений между зонами: GS-12/5 — середина сетки,
 # самый населённый диапазон грейдов.
@@ -193,15 +193,20 @@ def slug(s: str) -> str:
 
 
 def strip_css_comments(css: str) -> str:
-    """Убирает комментарии из CSS на выходе.
+    """Готовит стили к вставке в страницу.
 
-    Комментарии в исходнике русские — это нормально, там пишем на языке
-    разработки. Но в отгружаемый HTML они попадать не должны: на MileageCurve
-    ровно так 321 страница уехала с русским текстом на английском сайте, и все
-    структурные проверки при этом были зелёными. Гейт ловит это по отрендеренному
-    выводу, а функция — устраняет причину.
+    Комментарии и отступы нужны в исходнике, а не в выдаче: они едут на всех
+    165 страницах. Строковые значения (content, шрифты) не трогаются —
+    сжимается только то, что лежит между правилами.
     """
-    return re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    out, i, quoted = [], 0, re.compile(r"""("[^"]*"|'[^']*')""")
+    for m in quoted.finditer(css):
+        out.append(re.sub(r"\s*\n\s*", "", css[i:m.start()]))
+        out.append(m.group(0))
+        i = m.end()
+    out.append(re.sub(r"\s*\n\s*", "", css[i:]))
+    return "".join(out).strip()
 
 
 # --------------------------------------------------------------------------- каркас
@@ -241,24 +246,156 @@ def jsonld(title: str, desc: str, canonical: str, crumbs: list) -> str:
             + "</script>")
 
 
+SEAL_MAST = '<svg class="seal" viewBox="0 0 100 100" role="img" aria-label="FedPay mark: an independent reference, not a government seal"><defs><path id="mt" d="M14,50 A36,36 0 0 1 86,50"></path><path id="mb" d="M17,50 A33,33 0 0 0 83,50"></path></defs><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="42.5"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="29"></circle><text class="s-t"><textPath href="#mt" startOffset="50%" text-anchor="middle">INDEPENDENT</textPath></text><text class="s-t"><textPath href="#mb" startOffset="50%" text-anchor="middle">REFERENCE</textPath></text><text class="s-mono" x="50" y="47" text-anchor="middle">GS</text><rect class="s-step" x="36" y="56" width="6" height="4"></rect><rect class="s-step" x="43" y="53" width="6" height="7"></rect><rect class="s-step" x="50" y="50" width="6" height="10"></rect><rect class="s-step" x="57" y="47" width="6" height="13"></rect></svg>'
+SEAL_FOOT = '<svg class="seal foot-seal" viewBox="0 0 100 100" role="img" aria-label="FedPay mark: an independent reference, not a government seal"><defs><path id="ft" d="M14,50 A36,36 0 0 1 86,50"></path><path id="fb" d="M17,50 A33,33 0 0 0 83,50"></path></defs><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="42.5"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="29"></circle><text class="s-t"><textPath href="#ft" startOffset="50%" text-anchor="middle">INDEPENDENT</textPath></text><text class="s-t"><textPath href="#fb" startOffset="50%" text-anchor="middle">REFERENCE</textPath></text><text class="s-mono" x="50" y="47" text-anchor="middle">GS</text><rect class="s-step" x="36" y="56" width="6" height="4"></rect><rect class="s-step" x="43" y="53" width="6" height="7"></rect><rect class="s-step" x="50" y="50" width="6" height="10"></rect><rect class="s-step" x="57" y="47" width="6" height="13"></rect></svg>'
+# Год выпуска нужен шапке. Ставится в main() вместе с остальными
+# значениями, зависящими от данных.
+T_YEAR = ""
+T_AREAS = ""
+
+
+# Разделы, несущие главное утверждение страницы. Плашка на странице одна:
+# две тёмные полосы в одном документе спорят друг с другом.
+PLATE_IDS = {"reversal", "worth"}
+
+
+def _with_margin(inner: str) -> str:
+    """Раздел с таблицей получает поля документа.
+
+    На поля уходит легенда таблицы: сейчас она стоит под таблицей строкой
+    мелкого шрифта, которую не читают, потому что глаз уже уехал дальше. На
+    поле, рядом с таблицей, она читается тогда, когда нужна. Туда же встаёт
+    рекламная башня: в одноколоночном документе ей иначе негде стоять, а это
+    третье и самое доходное место.
+
+    Если легенды нет, полей не будет: пустое поле хуже его отсутствия.
+    """
+    if '<div class="scroll"' not in inner:
+        return inner
+    # Поля стоят 300 px плюс отбивка. Широкая таблица столько отдать не
+    # может: главная ведомость на семь граф сжималась с 965 до 634 и начинала
+    # ехать вбок на десктопе — то есть поля покупались ценой самого ценного,
+    # что на странице есть. Считаем графы: до шести включительно поля по
+    # карману, дальше пометки и башня встают ПОД таблицей.
+    head = re.search(r"<thead>(.*?)</thead>", inner, re.S)
+    cols = len(re.findall(r"<th", head.group(1))) if head else 99
+    wide = cols > 6
+    # Легенда таблицы, если она есть, уходит на поле: под таблицей её не
+    # читают, потому что глаз уже уехал дальше. Если легенды нет, на поле
+    # остаётся одна башня, и колонка полей сжимается до нуля, пока сеть не
+    # подключена, — она меряется по содержимому, а не задана шириной.
+    m = re.search(r'<p class="tlegend">(.*?)</p>', inner, re.S)
+    body = inner
+    note = ""
+    if m:
+        body = inner[:m.start()] + inner[m.end():]
+        note = (f'<div class="note"><p class="note-k">Reading this table</p>'
+                f'{m.group(0)}</div>')
+    notes = note + '<div class="ad-slot ad-rail">Advertisement</div>'
+    if wide:
+        return f'{body}<div class="marg marg-under">{notes}</div>'
+    return (f'<div class="grid"><div>{body}</div>'
+            f'<aside class="marg">{notes}</aside></div>')
+
+
+def document_body(body: str) -> str:
+    """Превращает тело страницы в лист документа.
+
+    Три вещи, которые не должен знать ни один из шести модулей-генераторов:
+    какая у раздела земля, где кончается титул выпуска и какой ширины
+    колонка внутри полосы. Всё это свойства ОБЛИКА, а не содержания,
+    поэтому делаются здесь, один раз, над готовым текстом.
+    """
+    parts = re.split(r'(<section class="q"[^>]*>.*?</section>)', body, flags=re.S)
+
+    out = []
+    idx = 0
+    plate_used = False
+    head_done = False
+
+    for chunk in parts:
+        if not chunk.strip():
+            continue
+        m = re.match(r'<section class="q"([^>]*)>(.*)</section>\Z', chunk, re.S)
+        if not m:
+            if not head_done:
+                out.append(_titleblock(chunk))
+                head_done = True
+            elif re.fullmatch(r'\s*<div class="ad-slot[^"]*">.*?</div>\s*',
+                              chunk, re.S):
+                # Место под объявление — полоса во всю ширину листа, а не блок
+                # внутри колонки: в колонке при 320 остаётся 263 px, куда не
+                # входит даже мобильный формат. Заодно полоса разделяет два
+                # раздела с одинаковой землёй.
+                out.append(f'<div class="adzone">{chunk}</div>')
+            else:
+                out.append(f'<div class="col">{chunk}</div>')
+            continue
+
+        attrs, inner = m.group(1), m.group(2)
+        sid = re.search(r'id="([^"]+)"', attrs)
+        sid = sid.group(1) if sid else ""
+        if sid in PLATE_IDS and not plate_used:
+            ground, plate_used = "plate", True
+        else:
+            ground = "paper" if idx % 2 == 0 else "register"
+            idx += 1
+        out.append(f'<section class="q {ground}"{attrs}>'
+                   f'<div class="col">{_with_margin(inner)}</div></section>')
+
+    return "\n".join(out)
+
+
+def _titleblock(chunk: str) -> str:
+    """Крошки, строка выпуска, заголовок и лид — одним титулом.
+
+    Строка выпуска существует затем, что у документа обязаны быть выходные
+    данные: без них страница — это просто текст. У нас все четыре значения
+    уже есть и ни одно не выдумано.
+    """
+    line = (f'<p class="docline">'
+            f'<span>{T_YEAR} edition</span>'
+            f'<span>Effective January {T_YEAR}</span>'
+            f'<span>{T_AREAS} locality pay areas</span>'
+            f'<span>Data last changed {DATA_DATE}</span></p>')
+    crumbs = ""
+    m = re.match(r'\s*(<ol class="crumbs">.*?</ol>)(.*)\Z', chunk, re.S)
+    if m:
+        crumbs, chunk = m.group(1), m.group(2)
+
+    # Титул берёт ровно то, чем является: заголовок и лид. Всё, что идёт
+    # дальше, — уже содержание. Прежде титул забирал ВЕСЬ ведущий кусок, и на
+    # страницах грейдов и повышений внутрь него уезжала таблица.
+    head, rest = chunk, ""
+    m = re.match(r'(\s*<h1[^>]*>.*?</h1>\s*(?:<p class="sub">.*?</p>)?)(.*)\Z',
+                 chunk, re.S)
+    if m:
+        head, rest = m.group(1), m.group(2)
+    # На страницах грейдов и повышений главная таблица стоит ДО первого
+    # раздела, то есть в этом хвосте. Поля ей нужны так же.
+    tail = (f'<div class="col">{_with_margin(rest)}</div>'
+            if rest.strip() else "")
+    return (f'<div class="titleblock col">{crumbs}{line}{head}'
+            f'<p class="rd"></p></div>{tail}')
+
+
 def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
           crumbs: list = None, js: str = "", bar: str = "", rail: str = "",
           wide: bool = False, noindex: bool = False) -> str:
-    """Каркас страницы.
+    """Каркас выпуска.
 
-    bar  — залипающая полоса ответа. Есть на страницах, у которых ответ
-           выражается одним числом: зона, грейд, сравнение.
-    rail — левый рельс: оглавление страницы, переключатель и место под рекламу.
-           Пустой рельс превращает раскладку в одноколоночную, а не оставляет
-           в сетке дыру.
+    bar  — залипающая полоса ответа на страницах, где ответ выражается одним
+           числом.
+    rail — строка содержания в начале листа. Прежде это был левый рельс: он
+           отбирал 22% ширины первого экрана и дублировал верхнее меню из
+           восьми пунктов. В документе содержание стоит строкой под шапкой и
+           стоит 40 px высоты вместо 230 px ширины.
+    wide — оставлен ради совместимости вызовов; ширину теперь держит лист.
     """
     updated = DATA_DATE
     cur = lambda k: ' aria-current="page"' if k == nav else ""
-    # wide — раскладка без рельса и без колонки в 820 px: на главной её
-    # занимала таблица из 58 строк на семь колонок, а рельс отбирал под
-    # дубликат верхнего меню ещё 230 px слева.
-    layout = "layout" if rail else ("layout wide" if wide else "layout solo")
-    rail_html = f'<aside class="rail">{rail}</aside>' if rail else ""
+    contents = (f'<nav class="contents" aria-label="Sections of this report">'
+                f'{rail}</nav>' if rail else "")
     return f"""<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -282,47 +419,66 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 <meta name="twitter:card" content="summary_large_image">
 <style>{FONT_CSS}{strip_css_comments(design.CSS)}</style>
 {jsonld(title, desc, canonical, crumbs or [])}
-</head><body>
+</head><body{" class=\"withbar\"" if bar else ""}>
 <a class="skip" href="#content">Skip to content</a>
-<header class="site">
-  <div class="masthead">
-    <a class="brand" href="/">{SITE}</a>
-    <span class="tagline">{TAGLINE}</span>
-    <nav aria-label="Main">
-      <a href="/"{cur('home')}>Localities</a>
-      <a href="/calculator/"{cur('calc')}>Calculator</a>
-      <a href="/compare/"{cur('compare')}>Compare</a>
-      <a href="/states/"{cur('states')}>States</a>
-      <a href="/promotion/"{cur('promotion')}>Promotions</a>
-      <a href="/grades/"{cur('grades')}>Grades</a>
-      <a href="/how-locality-pay-works/"{cur('how')}>How it works</a>
-      <a href="/about/"{cur('about')}>About</a>
-    </nav>
+<header class="mast">
+  <div class="mast-in">
+    {SEAL_MAST}
+    <span class="mast-name">
+      <a class="brand" href="/">{SITE}</a>
+      <span class="tagline">{TAGLINE}</span>
+    </span>
+    <span class="edition">{T_YEAR} edition<br>Effective January {T_YEAR}</span>
   </div>
 </header>
-{bar}
-<div class="{layout}">
-{rail_html}
-<main id="content">
-{body}
-</main>
+<nav class="menu" aria-label="Main">
+  <div class="menu-in">
+    <a href="/"{cur('home')}>Localities</a>
+    <a href="/calculator/"{cur('calc')}>Calculator</a>
+    <a href="/compare/"{cur('compare')}>Compare</a>
+    <a href="/states/"{cur('states')}>States</a>
+    <a href="/promotion/"{cur('promotion')}>Promotions</a>
+    <a href="/grades/"{cur('grades')}>Grades</a>
+    <a href="/how-locality-pay-works/"{cur('how')}>How it works</a>
+    <a href="/about/"{cur('about')}>About</a>
+  </div>
+</nav>
+<div class="notice">
+  <p class="notice-in"><b>This is not a U.S. government website.</b>
+  <span class="nt-long">{SITE} is an independent reference published by {OWNER}
+  and is not affiliated with, endorsed by, or connected to the U.S. Office of
+  Personnel Management or any federal agency.</span><span class="nt-short">Not
+  affiliated with OPM or any federal agency.</span></p>
 </div>
-<footer><div class="in">
-  <p class="disclaimer">FedPay is an independent reference published by {OWNER}.
-  It is not affiliated with, endorsed by, or connected to the U.S. Office of Personnel
-  Management or any government agency.</p>
-  <p>Pay figures are computed from the official OPM salary tables and verified cell by
-  cell against them. Price levels are Regional Price Parities from the U.S. Bureau of
-  Economic Analysis. Both are works of the U.S. government and in the public domain.</p>
-  <p><a href="/how-locality-pay-works/">How locality pay works</a> ·
-  <a href="/grades/">All grades</a> · <a href="/compare/">Compare areas</a> ·
-  <a href="/methodology/">Methodology</a> · <a href="/about/">About</a> ·
-  <a href="/contact/">Contact</a> ·
-  <a href="/privacy/">Privacy</a> ·
+{bar}
+<div class="wrap">
+  <div class="sheet">
+{contents}
+<main id="content">
+{document_body(body)}
+</main>
+  </div>
+</div>
+<footer><div class="foot-in">
+  <div>{SEAL_FOOT}</div>
+  <div>
+  <p class="foot-disc">Not affiliated with the U.S. Office of Personnel
+  Management or any federal agency.</p>
+  <p class="disclaimer">{SITE} is an independent reference published by {OWNER}.
+  Pay figures are computed from the official OPM salary tables and verified cell
+  by cell against them. Price levels are Regional Price Parities from the U.S.
+  Bureau of Economic Analysis. Both are works of the U.S. government and in the
+  public domain.</p>
+  <p class="foot-links"><a href="/how-locality-pay-works/">How locality pay works</a>
+  <a href="/grades/">All grades</a> <a href="/compare/">Compare areas</a>
+  <a href="/methodology/">Methodology</a> <a href="/about/">About</a>
+  <a href="/contact/">Contact</a> <a href="/privacy/">Privacy</a>
   <a href="/terms/">Terms</a></p>
+  <p class="foot-rule"></p>
   <p>Data last changed {updated}. Pay tables are published once a year, so this
   date moves when the underlying figures move, not when the site is rebuilt.<br>
   <a href="mailto:{CONTACT}">{CONTACT}</a></p>
+  </div>
 </div></footer>
 {js}
 </body></html>"""
@@ -478,8 +634,12 @@ def locality_page(code: str, loc: dict, T: dict, R: dict, ranks: dict,
 
     # --- 7. инструмент
     B.append('<section class="q" id="work-it-out">')
+    # Готовый ответ прямо в разметке, для этой зоны. Без него раздел без
+    # скрипта показывал заголовок и пустоту: инструмент прятался целиком,
+    # чтобы не оставлять мёртвых полей.
     B.append(calc.calc_widget(
         fixed=code, grade=REF_GRADE, step=REF_STEP,
+        hero=page_hero(T, ranks, esc, money, code=code),
         heading="Work out a different grade and step",
         note=("Rates are recomputed from the published base table and this area's "
               "percentage, in the order the law sets: percentage first, rounding "
@@ -952,8 +1112,10 @@ def page_hero(T: dict, ranks: dict, esc, money,
             if nom and adj else
             'This area has no published price level, so it carries no '
             'purchasing-power rank.')
+    # Год здесь не печатается: он уже стоит в строке выпуска и в заголовке,
+    # а на телефоне название зоны и без него занимает пять строк.
     return (f'<p class="fp-what" data-what>GS-{g}, step {s} in '
-            f'{esc(loc["area_name"])}, {T["year"]}</p>'
+            f'{esc(loc["area_name"])}</p>'
             f'<p class="fp-big" data-big>{money(cell["annual"])}</p>'
             f'<p class="fp-ranks" data-ranks>{line}</p>')
 
@@ -979,8 +1141,10 @@ def compute_ranks(T: dict, R: dict) -> dict:
 
 
 def main() -> int:
-    global DATA_DATE, FONT_CSS, JS_TAG, FONT_PRELOAD
+    global DATA_DATE, FONT_CSS, JS_TAG, FONT_PRELOAD, T_YEAR, T_AREAS
     T = json.loads((DATA / "paytables-2026.json").read_text(encoding="utf-8"))
+    T_YEAR = str(T["year"])
+    T_AREAS = str(len(T["localities"]))
     R = json.loads((DATA / "rpp-map.json").read_text(encoding="utf-8"))
     L = json.loads((DATA / "localities-2026.json").read_text(encoding="utf-8"))
     DATA_DATE = data_date(T, R, L)
@@ -1217,7 +1381,12 @@ def main() -> int:
         for stack in re.findall(r"--(?:face|serif|sans|mono)\s*:\s*([^;}]+)",
                                 design.CSS):
             first = stack.split(",")[0].strip().strip('"\'')
-            if first and not first.startswith("var("):
+            # Родовые семейства и системный стек шрифтом не являются:
+            # требовать для них @font-face бессмысленно.
+            GENERIC = {"system-ui", "ui-sans-serif", "ui-serif", "ui-monospace",
+                       "sans-serif", "serif", "monospace", "cursive",
+                       "-apple-system"}
+            if first and not first.startswith("var(") and first not in GENERIC:
                 asked.add(first.lower())
         for name in sorted(asked - shipped):
             problems.append(f"шрифт: CSS просит {name!r}, а он не отгружается")
@@ -1620,7 +1789,10 @@ def main() -> int:
     seen_cls = {}
     for f in htmls:
         h = f.read_text(encoding="utf-8")
-        body = h[h.find("<body>"):]
+        # Искать ровно "<body>" нельзя: с появлением признака полосы
+        # тело открывается как <body class="withbar">, и 58 страниц зон
+        # молча выпадали из проверки классов.
+        body = h[h.find("<body"):]
         for m in re.finditer(r'class="([^"]+)"', body):
             for c in m.group(1).split():
                 seen_cls.setdefault(c, str(f.relative_to(DIST)))
@@ -1637,6 +1809,23 @@ def main() -> int:
                          css_text) is not None
 
     orphan = sorted(c for c in seen_cls if c not in RUNTIME and not styled(c))
+
+    # 17. правило без класса. Обратное направление того же гейта: стиль
+    #     существует, а разметки под него нет ни на одной странице. Так
+    #     дожили до уборки .layout, .solo и .wide, снятые ещё на втором
+    #     шаге. Мёртвое правило не ломает страницу — оно просто едет на
+    #     всех 165 и путает при чтении файла.
+    #     Белый список здесь другой: эти классы создаёт скрипт во время
+    #     работы, и в отгружаемой разметке их не бывает.
+    MADE_BY_JS = {"sel", "you", "on", "fp-lines", "fp-src"}
+    unused = set()
+    for m in re.finditer(r"(?m)^([^\n{}@/][^{}\n]*)\{", design.CSS):
+        cls = set(re.findall(r"\.([A-Za-z][\w-]*)", m.group(1)))
+        if cls and not (cls & MADE_BY_JS) and not (cls <= set(seen_cls)):
+            unused |= cls - set(seen_cls)
+    if unused:
+        problems.append(f"правила без разметки: {len(unused)} — "
+                        f"{', '.join(sorted(unused)[:5])}")
     if orphan:
         problems.append(f"классы без правил в CSS: {len(orphan)} — "
                         f"{', '.join(orphan[:4])} (напр. {seen_cls[orphan[0]]})")
@@ -1650,7 +1839,8 @@ def main() -> int:
     print("гейты пройдены: кириллица, битые вычисления, дисклеймер, ссылки, "
           "объём, направление, полнота охвата, пунктуация, крошки, "
           "клиентский расчёт, экранирование, управляющие символы, "
-                "внешние запросы, шрифт, стили, карта сайта, американское написание, табличные цифры, покрытие шрифта, совпадение гарнитуры")
+                "внешние запросы, шрифт, стили, карта сайта, американское написание, табличные цифры, покрытие шрифта, совпадение гарнитуры, "
+          "правила без разметки")
     return 0
 
 
