@@ -524,16 +524,35 @@ def privacy(shell) -> str:
          'information. The hosting provider keeps standard server request logs for '
          'security and to see which pages are used.</p>',
          '<h2>Analytics</h2>',
-         '<p>This site runs <strong>no analytics of any kind</strong>. There is '
-         'no Google Analytics, no tag manager, no pixel and no third-party '
-         'script of any sort. You can check that yourself: open the network tab '
-         'of your browser and every request a page makes goes to this domain '
-         'and nowhere else.</p>',
-         '<p>The only record of your visit is the standard request log kept by '
-         'the hosting provider for security and capacity. If analytics is ever '
-         'added, this page will be rewritten <em>before</em> the code goes live, '
+         '<p>This site uses <strong>Google Analytics 4</strong> to count visits '
+         'and see which pages people actually use. It records the page you '
+         'opened, roughly where you are (city level, from your IP address, '
+         'which Google shortens and does not store), which site or search sent '
+         'you, and what kind of device and browser you used. It does not record '
+         'your name, your email or anything you type — there is nothing here to '
+         'type into.</p>',
+         '<p><strong>If you are in the European Economic Area, the United '
+         'Kingdom or Switzerland, no analytics cookie is set at all.</strong> '
+         'For those regions the measurement runs in a cookieless mode by '
+         'default: signals arrive without an identifier being stored in your '
+         'browser. That is why you are not shown a cookie banner — there is no '
+         'non-essential cookie to consent to. Elsewhere, Google Analytics sets '
+         'its own cookies to tell one visit from the next.</p>',
+         '<p>Analytics data is kept for 14 months and then deleted. If you '
+         'would rather not be counted anywhere at all, Google publishes a '
+         'browser add-on that turns Google Analytics off across every site, and '
+         'any tracker blocker will do the same for this one; nothing on this '
+         'site depends on analytics, so blocking it changes nothing you can '
+         'see.</p>',
+         '<p>Besides analytics, the hosting provider keeps standard server '
+         'request logs for security and capacity. Those two are the whole list. '
+         'You can check it yourself: open the network tab of your browser, and '
+         'the only requests leaving this domain are the ones to Google '
+         'Analytics described above.</p>',
+         '<p>This page is rewritten <em>before</em> anything new starts loading, '
          'not after. A privacy notice describes what your browser actually '
-         'loads, not what the publisher intends to do later.</p>',
+         'loads, not what the publisher intends to do later — and the build '
+         'refuses to publish if the two stop matching.</p>',
          '<h2>Advertising</h2>',
          '<p>This site does not yet carry advertising and sets no advertising cookies. '
          'When advertising is added, partners may set cookies or use similar technology. '
@@ -545,8 +564,8 @@ def privacy(shell) -> str:
          'correct and delete personal information, and to opt out of its sale or of '
          'targeted advertising. This site does not sell or share personal information '
          'and runs no advertising today.</p>']
-    return shell("Privacy — GS Pay Tables", "What GS Pay Tables collects and what it does not: no analytics, no advertising "
-                 "cookies, no accounts, and no third-party requests of any kind.",
+    return shell("Privacy — GS Pay Tables", "What GS Pay Tables collects: analytics only, cookieless in the EEA and UK, "
+                 "no advertising cookies, no accounts, and nothing you type.",
                  "\n".join(B), f"{DOMAIN}/privacy/")
 
 

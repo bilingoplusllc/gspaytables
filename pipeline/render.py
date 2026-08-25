@@ -22,6 +22,7 @@ from datetime import date
 from pathlib import Path
 
 import ads
+import analytics
 import calc
 import compare
 import names
@@ -448,7 +449,7 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <style>{FONT_CSS}{strip_css_comments(design.CSS).replace('@HOST@', DOMAIN.split('//', 1)[-1])}</style>
-{jsonld(title, desc, canonical, crumbs or [])}
+{jsonld(title, desc, canonical, crumbs or [])}{analytics.head_tag()}
 </head><body{" class=\"withbar\"" if bar else ""}>
 <a class="skip" href="#content">Skip to content</a>
 <header class="mast">
@@ -1448,9 +1449,12 @@ def main() -> int:
         # стили встроены одним блоком, и промах хеша на один пробел снял
         # бы оформление сразу у всех. Расширить в день подключения
         # рекламы: сеть грузит скрипты со своих хостов.
-        "  Content-Security-Policy: default-src 'self'; script-src 'self'; "
-        "style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; "
-        "connect-src 'self'; object-src 'none'; base-uri 'none'; "
+        "  Content-Security-Policy: default-src 'self'; script-src 'self'"
+        + analytics.csp_sources() + "; "
+        "style-src 'self' 'unsafe-inline'; img-src 'self'"
+        + analytics.csp_sources() + "; font-src 'self'; "
+        "connect-src 'self'"
+        + analytics.csp_sources() + "; object-src 'none'; base-uri 'none'; "
         "form-action 'none'; frame-ancestors 'none'\n"
         "\n"
         "# Fonts and the ZIP lookup change once a year and carry stable\n"
@@ -1841,6 +1845,10 @@ def main() -> int:
         + re.escape(DOMAIN.split("//", 1)[-1])
         + r')([^/"\']+)',
         re.I)
+    # Хосты счётчика — единственные разрешённые чужие. Список берётся из
+    # модуля счётчика, а не пишется здесь литералом: выключат счётчик — гейт
+    # снова станет запрещать всё чужое, без отдельной правки.
+    allowed_ext = set(analytics.HOSTS) if analytics.ANALYTICS_LIVE else set()
     outside = {}
     for f in htmls:
         h = f.read_text(encoding="utf-8")
@@ -1849,7 +1857,7 @@ def main() -> int:
         for m in re.finditer(
                 r"<(script|link|img|iframe|source)\b[^>]*>", h, re.I):
             hit = ext_pat.search(m.group(0))
-            if hit:
+            if hit and hit.group(1) not in allowed_ext:
                 outside.setdefault(hit.group(1), str(f.relative_to(DIST)))
     if outside:
         first = next(iter(outside.items()))
@@ -1859,11 +1867,19 @@ def main() -> int:
     priv = DIST / "privacy" / "index.html"
     if priv.exists():
         p_txt = priv.read_text(encoding="utf-8")
+        # Проверка идёт в ОБЕ стороны. Раньше ловилась только одна:
+        # политика описывает аналитику, которой нет. Обратный случай опаснее и
+        # уже случался на сайте студии — политика отрицала аналитику, а хост
+        # подставлял счётчик на каждую страницу. Заявление о приватности это
+        # утверждение о том, что грузит браузер.
         claims_analytics = ("Google Analytics" in p_txt
                             and "no analytics of any kind" not in p_txt)
-        if claims_analytics and not outside:
+        if claims_analytics and not analytics.ANALYTICS_LIVE:
             problems.append("страница приватности описывает аналитику, "
                             "которой в сборке нет")
+        if analytics.ANALYTICS_LIVE and not claims_analytics:
+            problems.append("счётчик в сборке есть, а страница приватности "
+                            "его не описывает")
 
     # 15. шрифт. Восстановление main() из git однажды тихо откатило две строки —
     #     чтение @font-face и копирование файлов, — и сборка осталась зелёной:
@@ -1928,7 +1944,13 @@ def main() -> int:
     # чужой домен.
     #   schema.org и www.w3.org — словари разметки, по ним никто не ходит;
     #   .gov — источники, на которые мы обязаны ссылаться.
+    #   хосты счётчика — берутся из модуля, а не пишутся здесь: выключат
+    #   счётчик, и гейт снова станет запрещать всё чужое сам собой.
     ALLOWED = {host, "schema.org", "www.w3.org"}
+    if analytics.ANALYTICS_LIVE:
+        for h in analytics.HOSTS:
+            ALLOWED.add(h)
+            ALLOWED.add(h.removeprefix("www."))
     for f in htmls:
         h = f.read_text(encoding="utf-8")
         for m in re.finditer(
