@@ -24,6 +24,7 @@ from pathlib import Path
 import calc
 import compare
 import design
+import fonts
 import pages as P
 
 HERE = Path(__file__).resolve().parent.parent
@@ -40,6 +41,9 @@ CONTACT = "hello@fedpayscale.com"
 # иначе над сайтом висит чужая полоса.
 # Дата последнего изменения данных. Выставляется в main() по отпечатку.
 DATA_DATE = ""
+
+# Правила @font-face. Читаются с диска: сборка страниц в сеть не ходит.
+FONT_CSS = ""
 
 THEME_LIGHT = "#e9e1d0"
 THEME_DARK = "#0d0c0a"
@@ -194,9 +198,19 @@ def jsonld(title: str, desc: str, canonical: str, crumbs: list) -> str:
 
 
 def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
-          crumbs: list = None, js: str = "") -> str:
+          crumbs: list = None, js: str = "", bar: str = "", rail: str = "") -> str:
+    """Каркас страницы.
+
+    bar  — залипающая полоса ответа. Есть на страницах, у которых ответ
+           выражается одним числом: зона, грейд, сравнение.
+    rail — левый рельс: оглавление страницы, переключатель и место под рекламу.
+           Пустой рельс превращает раскладку в одноколоночную, а не оставляет
+           в сетке дыру.
+    """
     updated = DATA_DATE
     cur = lambda k: ' aria-current="page"' if k == nav else ""
+    layout = "layout" if rail else "layout solo"
+    rail_html = f'<aside class="rail">{rail}</aside>' if rail else ""
     return f"""<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -209,27 +223,31 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 <meta property="og:type" content="website"><meta property="og:site_name" content="{SITE}">
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(desc)}">
-<style>{strip_css_comments(design.CSS)}</style>
+<style>{FONT_CSS}{strip_css_comments(design.CSS)}</style>
 {jsonld(title, desc, canonical, crumbs or [])}
 </head><body>
-<div class="wrap">
 <header class="site">
   <div class="masthead">
-    <a class="brand" href="/">{design.MARK}{SITE}</a>
+    <a class="brand" href="/">{SITE}</a>
     <span class="tagline">{TAGLINE}</span>
     <nav aria-label="Main">
       <a href="/"{cur('home')}>Localities</a>
       <a href="/calculator/"{cur('calc')}>Calculator</a>
+      <a href="/compare/"{cur('compare')}>Compare</a>
       <a href="/grades/"{cur('grades')}>Grades</a>
       <a href="/how-locality-pay-works/"{cur('how')}>How it works</a>
       <a href="/about/"{cur('about')}>About</a>
     </nav>
   </div>
 </header>
+{bar}
+<div class="{layout}">
+{rail_html}
 <main>
 {body}
 </main>
-<footer>
+</div>
+<footer><div class="in">
   <p class="disclaimer">FedPay is an independent reference published by {OWNER}.
   It is not affiliated with, endorsed by, or connected to the U.S. Office of Personnel
   Management or any government agency.</p>
@@ -237,18 +255,82 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
   cell against them. Price levels are Regional Price Parities from the U.S. Bureau of
   Economic Analysis. Both are works of the U.S. government and in the public domain.</p>
   <p><a href="/how-locality-pay-works/">How locality pay works</a> ·
-  <a href="/grades/">All grades</a> · <a href="/about/">About</a> ·
-  <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p>
+  <a href="/grades/">All grades</a> · <a href="/compare/">Compare areas</a> ·
+  <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> ·
+  <a href="/terms/">Terms</a></p>
   <p>Data last changed {updated}. Pay tables are published once a year, so this
   date moves when the underlying figures move, not when the site is rebuilt.<br>
   <a href="mailto:{CONTACT}">{CONTACT}</a></p>
-</footer>
-</div>
+</div></footer>
 {js}
 </body></html>"""
 
 
 # ------------------------------------------------------------------ страница зоны
+def answer_bar(code: str, loc: dict, T: dict, ranks: dict, rp: dict) -> str:
+    """Залипающая полоса ответа.
+
+    Отвечает на главный вопрос страницы и не уезжает из виду при прокрутке.
+    Отрисована сервером на опорной клетке, скрипт делает её живой; без скрипта
+    остаётся верным неподвижным ответом, а не сломанным виджетом.
+    """
+    ref = loc["grades"][REF_GRADE][REF_STEP]
+    year = T["year"]
+    nom = ranks["nominal"].get(code)
+    adj = ranks["adjusted"].get(code)
+
+    grades = "".join(
+        f'<option value="{g}"{" selected" if str(g) == REF_GRADE else ""}>GS-{g}</option>'
+        for g in range(1, 16))
+    steps = "".join(
+        f'<option value="{s}"{" selected" if str(s) == REF_STEP else ""}>Step {s}</option>'
+        for s in range(1, 11))
+
+    more = [("Every two weeks", f'${ref["hourly"] * 80:,.2f}', ""),
+            ("Per hour", f'${ref["hourly"]:,.2f}', ""),
+            ("Overtime hour", f'${ref["overtime"]:,.2f}', "")]
+    if nom and adj:
+        more.append(("On paper", f"#{nom}", ""))
+        move = nom - adj
+        more.append(("After prices", f"#{adj}",
+                     "up" if move > 0 else ("down" if move < 0 else "")))
+
+    cells = "".join(
+        f'<div><span class="v {cls}" data-ab="{i}">{v}</span>'
+        f'<span class="k">{k}</span></div>'
+        for i, (k, v, cls) in enumerate(more))
+
+    return (f'<div class="answerbar" data-bar data-zone="{code}">'
+            f'<div class="ab-in">'
+            f'<span class="ab-where">{esc(name_of(loc))} &middot; {year}</span>'
+            f'<span class="ab-pick"><label for="ab-grade">Grade</label>'
+            f'<select id="ab-grade" data-grade>{grades}</select></span>'
+            f'<span class="ab-pick"><label for="ab-step">Step</label>'
+            f'<select id="ab-step" data-step>{steps}</select></span>'
+            f'<span class="ab-main"><span class="ab-big" data-ab-big>'
+            f'{money(ref["annual"])}</span>'
+            f'<span class="ab-unit">a year</span></span>'
+            f'<span class="ab-more">{cells}</span>'
+            f'</div></div>')
+
+
+def name_of(loc: dict) -> str:
+    return loc["area_name"]
+
+
+def locality_rail(code: str, T: dict, sections: list) -> str:
+    """Рельс: переключатель зоны, оглавление страницы, место под рекламу."""
+    opts = "".join(
+        f'<option value="/locality/{slug(l["area_name"])}/"'
+        f'{" selected" if c == code else ""}>{esc(l["area_name"])}</option>'
+        for c, l in sorted(T["localities"].items(), key=lambda kv: kv[1]["area_name"]))
+    nav = "".join(f'<li><a href="#{i}">{esc(label)}</a></li>' for i, label in sections)
+    return (f'<div class="switch"><label for="rail-zone">Switch area</label>'
+            f'<select id="rail-zone" data-jump>{opts}</select></div>'
+            f'<h2>On this page</h2><ol>{nav}</ol>'
+            f'<div class="ad-slot ad-rail">Advertisement</div>')
+
+
 def locality_page(code: str, loc: dict, T: dict, R: dict, ranks: dict,
                   places: dict) -> str:
     name = loc["area_name"]
@@ -260,585 +342,164 @@ def locality_page(code: str, loc: dict, T: dict, R: dict, ranks: dict,
 
     ref = grades[REF_GRADE][REF_STEP]
     base_ref = T["base"]["grades"][REF_GRADE][REF_STEP]["annual"]
+    n_capped = sum(1 for st in grades.values() for c in st.values() if c["capped"])
+    nom = ranks["nominal"].get(code)
+    adj = ranks["adjusted"].get(code)
+
+    SECTIONS = [("rates", "Every rate here"),
+                ("worth", "Is it a lot?"),
+                ("ceiling", "Where raises stop"),
+                ("near", "Who is next to it"),
+                ("where", "Am I in this area?"),
+                ("built", "How it is built"),
+                ("work-it-out", "Work out your own")]
 
     B: list[str] = []
     B.append('<ol class="crumbs"><li><a href="/">All localities</a></li>'
              f'<li>{esc(name)}</li></ol>')
     B.append(f'<h1>{esc(name)} GS pay scale, {year}</h1>')
-
-    n_capped = sum(1 for st in grades.values() for c in st.values() if c["capped"])
-    B.append(f'<p class="sub">Every General Schedule rate for this locality, what the '
-             f'{pct:g}% adjustment is actually worth once local prices are taken into '
-             f'account, and which cells stop growing because they hit the statutory '
+    B.append(f'<p class="sub">Every General Schedule rate for this locality pay area, '
+             f'what the {pct:g}% adjustment is actually worth once local prices are '
+             f'counted, and which cells stop growing because they hit the statutory '
              f'ceiling.</p>')
 
-    # --- оговорка ВЫШЕ числа, и её текст зависит от того, что реально
-    #     произойдёт с этой зоной после поправки на цены
-    B.append(caveat_block(code, loc, ranks, rp))
+    # --- четыре факта на первом экране, вместо четырёх экранов прокрутки
+    B.append(facts_grid(code, loc, T, R, ranks, ref, base_ref, n_capped, nom, adj))
+    B.append('<div class="ad-slot ad-band">Advertisement</div>')
 
-    # --- ответный блок: крупное число и бухгалтерский разбор под ним
-    B.append('<div class="answer">')
-    B.append(f'<span class="what">GS-{REF_GRADE}, step {REF_STEP} in this locality, '
-             f'{year}</span>')
-    B.append('<div class="body">')
-    B.append(f'<span class="big">{money(ref["annual"])}</span>')
-
-    rows = [("Base rate before locality", money(base_ref), ""),
-            (f"Locality pay, {pct:g}%",
-             "+ " + money(ref["annual"] - base_ref), "")]
-    if ref["capped"]:
-        # Число в таблице уже урезано, поэтому «надбавку» показываем как
-        # доведение до потолка, а не как полную формулу: иначе строки не
-        # сойдутся в сумму, и читатель поймает нас на арифметике.
-        rows = [("Base rate before locality", money(base_ref), ""),
-                (f"Locality pay, {pct:g}%, cut to the ceiling",
-                 "+ " + money(ref["annual"] - base_ref), "")]
-    rows.append(("Annual rate", money(ref["annual"]), "total"))
-    rows.append(("Every two weeks", f'${ref["hourly"] * 80:,.2f}', ""))
-    rows.append(("Per hour", f'${ref["hourly"]:,.2f}', ""))
-    rows.append(("Per overtime hour", f'${ref["overtime"]:,.2f}', ""))
-
-    nom_rank = ranks["nominal"].get(code)
-    adj_rank = ranks["adjusted"].get(code)
-    if rp.get("rpp") and nom_rank and adj_rank:
-        move = nom_rank - adj_rank
-        rows.append((f'Rank by the size of the cheque',
-                     f'#{nom_rank} of {ranks["n"]}', ""))
-        rows.append((f'Rank by what it buys',
-                     f'#{adj_rank} of {ranks["n"]}', ""))
-        if move:
-            rows.append(("Places gained" if move > 0 else "Places lost",
-                         ("+" if move > 0 else "\u2212") + str(abs(move)),
-                         "up" if move > 0 else "down"))
-
-    cells = []
-    for label, value, mark in rows:
-        cls = ' class="total"' if mark == "total" else ""
-        dd = f' class="{mark}"' if mark in ("up", "down") else ""
-        cells.append(f'<div{cls}><dt>{label}</dt><dd{dd}>{value}</dd></div>')
-    B.append(f'<dl class="ledger">{"".join(cells)}</dl>')
-
-    if rp.get("rpp") and nom_rank and adj_rank and abs(nom_rank - adj_rank) >= 3:
-        direction = "rises" if nom_rank > adj_rank else "falls"
-        B.append(f'<p>Among the {ranks["n"]} localities with published price data '
-                 f'this one {direction} {abs(nom_rank - adj_rank)} places once local '
-                 f'prices are counted. Exhibit 1 shows against what.</p>')
-    B.append('</div></div>')
-
-    # --- ЭКСПОНАТ 1: покупательная способность
-    B.append(exhibit_purchasing_power(code, T, R, ranks))
-
-    # --- ЭКСПОНАТ 2: полная таблица
+    # --- 1. таблица как элемент управления
+    B.append(f'<section class="q" id="rates"><h2>Every {year} rate in '
+             f'{esc(name)}</h2>')
+    B.append(f'<p class="q-lead">All 150 cells, read from the published OPM table. '
+             f'<strong>Click any cell</strong> and the bar at the top of the page '
+             f'moves onto it \u2014 or use the arrow keys once a cell is '
+             f'selected.</p>')
     B.append(exhibit_table(loc, cap, year))
+    B.append('</section>')
 
-    # --- инструмент: та же зона, но своя клетка. Ставим ПОСЛЕ таблицы:
-    #     до неё он перебивал бы ответ, ради которого человек пришёл.
-    B.append(calc.calc_widget(
-        fixed=code, grade=REF_GRADE, step=REF_STEP,
-        heading=f"Work out your own grade and step",
-        note=("Rates are recomputed from the published base table and this "
-              "area's percentage, in the order the law sets: percentage first, "
-              "rounding second, statutory ceiling last.")))
+    # --- 2. много ли это
+    B.append('<section class="q" id="worth">')
+    B.append('<h2>Is that a lot? Not until you count local prices</h2>')
+    B.append(caveat_block(code, loc, ranks, rp))
+    B.append(exhibit_purchasing_power(code, T, R, ranks))
+    B.append('</section>')
 
-    # --- потолок
+    # --- 3. потолок
     if n_capped:
-        B.append(cap_section(loc, cap, n_capped, year))
+        B.append(f'<section class="q" id="ceiling">'
+                 f'{cap_section(loc, cap, n_capped, year)}</section>')
+    else:
+        B.append(f'<section class="q" id="ceiling">'
+                 f'<h2>Do raises ever stop counting here?</h2>'
+                 f'<p class="q-lead">No. Every one of the 150 cells in this area '
+                 f'stays below the {money(cap)} statutory ceiling.</p>'
+                 f'<p>No General Schedule rate may exceed Level IV of the Executive '
+                 f'Schedule, {money(cap)} in {year}. In the highest-paying localities '
+                 f'that ceiling is reached inside the published table, and step '
+                 f'increases in that band add nothing at all to the payslip. At '
+                 f'{pct:g}% this area stays clear of it, so every step increase is '
+                 f'worth its full face value all the way to GS-15 step 10.</p>'
+                 f'</section>')
 
-    # --- соседи по рейтингу: у каждой зоны свои
-    B.append(neighbours_section(code, ranks))
+    # --- 4. соседи
+    B.append(f'<section class="q" id="near">{neighbours_section(code, ranks)}</section>')
 
-    # --- округа: главный источник уникального текста и ответ на вопрос,
-    #     которого нет ни у одного конкурента
+    # --- 5. где это
+    B.append('<section class="q" id="where">')
     B.append(cities_section(name, places))
     B.append(counties_section(name, places))
+    B.append('</section>')
 
-    # --- как это устроено: набор абзацев зависит от признаков зоны
-    B.append(mechanics_block(name, loc, T, cap, n_capped))
+    # --- 6. как устроено, с заметками на полях
+    B.append(f'<section class="q" id="built">'
+             f'{mechanics_block(name, loc, T, cap, n_capped)}</section>')
 
-    # Заголовок и описание раньше не помещались в выдачу: 101 и 213 знаков при
-    # отображаемых ~60 и ~160. Обрезался ровно хвост, где стоял наш довод.
-    # Теперь бренд и хвост добавляются только если для них осталось место, а
-    # описание начинается с готового ответа — его и кликают.
+    # --- 7. инструмент
+    B.append('<section class="q" id="work-it-out">')
+    B.append(calc.calc_widget(
+        fixed=code, grade=REF_GRADE, step=REF_STEP,
+        heading="Work out a different grade and step",
+        note=("Rates are recomputed from the published base table and this area's "
+              "percentage, in the order the law sets: percentage first, rounding "
+              "second, statutory ceiling last.")))
+    B.append('</section>')
+
     title = fit_title(f"{name} GS Pay Scale {year}")
-    # Города идут в описание вторым предложением: ищут их, а не официальное имя
-    # зоны. fit_desc сам решит, что влезает в отображаемую длину выдачи.
     cs = cities(name)
     covers = ("Covers " + ", ".join(cs[:-1]) + " and " + cs[-1] + "."
               if len(cs) > 1 else (f"Covers {cs[0]}." if cs else ""))
     d = fit_desc([p for p in [
-        f"GS-12 step 5 in {name} is {money(ref['annual'])} in {year} — "
+        f"GS-12 step 5 in {name} is {money(ref['annual'])} in {year} \u2014 "
         f"{pct:g}% locality pay.",
         covers,
         "All 15 grades and 10 steps, checked against the official table.",
         "Plus what the salary is worth after local prices.",
     ] if p])
+
     return shell(title, d, "\n".join(B), f"{DOMAIN}/locality/{slug(name)}/", "home",
                  crumbs=[("All localities", "/"), (name, None)],
-                 js=calc_script(T, R, ranks))
+                 js=calc_script(T, R, ranks),
+                 bar=answer_bar(code, loc, T, ranks, rp),
+                 rail=locality_rail(code, T, SECTIONS))
 
 
-def exhibit_purchasing_power(code: str, T: dict, R: dict, ranks: dict) -> str:
-    """Единственный блок, которого нет ни у одного конкурента."""
-    rows = ranks["rows"]
-    me = next((r for r in rows if r["code"] == code), None)
+def facts_grid(code, loc, T, R, ranks, ref, base_ref, n_capped, nom, adj) -> str:
+    """Четыре карточки: разбор, два ранга, покупательная способность, потолок."""
+    year, cap = T["year"], T["ex_iv_cap"]
+    pct = loc["locality_pct"]
+    rpp = R["areas"].get(code, {}).get("rpp")
 
-    top = rows[:8]
-    show = list(top)
-    if me and me not in show:
-        show.append(me)
+    rows = [("Base rate before locality", money(base_ref), ""),
+            (f"Locality pay, {pct:g}%", "+ " + money(ref["annual"] - base_ref), ""),
+            ("Annual rate", money(ref["annual"]), "total")]
+    ledger = "".join(
+        f'<div{" class=\"total\"" if m == "total" else ""}>'
+        f"<dt>{k}</dt><dd>{v}</dd></div>" for k, v, m in rows)
+    c1 = (f'<div class="fact"><h3>How the number is assembled</h3>'
+          f'<dl class="ledger">{ledger}</dl>'
+          f'<p class="kpi-sub">Biweekly is the hourly rate times 80, the way OPM '
+          f'derives it \u2014 not the annual rate divided by 26.</p></div>')
 
-    mx = max(r["adjusted"] for r in rows)
-    items = []
-    for r in show:
-        w = r["adjusted"] / mx * 100
-        cls = ' class="hi"' if r["code"] == code else ""
-        items.append(
-            f'<li{cls}><span class="nm">{esc(r["name"])}</span>'
-            f'<span class="bar"><span style="width:{w:.1f}%"></span></span>'
-            f'<span class="v">{money(r["adjusted"])}</span></li>')
-
-    bea_year = R["bea_year"]
-    nom_first = max(rows, key=lambda r: r["nominal"])
-    adj_first = rows[0]
-
-    return f"""<figure class="ex">
-<div class="ex-kicker">Exhibit 1 · nobody else publishes this</div>
-<div class="ex-title">GS-{REF_GRADE} step {REF_STEP}, after local prices</div>
-<p class="ex-note">Each bar is the {T['year']} salary divided by that area's price level,
-so the bars are comparable in what they actually buy. Longer is better. Price levels are
-BEA Regional Price Parities for {bea_year}, where the U.S. average is 100.</p>
-<ul class="bars">{''.join(items)}</ul>
-<figcaption>Highest on paper: <strong>{esc(nom_first['name'])}</strong> at
-{money(nom_first['nominal'])}. Highest in what it buys:
-<strong>{esc(adj_first['name'])}</strong> at {money(adj_first['adjusted'])} of
-purchasing power from a salary of {money(adj_first['nominal'])}. Sources: OPM
-{T['year']} salary tables; BEA Regional Price Parities {bea_year}. Price data lags the
-pay tables, and metropolitan boundaries do not match locality boundaries exactly — the
-nearest metropolitan area is used as the proxy.</figcaption>
-</figure>"""
-
-
-def exhibit_table(loc: dict, cap: int, year: int) -> str:
-    grades = loc["grades"]
-    steps = sorted({int(s) for st in grades.values() for s in st}, key=int)
-    # Разрыв после пятой ступени: десять одинаковых колонок чисел не дают глазу
-    # ни одного якоря, и нужная клетка ищется пересчётом. С разделителем
-    # посередине «седьмая» читается как «вторая после разрыва».
-    mid = steps[len(steps) // 2] if len(steps) > 4 else None
-
-    def gut(s: str) -> str:
-        return " gut" if s == mid else ""
-
-    head = "".join(f'<th class="num{gut(s)}" scope="col">{s}</th>' for s in steps)
-    body = []
-    for g in sorted(grades, key=int):
-        cells = []
-        for s in steps:
-            c = grades[g].get(str(s))
-            if not c:
-                cells.append(f'<td class="num{gut(s)}">\u2014</td>')
-                continue
-            cls = "num capped" if c["capped"] else "num"
-            # Опорная клетка — та самая, о которой кричит заголовок страницы.
-            # Без метки читатель искал её пересечением строки и столбца в
-            # матрице из 150 одинаковых чисел.
-            if g == REF_GRADE and str(s) == REF_STEP:
-                cls += " ref"
-            # Знак доллара снят: он повторялся 150 раз, добавляя шум и десятую
-            # часть ширины таблицы, при том что единица названа в пояснении
-            # прямо над таблицей.
-            cells.append(f'<td class="{cls}{gut(s)}">{c["annual"]:,}</td>')
-        body.append(f'<tr><th scope="row">GS-{g}</th>{"".join(cells)}</tr>')
-
-    return f"""<figure class="ex">
-<div class="ex-kicker">Exhibit 2</div>
-<div class="ex-title">Every {year} rate in this locality</div>
-<p class="ex-note">Annual rates in U.S. dollars, read cell by cell from the published
-OPM table rather than calculated. The cell marked ◀ is GS-{REF_GRADE} step {REF_STEP},
-the one quoted at the top of this page. Cells marked ▲ have been cut down to the
-statutory ceiling of {money(cap)} — the printed number is lower than the formula
-would give.</p>
-<div class="scroll" tabindex="0" role="region" aria-label="Scrollable table"><table class="pay">
-<thead><tr><th>Grade</th>{head}</tr></thead>
-<tbody>{''.join(body)}</tbody>
-</table></div>
-<figcaption>Source: OPM {year} General Schedule salary tables. Every cell on this page
-was independently recomputed from the base table and the locality percentage and matched
-the published figure to the dollar.</figcaption>
-</figure>"""
-
-
-def cap_section(loc: dict, cap: int, n: int, year: int) -> str:
-    grades = loc["grades"]
-    B = [f'<h2>Where raises stop being raises</h2>']
-    B.append(f'<p>In this locality <strong>{n} of the 150 cells</strong> are pinned to '
-             f'the {money(cap)} ceiling. Inside that band a step increase is worth '
-             f'nothing at all: the formula produces a bigger number, the law cuts it '
-             f'back, and the payslip does not move.</p>')
-
-    tiles = []
-    for g in sorted(grades, key=int):
-        capped_steps = [int(s) for s, c in grades[g].items() if c["capped"]]
-        if not capped_steps:
-            continue
-        first = min(capped_steps)
-        lost = len([s for s in capped_steps if s > first])
-        tiles.append(
-            f'<div class="tile"><div class="k">GS-{g}</div>'
-            f'<div class="v">Step {first}</div>'
-            f'<div class="d">Hits the ceiling here. '
-            f'{("The " + str(lost) + " step increase" + ("s" if lost != 1 else "") + " above it add" + ("" if lost != 1 else "s") + " nothing.") if lost else "Only the top step is affected."}'
-            f'</div></div>')
-    if tiles:
-        B.append(f'<div class="grid2">{"".join(tiles)}</div>')
-    B.append('<p>This matters most when comparing job offers. Two identical grades in '
-             'two localities can look like a clear win on paper while the higher-paid '
-             'one has already run out of room to grow.</p>')
-    return "\n".join(B)
-
-
-# --------------------------------------------------------------------------- ранги
-def compute_ranks(T: dict, R: dict) -> dict:
-    rows = []
-    for code, loc in T["localities"].items():
-        cell = loc["grades"].get(REF_GRADE, {}).get(REF_STEP)
-        rp = R["areas"].get(code, {})
-        if not cell or not rp.get("rpp"):
-            continue
-        rows.append({
-            "code": code, "name": loc["area_name"],
-            "nominal": cell["annual"],
-            "adjusted": cell["annual"] / (rp["rpp"] / 100.0),
-            "rpp": rp["rpp"],
-        })
-    rows.sort(key=lambda r: -r["adjusted"])
-    adjusted = {r["code"]: i for i, r in enumerate(rows, 1)}
-    by_nom = sorted(rows, key=lambda r: -r["nominal"])
-    nominal = {r["code"]: i for i, r in enumerate(by_nom, 1)}
-    return {"rows": rows, "nominal": nominal, "adjusted": adjusted, "n": len(rows)}
-
-
-def main() -> int:
-    global DATA_DATE
-    T = json.loads((DATA / "paytables-2026.json").read_text(encoding="utf-8"))
-    R = json.loads((DATA / "rpp-map.json").read_text(encoding="utf-8"))
-    L = json.loads((DATA / "localities-2026.json").read_text(encoding="utf-8"))
-    DATA_DATE = data_date(T, R, L)
-    ranks = compute_ranks(T, R)
-
-    if DIST.exists():
-        for p in sorted(DIST.rglob("*"), reverse=True):
-            p.unlink() if p.is_file() else p.rmdir()
-    DIST.mkdir(exist_ok=True)
-
-    def write(rel: str, content: str) -> None:
-        d = DIST / rel.strip("/")
-        d.mkdir(parents=True, exist_ok=True)
-        (d / "index.html").write_text(content, encoding="utf-8")
-
-    urls = ["/"]
-
-    # --- зоны
-    for code, loc in T["localities"].items():
-        rel = f"locality/{slug(loc['area_name'])}"
-        write(rel, locality_page(code, loc, T, R, ranks, L.get(code, {})))
-        urls.append(f"/{rel}/")
-
-    # --- грейды
-    for g in sorted(T["base"]["grades"], key=int):
-        write(f"gs-{g}", P.grade_page(
-            g, T, R, ranks, shell, esc, money, slug,
-            widget=calc.calc_widget(
-                zones=calc.zone_options(T, "DCB"), grade=g, step="5",
-                heading=f"What a GS-{g} earns where you are",
-                note=("Pick the locality pay area, or open the full calculator to "
-                      "find it from a ZIP code.")),
-            js=calc_script(T, R, ranks)))
-        urls.append(f"/gs-{g}/")
-
-    write("grades", P.grades_index(T, ranks, shell, esc, money))
-    urls.append("/grades/")
-
-    # Инструмент. Виджет здесь полный: поиск по индексу и выбор зоны, тогда как
-    # на странице зоны зона уже известна и спрашивать её незачем.
-    write("calculator", P.calculator(
-        T, R, shell, esc, money,
-        calc.calc_widget(zones=calc.zone_options(T, "DCB"), with_zip=True,
-                         heading="Work out a General Schedule salary",
-                         note=("Gross pay from the published federal tables. Not "
-                               "take-home: deductions depend on choices this page "
-                               "does not ask about.")),
-        js=calc_script(T, R, ranks)))
-    urls.append("/calculator/")
-
-    # --- сравнения зон: отдельное поисковое намерение «А или Б»
-    cmp_items = []
-    for a, b in compare.pairs(T, ranks):
-        rel, html_page = compare.compare_page(a, b, T, R, ranks, L, shell, esc,
-                                              money, slug)
-        write(rel, html_page)
-        urls.append(f"/{rel}/")
-        cmp_items.append((rel, rel.split("/")[-1].replace("-vs-", " vs ")
-                          .replace("-", " ").title()))
-    write("compare", compare.compare_index(cmp_items, shell, esc))
-    urls.append("/compare/")
-
-    # Файл индексов подгружается инструментом по запросу пользователя, поэтому
-    # он лежит рядом, а не внутри страницы: 203 КБ незачем возить всем.
-    shutil.copyfile(DATA / "zip-zone.json", DIST / "zip-zone.json")
-
-    # --- главная и статические
-    (DIST / "index.html").write_text(
-        P.home(T, R, ranks, L, shell, esc, money, slug), encoding="utf-8")
-    for rel, html_ in (
-        ("how-locality-pay-works", P.how_it_works(T, shell, money)),
-        ("about", P.about(shell)),
-        ("privacy", P.privacy(shell)),
-        ("terms", P.terms(shell)),
-    ):
-        write(rel, html_)
-        urls.append(f"/{rel}/")
-
-    (DIST / "404.html").write_text(P.not_found(shell), encoding="utf-8")
-    (DIST / "sitemap.xml").write_text(P.sitemap(urls, DOMAIN), encoding="utf-8")
-    (DIST / "robots.txt").write_text(
-        f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n", encoding="utf-8")
-    (DIST / "_redirects").write_text("/index.html  /  301\n", encoding="utf-8")
-    (DIST / "_headers").write_text(
-        "/*\n  X-Content-Type-Options: nosniff\n"
-        "  Referrer-Policy: strict-origin-when-cross-origin\n"
-        "  X-Frame-Options: DENY\n"
-        "\n"
-        "# Страницы пересобираются при каждом изменении данных, поэтому\n"
-        "# браузер обязан спрашивать заново.\n"
-        "/*.html\n  Cache-Control: public, max-age=0, must-revalidate\n"
-        "\n"
-        "# Шрифты и файл почтовых индексов меняются раз в год и весят\n"
-        "# сотни килобайт. Имена стабильны — кешируем надолго.\n"
-        "/fonts/*\n  Cache-Control: public, max-age=31536000, immutable\n"
-        "/zip-zone.json\n  Cache-Control: public, max-age=604800\n",
-        encoding="utf-8")
-
-    print(f"страниц: {len(urls)} + 404")
-
-    # ------------------------------------------------------------------ гейты
-    problems: list[str] = []
-    htmls = sorted(DIST.rglob("*.html"))
-    all_urls = {u.rstrip("/") for u in urls} | {"/404.html"}
-
-    for f in htmls:
-        h = f.read_text(encoding="utf-8")
-        rel = f.relative_to(DIST)
-
-        # 1. отрендеренный вывод, а не исходники: кириллица не должна уехать
-        if re.search(r"[\u0400-\u04FF]", h):
-            problems.append(f"{rel}: кириллица в отгружаемом HTML")
-        # 2. следы сломанных вычислений
-        for bad in ("NaN", "undefined", "None", "$0<", ">$0 "):
-            if bad in h:
-                problems.append(f"{rel}: в выводе встречается {bad!r}")
-        # 3. тире там, где должна быть длина CSS или число
-        if re.search(r"[\u2013\u2014](?=px|\d*px)|\d[\u2013\u2014]px", h):
-            problems.append(f"{rel}: тире вместо длины CSS")
-        # 4. дисклеймер обязателен на каждой странице — FTC Impersonation Rule
-        if "not affiliated with" not in h:
-            problems.append(f"{rel}: нет дисклеймера о неаффилированности")
-        # 5. внутренние ссылки должны вести на существующие страницы
-        for href in set(re.findall(r'href="(/[^"#?]*)"', h)):
-            if href.rstrip("/") not in all_urls:
-                problems.append(f"{rel}: ссылка в никуда {href}")
-
-    # 6. объём текста — только для КОНТЕНТНЫХ страниц.
-    #    404, политика, условия и «о сайте» существуют не ради объёма, и
-    #    требовать от них 700 слов — значит лить воду в юридический документ.
-    SERVICE = {"404.html", "privacy", "terms", "about"}
-    thin = []
-    for f in htmls:
-        rel = f.relative_to(DIST)
-        if rel.name == "404.html" or rel.parts[0] in SERVICE:
-            continue
-        h = f.read_text(encoding="utf-8")
-        body = h[h.find("<main>"):h.find("</main>")]
-        w = len(re.sub(r"\s+", " ", re.sub("<[^>]+>", " ", body)).split())
-        if w < 700:
-            thin.append(f"{rel} ({w} слов)")
-    if thin:
-        problems.append(f"страниц тоньше 700 слов: {len(thin)} — {', '.join(thin[:5])}")
-
-    # 7. согласованность направления. Оговорка и карточка ответа пишутся
-    #    независимо друг от друга, и однажды разъехались: страница
-    #    Сан-Франциско называла падение с #1 на #21 выигрышем. Ни один
-    #    структурный гейт этого не видел — сверяем две фразы между собой.
-    contra = []
-    for f in htmls:
-        if f.parent.parent.name != "locality":
-            continue
-        h = f.read_text(encoding="utf-8")
-        good = "works in your favour" in h
-        bad = "matters a great deal" in h
-        if good and bad:
-            contra.append(f"{f.relative_to(DIST)}: обе формулировки сразу")
-        # Опора структурная, а не на формулировку: строка «Places gained» или
-        # «Places lost» в бухгалтерском блоке считается из чисел, а прозу можно
-        # переписать — и однажды переписали, после чего гейт покраснел на 42
-        # верных страницах. Ключ должен зависеть от данных, а не от стиля.
-        elif good and "Places gained" not in h:
-            contra.append(f"{f.relative_to(DIST)}: «в вашу пользу», но мест не прибавилось")
-        elif bad and "Places lost" not in h:
-            contra.append(f"{f.relative_to(DIST)}: «съедает надбавку», но мест не потеряно")
-    if contra:
-        problems.append(f"противоречие оговорки и карточки: {len(contra)} — {contra[0]}")
-
-    # 8. полнота охвата. Страницы грейдов однажды строились по 55 зонам из 58,
-    #    и «Rest of U.S.» — самая многочисленная зона федеральной службы —
-    #    исчезла со всех пятнадцати страниц, заодно занизив заявленный разброс
-    #    зарплат. Сборка была зелёной: ничего не сломалось, просто не хватало.
-    n_loc = len(T["localities"])
-    short = []
-    for g in sorted(T["base"]["grades"], key=int):
-        h = (DIST / f"gs-{g}" / "index.html").read_text(encoding="utf-8")
-        got = h.count('<th scope="row"><a href="/locality/')
-        if got != n_loc:
-            short.append(f"gs-{g}: {got} из {n_loc}")
-    home_h = (DIST / "index.html").read_text(encoding="utf-8")
-    if home_h.count('href="/locality/') != n_loc:
-        short.append(f"главная: {home_h.count('href=\"/locality/')} из {n_loc}")
-    if short:
-        problems.append(f"зоны потеряны на страницах: {', '.join(short)}")
-
-    # 9. двойная точка. Названия зон вроде «Rest of U.S.» уже кончаются точкой,
-    #    и шаблон вида «{name}.» даёт «U.S..» — мелочь, которая на странице с
-    #    самым большим трафиком читается как небрежность.
-    dbl = []
-    for f in htmls:
-        txt = re.sub(r"<[^>]+>", " ", f.read_text(encoding="utf-8"))
-        if re.search(r"[A-Za-z]\.\.(?!\.)", txt):
-            dbl.append(str(f.relative_to(DIST)))
-    if dbl:
-        problems.append(f"двойная точка в тексте: {len(dbl)} — {dbl[0]}")
-
-    # 10. крошки: разметка обязана повторять видимую цепочку. Google снимает
-    #     расширенный сниппет целиком, если BreadcrumbList описывает не то,
-    #     что человек видит на странице, — а мы уже разошлись на единицу.
-    crumb_bad = []
-    for f in htmls:
-        h = f.read_text(encoding="utf-8")
-        vis = h.count("<li>", h.find('<ol class="crumbs">'), h.find("</ol>") + 1) \
-            if '<ol class="crumbs">' in h else 0
-        m = re.search(r'"BreadcrumbList".*?"itemListElement":\[(.*?)\]\}', h)
-        mark = m.group(1).count('"ListItem"') if m else 0
-        if vis != mark:
-            crumb_bad.append(f"{f.relative_to(DIST)}: видно {vis}, размечено {mark}")
-    if crumb_bad:
-        problems.append(f"крошки разошлись с разметкой: {len(crumb_bad)} — {crumb_bad[0]}")
-
-    # 11. клиентский расчёт. Инструмент считает ставки сам из базовой таблицы и
-    #     процента, а не возит готовые. Повторяем здесь ТУ ЖЕ арифметику, что в
-    #     JS, и сверяем со всеми 8 700 опубликованными клетками: годовую,
-    #     часовую, ставку переработки и признак потолка.
-    def _half_up(x: float) -> int:
-        return math.floor(x + 0.5)
-
-    cap = T["ex_iv_cap"]
-    calc_bad = []
-
-    # Данные берём ИЗ ГОТОВОЙ СТРАНИЦЫ — ровно ту строку, которую получит
-    # браузер. Первая версия гейта читала исходный словарь и потому пропустила
-    # подложенную порчу отгружаемых данных: проверялось намерение, а не
-    # артефакт.
-    sample = (DIST / "locality" / slug(next(iter(T["localities"].values()))["area_name"])
-              / "index.html").read_text(encoding="utf-8")
-    m = re.search(r"window\.__FP=(\{.*?\});</script>", sample, re.S)
-    if not m:
-        problems.append("на странице зоны нет данных инструмента")
-        shipped = None
+    if nom and adj:
+        move = nom - adj
+        word = "Places gained" if move > 0 else ("Places lost" if move < 0
+                                                 else "No change")
+        sign = ("+" if move > 0 else ("\u2212" if move < 0 else ""))
+        cls = "up" if move > 0 else ("down" if move < 0 else "")
+        c2 = (f'<div class="fact"><h3>Paid #{nom}, {adj}th in what it buys</h3>'
+              f'<span class="kpi {cls}">{sign}{abs(move) if move else "0"}</span>'
+              f'<span class="kpi-sub">{word} once local prices are counted, out of '
+              f'{ranks["n"]} areas with published price data.</span></div>')
+        buys = ref["annual"] / (rpp / 100.0)
+        c3 = (f'<div class="fact"><h3>What it actually buys</h3>'
+              f'<span class="kpi">{money(buys)}</span>'
+              f'<span class="kpi-sub">at average U.S. prices, from a salary of '
+              f'{money(ref["annual"])}. Local price level {rpp:.1f} against a '
+              f'national average of 100.</span></div>')
     else:
-        shipped = json.loads(m.group(1))
+        c2 = (f'<div class="fact"><h3>Rank</h3>'
+              f'<span class="kpi">\u2014</span>'
+              f'<span class="kpi-sub">This area has no single published price index, '
+              f'so it is left out of the purchasing-power ranking rather than given '
+              f'an invented figure.</span></div>')
+        c3 = (f'<div class="fact"><h3>Locality adjustment</h3>'
+              f'<span class="kpi">{pct:g}%</span>'
+              f'<span class="kpi-sub">on top of the nationwide base table, for every '
+              f'grade and every step in this area.</span></div>')
 
-    if shipped:
-        if shipped.get("cap") != cap:
-            calc_bad.append(f"потолок в данных {shipped.get('cap')} вместо {cap}")
-        ship_zone = {z["c"]: z for z in shipped["zones"]}
-        ship_base = shipped["base"]
+    if n_capped:
+        c4 = (f'<div class="fact"><h3>Ceiling watch</h3>'
+              f'<span class="kpi">{n_capped} of 150</span>'
+              f'<span class="kpi-sub">cells are pinned to the {money(cap)} statutory '
+              f'ceiling. Inside that band a step increase adds nothing.</span></div>')
+    else:
+        c4 = (f'<div class="fact"><h3>Ceiling watch</h3>'
+              f'<span class="kpi">Clear</span>'
+              f'<span class="kpi-sub">No cell in this area reaches the {money(cap)} '
+              f'ceiling, so every step increase is worth its full face '
+              f'value.</span></div>')
 
-    for code, loc in (T["localities"].items() if shipped else []):
-        z = ship_zone.get(code)
-        if not z:
-            calc_bad.append(f"{code}: зоны нет в отгруженных данных")
-            break
-        pct = z["p"]
-        if abs(pct - loc["locality_pct"]) > 1e-9:
-            calc_bad.append(f"{code}: процент {pct} вместо {loc['locality_pct']}")
-            break
-        ten_raw = _half_up(ship_base[9][0] * (1 + pct / 100))
-        ten = min(ten_raw, cap)
-        ten_h = _half_up(ten * 100 / 2087)
-        for g in range(1, 16):
-            for s in range(1, 11):
-                cell = loc["grades"][str(g)][str(s)]
-                base_v = ship_base[g - 1][s - 1]
-                raw = _half_up(base_v * (1 + pct / 100))
-                pay = min(raw, cap)
-                h = _half_up(pay * 100 / 2087)
-                ot = (_half_up(h * 1.5) if h <= ten_h
-                      else max(h, _half_up(ten_h * 1.5)))
-                if pay != cell["annual"]:
-                    calc_bad.append(f"{code} GS-{g}/{s} годовая {cell['annual']}≠{pay}")
-                elif abs(h / 100 - cell["hourly"]) > 1e-9:
-                    calc_bad.append(f"{code} GS-{g}/{s} часовая {cell['hourly']}≠{h/100}")
-                elif abs(ot / 100 - cell["overtime"]) > 1e-9:
-                    calc_bad.append(f"{code} GS-{g}/{s} переработка "
-                                    f"{cell['overtime']}≠{ot/100}")
-                elif (raw > cap) != cell["capped"]:
-                    calc_bad.append(f"{code} GS-{g}/{s} признак потолка")
-                if len(calc_bad) > 3:
-                    break
-    if calc_bad:
-        problems.append(f"клиентский расчёт разошёлся с таблицами OPM: "
-                        f"{len(calc_bad)}+ — {calc_bad[0]}")
-
-    # 12. непреобразованные escape-последовательности в ВИДИМОМ тексте.
-    #     Внутри <script> запись вида \uXXXX законна — это исходник JavaScript.
-    #     В тексте страницы она означает, что где-то перепутан уровень
-    #     экранирования, и читателю показывают шесть символов вместо тире.
-    #     Ровно так на 16 страницах сравнения оказалось «\u2014»: HTML при этом
-    #     валиден, слов достаточно, вычисления целы — ни один прежний гейт не
-    #     видел ничего.
-    esc_pat = re.compile(r"\\u[0-9a-fA-F]{4}")
-    script_pat = re.compile(r"<script.*?</script>", re.S)
-    raw_esc = []
-    for f in htmls:
-        visible = script_pat.sub(" ", f.read_text(encoding="utf-8"))
-        m = esc_pat.search(visible)
-        if m:
-            raw_esc.append(f"{f.relative_to(DIST)}: {m.group(0)}")
-    if raw_esc:
-        problems.append(f"escape-последовательности в тексте: {len(raw_esc)} — "
-                        f"{raw_esc[0]}")
-
-    # 13. управляющие символы. В CSS запись вида \00a0 означает неразрывный
-    #     пробел, но внутри обычной строки питона \0 — это нулевой байт, а
-    #     \25 — восьмеричное 025. Так на все 103 страницы уехали 0x00 и 0x15:
-    #     HTML при этом валиден, гейты зелёные, а файл технически бинарный.
-    ctl = []
-    for f in htmls:
-        s = f.read_text(encoding="utf-8")
-        hit = [c for c in s if ord(c) < 32 and c not in "\n\r\t"]
-        if hit:
-            ctl.append(f"{f.relative_to(DIST)}: {hex(ord(hit[0]))}")
-    if ctl:
-        problems.append(f"управляющие символы в выводе: {len(ctl)} — {ctl[0]}")
-
-    if problems:
-        print(f"\nГЕЙТ НЕ ПРОЙДЕН: {len(problems)} замечаний", file=sys.stderr)
-        for p in problems[:20]:
-            print("  " + p, file=sys.stderr)
-        return 1
-
-    print("гейты пройдены: кириллица, битые вычисления, дисклеймер, ссылки, "
-          "объём, направление, полнота охвата, пунктуация, крошки, "
-          "клиентский расчёт, экранирование, управляющие символы")
-    return 0
+    return f'<div class="facts">{c1}{c2}{c3}{c4}</div>'
 
 
 def caveat_block(code, loc, ranks, rp):
@@ -1079,6 +740,474 @@ def counties_section(name, places):
                  f'the town outside its gate.</p>')
     return "\n".join(B)
 
+
+
+def exhibit_purchasing_power(code: str, T: dict, R: dict, ranks: dict) -> str:
+    """Единственный блок, которого нет ни у одного конкурента."""
+    rows = ranks["rows"]
+    me = next((r for r in rows if r["code"] == code), None)
+
+    top = rows[:8]
+    show = list(top)
+    if me and me not in show:
+        show.append(me)
+
+    mx = max(r["adjusted"] for r in rows)
+    items = []
+    for r in show:
+        w = r["adjusted"] / mx * 100
+        cls = ' class="hi"' if r["code"] == code else ""
+        items.append(
+            f'<li{cls}><span class="nm">{esc(r["name"])}</span>'
+            f'<span class="bar"><span style="width:{w:.1f}%"></span></span>'
+            f'<span class="v">{money(r["adjusted"])}</span></li>')
+
+    bea_year = R["bea_year"]
+    nom_first = max(rows, key=lambda r: r["nominal"])
+    adj_first = rows[0]
+
+    return f"""<figure class="ex">
+<div class="ex-kicker">Exhibit 1 · nobody else publishes this</div>
+<div class="ex-title">GS-{REF_GRADE} step {REF_STEP}, after local prices</div>
+<p class="ex-note">Each bar is the {T['year']} salary divided by that area's price level,
+so the bars are comparable in what they actually buy. Longer is better. Price levels are
+BEA Regional Price Parities for {bea_year}, where the U.S. average is 100.</p>
+<ul class="bars">{''.join(items)}</ul>
+<figcaption>Highest on paper: <strong>{esc(nom_first['name'])}</strong> at
+{money(nom_first['nominal'])}. Highest in what it buys:
+<strong>{esc(adj_first['name'])}</strong> at {money(adj_first['adjusted'])} of
+purchasing power from a salary of {money(adj_first['nominal'])}. Sources: OPM
+{T['year']} salary tables; BEA Regional Price Parities {bea_year}. Price data lags the
+pay tables, and metropolitan boundaries do not match locality boundaries exactly — the
+nearest metropolitan area is used as the proxy.</figcaption>
+</figure>"""
+
+
+def exhibit_table(loc: dict, cap: int, year: int) -> str:
+    grades = loc["grades"]
+    steps = sorted({int(s) for st in grades.values() for s in st}, key=int)
+    # Разрыв после пятой ступени: десять одинаковых колонок чисел не дают глазу
+    # ни одного якоря, и нужная клетка ищется пересчётом. С разделителем
+    # посередине «седьмая» читается как «вторая после разрыва».
+    mid = steps[len(steps) // 2] if len(steps) > 4 else None
+
+    def gut(s: str) -> str:
+        return " gut" if s == mid else ""
+
+    head = "".join(f'<th class="num{gut(s)}" scope="col">{s}</th>' for s in steps)
+    body = []
+    for g in sorted(grades, key=int):
+        cells = []
+        for s in steps:
+            c = grades[g].get(str(s))
+            if not c:
+                cells.append(f'<td class="num{gut(s)}">\u2014</td>')
+                continue
+            cls = "num capped" if c["capped"] else "num"
+            # Опорная клетка — та самая, о которой кричит заголовок страницы.
+            # Без метки читатель искал её пересечением строки и столбца в
+            # матрице из 150 одинаковых чисел.
+            if g == REF_GRADE and str(s) == REF_STEP:
+                cls += " ref"
+            # Знак доллара снят: он повторялся 150 раз, добавляя шум и десятую
+            # часть ширины таблицы, при том что единица названа в пояснении
+            # прямо над таблицей.
+            # Клетка знает свой адрес: по нему её находят и клик, и стрелки.
+            cells.append(f'<td class="{cls} cell{gut(s)}" data-g="{g}" data-s="{s}">'
+                         f'{c["annual"]:,}</td>')
+        body.append(f'<tr><th scope="row">GS-{g}</th>{"".join(cells)}</tr>')
+
+    return f"""<figure class="ex">
+<p class="ex-note">Annual rates in U.S. dollars, read cell by cell from the published
+OPM table rather than calculated. The cell marked ◀ is GS-{REF_GRADE} step {REF_STEP},
+the one quoted at the top of this page. Cells marked ▲ have been cut down to the
+statutory ceiling of {money(cap)} — the printed number is lower than the formula
+would give.</p>
+<div class="scroll" tabindex="0" role="region" aria-label="Scrollable table"><table class="pay">
+<thead><tr><th>Grade</th>{head}</tr></thead>
+<tbody>{''.join(body)}</tbody>
+</table></div>
+<figcaption>Source: OPM {year} General Schedule salary tables. Every cell on this page
+was independently recomputed from the base table and the locality percentage and matched
+the published figure to the dollar.</figcaption>
+</figure>"""
+
+
+def cap_section(loc: dict, cap: int, n: int, year: int) -> str:
+    grades = loc["grades"]
+    B = [f'<h2>Where raises stop being raises</h2>']
+    B.append(f'<p>In this locality <strong>{n} of the 150 cells</strong> are pinned to '
+             f'the {money(cap)} ceiling. Inside that band a step increase is worth '
+             f'nothing at all: the formula produces a bigger number, the law cuts it '
+             f'back, and the payslip does not move.</p>')
+
+    tiles = []
+    for g in sorted(grades, key=int):
+        capped_steps = [int(s) for s, c in grades[g].items() if c["capped"]]
+        if not capped_steps:
+            continue
+        first = min(capped_steps)
+        lost = len([s for s in capped_steps if s > first])
+        tiles.append(
+            f'<div class="tile"><div class="k">GS-{g}</div>'
+            f'<div class="v">Step {first}</div>'
+            f'<div class="d">Hits the ceiling here. '
+            f'{("The " + str(lost) + " step increase" + ("s" if lost != 1 else "") + " above it add" + ("" if lost != 1 else "s") + " nothing.") if lost else "Only the top step is affected."}'
+            f'</div></div>')
+    if tiles:
+        B.append(f'<div class="grid2">{"".join(tiles)}</div>')
+    B.append('<p>This matters most when comparing job offers. Two identical grades in '
+             'two localities can look like a clear win on paper while the higher-paid '
+             'one has already run out of room to grow.</p>')
+    return "\n".join(B)
+
+
+# --------------------------------------------------------------------------- ранги
+
+
+def compute_ranks(T: dict, R: dict) -> dict:
+    rows = []
+    for code, loc in T["localities"].items():
+        cell = loc["grades"].get(REF_GRADE, {}).get(REF_STEP)
+        rp = R["areas"].get(code, {})
+        if not cell or not rp.get("rpp"):
+            continue
+        rows.append({
+            "code": code, "name": loc["area_name"],
+            "nominal": cell["annual"],
+            "adjusted": cell["annual"] / (rp["rpp"] / 100.0),
+            "rpp": rp["rpp"],
+        })
+    rows.sort(key=lambda r: -r["adjusted"])
+    adjusted = {r["code"]: i for i, r in enumerate(rows, 1)}
+    by_nom = sorted(rows, key=lambda r: -r["nominal"])
+    nominal = {r["code"]: i for i, r in enumerate(by_nom, 1)}
+    return {"rows": rows, "nominal": nominal, "adjusted": adjusted, "n": len(rows)}
+
+
+def main() -> int:
+    global DATA_DATE
+    T = json.loads((DATA / "paytables-2026.json").read_text(encoding="utf-8"))
+    R = json.loads((DATA / "rpp-map.json").read_text(encoding="utf-8"))
+    L = json.loads((DATA / "localities-2026.json").read_text(encoding="utf-8"))
+    DATA_DATE = data_date(T, R, L)
+    ranks = compute_ranks(T, R)
+
+    if DIST.exists():
+        for p in sorted(DIST.rglob("*"), reverse=True):
+            p.unlink() if p.is_file() else p.rmdir()
+    DIST.mkdir(exist_ok=True)
+
+    def write(rel: str, content: str) -> None:
+        d = DIST / rel.strip("/")
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "index.html").write_text(content, encoding="utf-8")
+
+    urls = ["/"]
+
+    # --- зоны
+    for code, loc in T["localities"].items():
+        rel = f"locality/{slug(loc['area_name'])}"
+        write(rel, locality_page(code, loc, T, R, ranks, L.get(code, {})))
+        urls.append(f"/{rel}/")
+
+    # --- грейды
+    for g in sorted(T["base"]["grades"], key=int):
+        write(f"gs-{g}", P.grade_page(
+            g, T, R, ranks, shell, esc, money, slug,
+            widget=calc.calc_widget(
+                zones=calc.zone_options(T, "DCB"), grade=g, step="5",
+                heading=f"What a GS-{g} earns where you are",
+                note=("Pick the locality pay area, or open the full calculator to "
+                      "find it from a ZIP code.")),
+            js=calc_script(T, R, ranks)))
+        urls.append(f"/gs-{g}/")
+
+    write("grades", P.grades_index(T, ranks, shell, esc, money))
+    urls.append("/grades/")
+
+    # Инструмент. Виджет здесь полный: поиск по индексу и выбор зоны, тогда как
+    # на странице зоны зона уже известна и спрашивать её незачем.
+    write("calculator", P.calculator(
+        T, R, shell, esc, money,
+        calc.calc_widget(zones=calc.zone_options(T, "DCB"), with_zip=True,
+                         heading="Work out a General Schedule salary",
+                         note=("Gross pay from the published federal tables. Not "
+                               "take-home: deductions depend on choices this page "
+                               "does not ask about.")),
+        js=calc_script(T, R, ranks)))
+    urls.append("/calculator/")
+
+    # --- сравнения зон: отдельное поисковое намерение «А или Б»
+    cmp_items = []
+    for a, b in compare.pairs(T, ranks):
+        rel, html_page = compare.compare_page(a, b, T, R, ranks, L, shell, esc,
+                                              money, slug)
+        write(rel, html_page)
+        urls.append(f"/{rel}/")
+        cmp_items.append((rel, rel.split("/")[-1].replace("-vs-", " vs ")
+                          .replace("-", " ").title()))
+    write("compare", compare.compare_index(cmp_items, shell, esc))
+    urls.append("/compare/")
+
+    # Файл индексов подгружается инструментом по запросу пользователя, поэтому
+    # он лежит рядом, а не внутри страницы: 203 КБ незачем возить всем.
+    shutil.copyfile(DATA / "zip-zone.json", DIST / "zip-zone.json")
+
+    # --- главная и статические
+    (DIST / "index.html").write_text(
+        P.home(T, R, ranks, L, shell, esc, money, slug), encoding="utf-8")
+    for rel, html_ in (
+        ("how-locality-pay-works", P.how_it_works(T, shell, money)),
+        ("about", P.about(shell)),
+        ("privacy", P.privacy(shell)),
+        ("terms", P.terms(shell)),
+    ):
+        write(rel, html_)
+        urls.append(f"/{rel}/")
+
+    (DIST / "404.html").write_text(P.not_found(shell), encoding="utf-8")
+    (DIST / "sitemap.xml").write_text(P.sitemap(urls, DOMAIN), encoding="utf-8")
+    (DIST / "robots.txt").write_text(
+        f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n", encoding="utf-8")
+    (DIST / "_redirects").write_text("/index.html  /  301\n", encoding="utf-8")
+    (DIST / "_headers").write_text(
+        "/*\n  X-Content-Type-Options: nosniff\n"
+        "  Referrer-Policy: strict-origin-when-cross-origin\n"
+        "  X-Frame-Options: DENY\n"
+        "\n"
+        "# Страницы пересобираются при каждом изменении данных, поэтому\n"
+        "# браузер обязан спрашивать заново.\n"
+        "/*.html\n  Cache-Control: public, max-age=0, must-revalidate\n"
+        "\n"
+        "# Шрифты и файл почтовых индексов меняются раз в год и весят\n"
+        "# сотни килобайт. Имена стабильны — кешируем надолго.\n"
+        "/fonts/*\n  Cache-Control: public, max-age=31536000, immutable\n"
+        "/zip-zone.json\n  Cache-Control: public, max-age=604800\n",
+        encoding="utf-8")
+
+    print(f"страниц: {len(urls)} + 404")
+
+    # ------------------------------------------------------------------ гейты
+    problems: list[str] = []
+    htmls = sorted(DIST.rglob("*.html"))
+    all_urls = {u.rstrip("/") for u in urls} | {"/404.html"}
+
+    for f in htmls:
+        h = f.read_text(encoding="utf-8")
+        rel = f.relative_to(DIST)
+
+        # 1. отрендеренный вывод, а не исходники: кириллица не должна уехать
+        if re.search(r"[\u0400-\u04FF]", h):
+            problems.append(f"{rel}: кириллица в отгружаемом HTML")
+        # 2. следы сломанных вычислений
+        for bad in ("NaN", "undefined", "None", "$0<", ">$0 "):
+            if bad in h:
+                problems.append(f"{rel}: в выводе встречается {bad!r}")
+        # 3. тире там, где должна быть длина CSS или число
+        if re.search(r"[\u2013\u2014](?=px|\d*px)|\d[\u2013\u2014]px", h):
+            problems.append(f"{rel}: тире вместо длины CSS")
+        # 4. дисклеймер обязателен на каждой странице — FTC Impersonation Rule
+        if "not affiliated with" not in h:
+            problems.append(f"{rel}: нет дисклеймера о неаффилированности")
+        # 5. внутренние ссылки должны вести на существующие страницы
+        for href in set(re.findall(r'href="(/[^"#?]*)"', h)):
+            if href.rstrip("/") not in all_urls:
+                problems.append(f"{rel}: ссылка в никуда {href}")
+
+    # 6. объём текста — только для КОНТЕНТНЫХ страниц.
+    #    404, политика, условия и «о сайте» существуют не ради объёма, и
+    #    требовать от них 700 слов — значит лить воду в юридический документ.
+    SERVICE = {"404.html", "privacy", "terms", "about"}
+    thin = []
+    for f in htmls:
+        rel = f.relative_to(DIST)
+        if rel.name == "404.html" or rel.parts[0] in SERVICE:
+            continue
+        h = f.read_text(encoding="utf-8")
+        body = h[h.find("<main>"):h.find("</main>")]
+        w = len(re.sub(r"\s+", " ", re.sub("<[^>]+>", " ", body)).split())
+        if w < 700:
+            thin.append(f"{rel} ({w} слов)")
+    if thin:
+        problems.append(f"страниц тоньше 700 слов: {len(thin)} — {', '.join(thin[:5])}")
+
+    # 7. согласованность направления. Оговорка и карточка ответа пишутся
+    #    независимо друг от друга, и однажды разъехались: страница
+    #    Сан-Франциско называла падение с #1 на #21 выигрышем. Ни один
+    #    структурный гейт этого не видел — сверяем две фразы между собой.
+    contra = []
+    for f in htmls:
+        if f.parent.parent.name != "locality":
+            continue
+        h = f.read_text(encoding="utf-8")
+        good = "works in your favour" in h
+        bad = "matters a great deal" in h
+        if good and bad:
+            contra.append(f"{f.relative_to(DIST)}: обе формулировки сразу")
+        # Опора структурная, а не на формулировку: строка «Places gained» или
+        # «Places lost» в бухгалтерском блоке считается из чисел, а прозу можно
+        # переписать — и однажды переписали, после чего гейт покраснел на 42
+        # верных страницах. Ключ должен зависеть от данных, а не от стиля.
+        elif good and "Places gained" not in h:
+            contra.append(f"{f.relative_to(DIST)}: «в вашу пользу», но мест не прибавилось")
+        elif bad and "Places lost" not in h:
+            contra.append(f"{f.relative_to(DIST)}: «съедает надбавку», но мест не потеряно")
+    if contra:
+        problems.append(f"противоречие оговорки и карточки: {len(contra)} — {contra[0]}")
+
+    # 8. полнота охвата. Страницы грейдов однажды строились по 55 зонам из 58,
+    #    и «Rest of U.S.» — самая многочисленная зона федеральной службы —
+    #    исчезла со всех пятнадцати страниц, заодно занизив заявленный разброс
+    #    зарплат. Сборка была зелёной: ничего не сломалось, просто не хватало.
+    n_loc = len(T["localities"])
+    short = []
+    for g in sorted(T["base"]["grades"], key=int):
+        h = (DIST / f"gs-{g}" / "index.html").read_text(encoding="utf-8")
+        got = h.count('<th scope="row"><a href="/locality/')
+        if got != n_loc:
+            short.append(f"gs-{g}: {got} из {n_loc}")
+    home_h = (DIST / "index.html").read_text(encoding="utf-8")
+    if home_h.count('href="/locality/') != n_loc:
+        short.append(f"главная: {home_h.count('href=\"/locality/')} из {n_loc}")
+    if short:
+        problems.append(f"зоны потеряны на страницах: {', '.join(short)}")
+
+    # 9. двойная точка. Названия зон вроде «Rest of U.S.» уже кончаются точкой,
+    #    и шаблон вида «{name}.» даёт «U.S..» — мелочь, которая на странице с
+    #    самым большим трафиком читается как небрежность.
+    dbl = []
+    for f in htmls:
+        txt = re.sub(r"<[^>]+>", " ", f.read_text(encoding="utf-8"))
+        if re.search(r"[A-Za-z]\.\.(?!\.)", txt):
+            dbl.append(str(f.relative_to(DIST)))
+    if dbl:
+        problems.append(f"двойная точка в тексте: {len(dbl)} — {dbl[0]}")
+
+    # 10. крошки: разметка обязана повторять видимую цепочку. Google снимает
+    #     расширенный сниппет целиком, если BreadcrumbList описывает не то,
+    #     что человек видит на странице, — а мы уже разошлись на единицу.
+    crumb_bad = []
+    for f in htmls:
+        h = f.read_text(encoding="utf-8")
+        # Закрывающий тег ищем ПОСЛЕ открывающего: в рельсе теперь тоже
+        # есть список, и в разметке он стоит раньше крошек.
+        i = h.find('<ol class="crumbs">')
+        vis = h.count("<li>", i, h.find("</ol>", i) + 1) if i >= 0 else 0
+        m = re.search(r'"BreadcrumbList".*?"itemListElement":\[(.*?)\]\}', h)
+        mark = m.group(1).count('"ListItem"') if m else 0
+        if vis != mark:
+            crumb_bad.append(f"{f.relative_to(DIST)}: видно {vis}, размечено {mark}")
+    if crumb_bad:
+        problems.append(f"крошки разошлись с разметкой: {len(crumb_bad)} — {crumb_bad[0]}")
+
+    # 11. клиентский расчёт. Инструмент считает ставки сам из базовой таблицы и
+    #     процента, а не возит готовые. Повторяем здесь ТУ ЖЕ арифметику, что в
+    #     JS, и сверяем со всеми 8 700 опубликованными клетками: годовую,
+    #     часовую, ставку переработки и признак потолка.
+    def _half_up(x: float) -> int:
+        return math.floor(x + 0.5)
+
+    cap = T["ex_iv_cap"]
+    calc_bad = []
+
+    # Данные берём ИЗ ГОТОВОЙ СТРАНИЦЫ — ровно ту строку, которую получит
+    # браузер. Первая версия гейта читала исходный словарь и потому пропустила
+    # подложенную порчу отгружаемых данных: проверялось намерение, а не
+    # артефакт.
+    sample = (DIST / "locality" / slug(next(iter(T["localities"].values()))["area_name"])
+              / "index.html").read_text(encoding="utf-8")
+    m = re.search(r"window\.__FP=(\{.*?\});</script>", sample, re.S)
+    if not m:
+        problems.append("на странице зоны нет данных инструмента")
+        shipped = None
+    else:
+        shipped = json.loads(m.group(1))
+
+    if shipped:
+        if shipped.get("cap") != cap:
+            calc_bad.append(f"потолок в данных {shipped.get('cap')} вместо {cap}")
+        ship_zone = {z["c"]: z for z in shipped["zones"]}
+        ship_base = shipped["base"]
+
+    for code, loc in (T["localities"].items() if shipped else []):
+        z = ship_zone.get(code)
+        if not z:
+            calc_bad.append(f"{code}: зоны нет в отгруженных данных")
+            break
+        pct = z["p"]
+        if abs(pct - loc["locality_pct"]) > 1e-9:
+            calc_bad.append(f"{code}: процент {pct} вместо {loc['locality_pct']}")
+            break
+        ten_raw = _half_up(ship_base[9][0] * (1 + pct / 100))
+        ten = min(ten_raw, cap)
+        ten_h = _half_up(ten * 100 / 2087)
+        for g in range(1, 16):
+            for s in range(1, 11):
+                cell = loc["grades"][str(g)][str(s)]
+                base_v = ship_base[g - 1][s - 1]
+                raw = _half_up(base_v * (1 + pct / 100))
+                pay = min(raw, cap)
+                h = _half_up(pay * 100 / 2087)
+                ot = (_half_up(h * 1.5) if h <= ten_h
+                      else max(h, _half_up(ten_h * 1.5)))
+                if pay != cell["annual"]:
+                    calc_bad.append(f"{code} GS-{g}/{s} годовая {cell['annual']}≠{pay}")
+                elif abs(h / 100 - cell["hourly"]) > 1e-9:
+                    calc_bad.append(f"{code} GS-{g}/{s} часовая {cell['hourly']}≠{h/100}")
+                elif abs(ot / 100 - cell["overtime"]) > 1e-9:
+                    calc_bad.append(f"{code} GS-{g}/{s} переработка "
+                                    f"{cell['overtime']}≠{ot/100}")
+                elif (raw > cap) != cell["capped"]:
+                    calc_bad.append(f"{code} GS-{g}/{s} признак потолка")
+                if len(calc_bad) > 3:
+                    break
+    if calc_bad:
+        problems.append(f"клиентский расчёт разошёлся с таблицами OPM: "
+                        f"{len(calc_bad)}+ — {calc_bad[0]}")
+
+    # 12. непреобразованные escape-последовательности в ВИДИМОМ тексте.
+    #     Внутри <script> запись вида \uXXXX законна — это исходник JavaScript.
+    #     В тексте страницы она означает, что где-то перепутан уровень
+    #     экранирования, и читателю показывают шесть символов вместо тире.
+    #     Ровно так на 16 страницах сравнения оказалось «\u2014»: HTML при этом
+    #     валиден, слов достаточно, вычисления целы — ни один прежний гейт не
+    #     видел ничего.
+    esc_pat = re.compile(r"\\u[0-9a-fA-F]{4}")
+    script_pat = re.compile(r"<script.*?</script>", re.S)
+    raw_esc = []
+    for f in htmls:
+        visible = script_pat.sub(" ", f.read_text(encoding="utf-8"))
+        m = esc_pat.search(visible)
+        if m:
+            raw_esc.append(f"{f.relative_to(DIST)}: {m.group(0)}")
+    if raw_esc:
+        problems.append(f"escape-последовательности в тексте: {len(raw_esc)} — "
+                        f"{raw_esc[0]}")
+
+    # 13. управляющие символы. В CSS запись вида \00a0 означает неразрывный
+    #     пробел, но внутри обычной строки питона \0 — это нулевой байт, а
+    #     \25 — восьмеричное 025. Так на все 103 страницы уехали 0x00 и 0x15:
+    #     HTML при этом валиден, гейты зелёные, а файл технически бинарный.
+    ctl = []
+    for f in htmls:
+        s = f.read_text(encoding="utf-8")
+        hit = [c for c in s if ord(c) < 32 and c not in "\n\r\t"]
+        if hit:
+            ctl.append(f"{f.relative_to(DIST)}: {hex(ord(hit[0]))}")
+    if ctl:
+        problems.append(f"управляющие символы в выводе: {len(ctl)} — {ctl[0]}")
+
+    if problems:
+        print(f"\nГЕЙТ НЕ ПРОЙДЕН: {len(problems)} замечаний", file=sys.stderr)
+        for p in problems[:20]:
+            print("  " + p, file=sys.stderr)
+        return 1
+
+    print("гейты пройдены: кириллица, битые вычисления, дисклеймер, ссылки, "
+          "объём, направление, полнота охвата, пунктуация, крошки, "
+          "клиентский расчёт, экранирование, управляющие символы")
+    return 0
 
 
 if __name__ == "__main__":

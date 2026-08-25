@@ -17,6 +17,8 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
+import fonts
+
 BASE = "https://www.opm.gov"
 INDEX = BASE + "/policy-data-oversight/pay-leave/salaries-wages/{year}/general-schedule/"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -119,6 +121,16 @@ def main() -> int:
     except RuntimeError as e:
         print(f"  {zdst.name}: {e}", file=sys.stderr)
         return 1
+
+    # Шрифт кладём в сборку файлом: внешних запросов на сайте быть не должно,
+    # а файл на собственном домене внешним запросом не является.
+    try:
+        css, ff = fonts.fetch({"Archivo": "Archivo:wght@400..700"})
+        print(f"  шрифт: {len(ff) - 1} файлов, {sum(f.stat().st_size for f in ff):,} байт")
+    except RuntimeError as e:
+        # Терять весь сайт из-за недоступности шрифта неразумно: страницы
+        # соберутся на запасном системном стеке, гейт об этом сообщит.
+        print(f"  шрифт: {e} — собираем без него", file=sys.stderr)
 
     print(f"\nготово: {ok} из {len(codes)} таблиц + BEA + Census -> {out}")
     return 0 if ok == len(codes) else 1

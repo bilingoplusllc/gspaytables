@@ -300,6 +300,78 @@ CALC_JS = r"""
 
   var boxes = document.querySelectorAll("[data-calc]");
   for (var i=0;i<boxes.length;i++) wire(boxes[i]);
+
+  /* ---- the sticky answer bar, and the pay table as its control surface ---- */
+  var bar = document.querySelector("[data-bar]");
+  if (bar){
+    var zone = byCode(bar.getAttribute("data-zone"));
+    var bg = bar.querySelector("[data-grade]");
+    var bs = bar.querySelector("[data-step]");
+    var big = bar.querySelector("[data-ab-big]");
+    var slots = bar.querySelectorAll("[data-ab]");
+    var table = document.querySelector("table.pay");
+    var cells = table ? table.querySelectorAll("td.cell") : [];
+
+    function paint(g, s){
+      if (!zone) return;
+      var r = rate(zone, g, s);
+      var ten = rate(zone, 10, 1).pay;
+      var h = hourlyCents(r.pay), ot = overtimeCents(r.pay, ten);
+      big.textContent = money(r.pay);
+      var vals = [cents(h * 80), cents(h), cents(ot)];
+      for (var i=0;i<slots.length && i<vals.length;i++) slots[i].textContent = vals[i];
+      for (var j=0;j<cells.length;j++){
+        var on = +cells[j].getAttribute("data-g") === g &&
+                 +cells[j].getAttribute("data-s") === s;
+        cells[j].classList.toggle("sel", on);
+        cells[j].setAttribute("aria-selected", on ? "true" : "false");
+        cells[j].tabIndex = on ? 0 : -1;
+      }
+    }
+    function pick(g, s, moveFocus){
+      bg.value = g; bs.value = s; paint(g, s);
+      if (moveFocus){
+        var td = table && table.querySelector(
+          'td.cell[data-g="' + g + '"][data-s="' + s + '"]');
+        if (td) td.focus();
+      }
+    }
+    bg.addEventListener("change", function(){ paint(+bg.value, +bs.value); });
+    bs.addEventListener("change", function(){ paint(+bg.value, +bs.value); });
+    paint(+bg.value, +bs.value);
+
+    /* One delegated listener rather than 150, and a roving tab stop: only the
+       selected cell sits in the tab order, so keyboard users are not made to
+       walk through a hundred and fifty numbers to leave the table. */
+    if (table){
+      table.addEventListener("click", function(e){
+        var td = e.target.closest ? e.target.closest("td.cell") : null;
+        if (td) pick(+td.getAttribute("data-g"), +td.getAttribute("data-s"), true);
+      });
+      table.addEventListener("keydown", function(e){
+        var td = e.target.closest ? e.target.closest("td.cell") : null;
+        if (!td) return;
+        var g = +td.getAttribute("data-g"), s = +td.getAttribute("data-s");
+        var dg = 0, ds = 0;
+        if (e.key === "ArrowUp") dg = -1;
+        else if (e.key === "ArrowDown") dg = 1;
+        else if (e.key === "ArrowLeft") ds = -1;
+        else if (e.key === "ArrowRight") ds = 1;
+        else if (e.key === "Home"){ ds = -10; }
+        else if (e.key === "End"){ ds = 10; }
+        else return;
+        e.preventDefault();
+        pick(Math.min(15, Math.max(1, g + dg)),
+             Math.min(10, Math.max(1, s + ds)), true);
+      });
+    }
+  }
+
+  /* ---- area switcher in the rail ---- */
+  var jump = document.querySelector("[data-jump]");
+  if (jump) jump.addEventListener("change", function(){
+    if (jump.value) location.href = jump.value;
+  });
 })();
 """
 
