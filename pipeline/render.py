@@ -246,6 +246,73 @@ SEAL_FOOT = '<svg class="seal foot-seal" viewBox="0 0 100 100" role="img" aria-l
 # Год выпуска нужен шапке. Ставится в main() вместе с остальными
 # значениями, зависящими от данных.
 T_YEAR = ""
+T_AREAS = ""
+
+
+# Разделы, несущие главное утверждение страницы. Плашка на странице одна:
+# две тёмные полосы в одном документе спорят друг с другом.
+PLATE_IDS = {"reversal", "worth"}
+
+
+def document_body(body: str) -> str:
+    """Превращает тело страницы в лист документа.
+
+    Три вещи, которые не должен знать ни один из шести модулей-генераторов:
+    какая у раздела земля, где кончается титул выпуска и какой ширины
+    колонка внутри полосы. Всё это свойства ОБЛИКА, а не содержания,
+    поэтому делаются здесь, один раз, над готовым текстом.
+    """
+    parts = re.split(r'(<section class="q"[^>]*>.*?</section>)', body, flags=re.S)
+
+    out = []
+    idx = 0
+    plate_used = False
+    head_done = False
+
+    for chunk in parts:
+        if not chunk.strip():
+            continue
+        m = re.match(r'<section class="q"([^>]*)>(.*)</section>\Z', chunk, re.S)
+        if not m:
+            if not head_done:
+                out.append(_titleblock(chunk))
+                head_done = True
+            else:
+                out.append(f'<div class="col">{chunk}</div>')
+            continue
+
+        attrs, inner = m.group(1), m.group(2)
+        sid = re.search(r'id="([^"]+)"', attrs)
+        sid = sid.group(1) if sid else ""
+        if sid in PLATE_IDS and not plate_used:
+            ground, plate_used = "plate", True
+        else:
+            ground = "paper" if idx % 2 == 0 else "register"
+            idx += 1
+        out.append(f'<section class="q {ground}"{attrs}>'
+                   f'<div class="col">{inner}</div></section>')
+
+    return "\n".join(out)
+
+
+def _titleblock(chunk: str) -> str:
+    """Крошки, строка выпуска, заголовок и лид — одним титулом.
+
+    Строка выпуска существует затем, что у документа обязаны быть выходные
+    данные: без них страница — это просто текст. У нас все четыре значения
+    уже есть и ни одно не выдумано.
+    """
+    line = (f'<p class="docline">'
+            f'<span>{T_YEAR} edition</span>'
+            f'<span>Effective January {T_YEAR}</span>'
+            f'<span>{T_AREAS} locality pay areas</span>'
+            f'<span>Data last changed {DATA_DATE}</span></p>')
+    crumbs = ""
+    m = re.match(r'\s*(<ol class="crumbs">.*?</ol>)(.*)\Z', chunk, re.S)
+    if m:
+        crumbs, chunk = m.group(1), m.group(2)
+    return (f'<div class="titleblock col">{crumbs}{line}{chunk}'
+            f'<p class="rd"></p></div>')
 
 
 def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
@@ -324,7 +391,7 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
   <div class="sheet">
 {contents}
 <main id="content">
-{body}
+{document_body(body)}
 </main>
   </div>
 </div>
@@ -1004,9 +1071,10 @@ def compute_ranks(T: dict, R: dict) -> dict:
 
 
 def main() -> int:
-    global DATA_DATE, FONT_CSS, JS_TAG, FONT_PRELOAD, T_YEAR
+    global DATA_DATE, FONT_CSS, JS_TAG, FONT_PRELOAD, T_YEAR, T_AREAS
     T = json.loads((DATA / "paytables-2026.json").read_text(encoding="utf-8"))
     T_YEAR = str(T["year"])
+    T_AREAS = str(len(T["localities"]))
     R = json.loads((DATA / "rpp-map.json").read_text(encoding="utf-8"))
     L = json.loads((DATA / "localities-2026.json").read_text(encoding="utf-8"))
     DATA_DATE = data_date(T, R, L)

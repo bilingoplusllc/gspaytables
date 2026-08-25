@@ -256,8 +256,8 @@ html{scroll-behavior:smooth}
   color:var(--ink);box-shadow:inset 0 0 0 2px var(--seal-fill);
   text-decoration:none;font-weight:700}
 html{-webkit-text-size-adjust:100%;background:var(--page)}
-body{margin:0;background:var(--page);color:var(--ink);
-  font:16px/1.6 var(--face);font-variant-numeric:tabular-nums;
+body{margin:0;background:var(--ground);color:var(--ink);
+  font:400 var(--s-text)/1.62 var(--serif);font-variant-numeric:tabular-nums;
   font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased}
 
 /* ---------- шапка: узкая полоса, не занимающая первый экран */
@@ -766,6 +766,94 @@ footer{background:var(--deep);color:var(--deep-ink);margin-top:0}
   .nt-short{display:inline}
   .edition{display:none}
 }
+
+/* ============================================================ лист выпуска
+   Прежде пять разделов главной вычислялись одинаково до пикселя: белая
+   карточка, рамка 1 px, радиус 4 px, ноль теней, — и отличались только
+   высотой. Теперь раздел различается ЗЕМЛЁЙ во всю ширину листа, а рамки
+   нет ни у одного. */
+main{counter-reset:secn}
+section.q{padding:var(--sp4) 0;margin:0;border:0;border-radius:0;
+  background:transparent}
+section.q.paper{background:var(--sheet)}
+section.q.register{background:var(--tint)}
+/* Тёмная полоса переопределяет ТОКЕНЫ, а не перечисляет классы. Иначе
+   пришлось бы вспомнить все служебные стили до единого, и любой забытый
+   давал бы тёмное на тёмном: проверка контраста нашла три таких сразу, от
+   1.16 до 1.83:1. В самом макете этот дефект тоже есть — подпись под
+   главным числом там 1.83:1. Смена земли обязана менять краску целиком. */
+section.q.plate{background:var(--deep);color:var(--deep-ink);
+  --ink:var(--deep-ink);
+  --ink-2:var(--deep-ink-2);
+  --ink-3:var(--deep-ink-2);
+  --seal:var(--deep-ink);
+  --sheet:var(--deep);
+  --tint:var(--deep);
+  --tint-2:var(--deep);
+  --hair:var(--deep-hair);
+  --rule:var(--deep-hair);
+  --heavy:var(--deep-ink);
+  --focus:var(--focus-on-band);
+  /* Алиасы прежних имён приходится переопределять ОТДЕЛЬНО: значение вида
+     --card:var(--sheet) вычисляется там, где объявлено, то есть на :root, и
+     наследуется уже вычисленным. Переопределение --sheet ниже по дереву его
+     не трогает. Из-за этого карточка внутри тёмной полосы осталась светлой
+     бумагой со светлым текстом — 1.07:1. Слой алиасов уйдёт вместе с
+     последним перенесённым блоком, и это одна из причин его убрать. */
+  --card:var(--deep);
+  --page:var(--deep);
+  --muted:var(--deep-ink-2);
+  --ink-soft:var(--deep-ink-2);
+  --line:var(--deep-hair);
+  --line-strong:var(--deep-hair);
+  --control-line:var(--deep-hair);
+  --accent:var(--deep-ink);
+  --accent-soft:var(--deep);
+  --warn:#e8a49b;
+  --warn-soft:var(--deep);
+  --up:#93cfa8}
+.plate a{color:var(--deep-ink)}
+
+/* Номер раздела — счётчиком: генератору о номерах знать незачем. */
+/* Считает РАЗДЕЛ, а не заголовок: на странице расчёта заголовок вложен в
+   сам инструмент, и счётчик по заголовку пропускал этот раздел молча. */
+section.q{counter-increment:secn}
+section.q>.col::before{content:"Section " counter(secn);
+  font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--seal);
+  display:block;margin-bottom:var(--sp1)}
+
+/* ---------- титул выпуска: у документа обязаны быть выходные данные */
+.titleblock{padding-top:var(--sp2);padding-bottom:var(--sp3)}
+.docline{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2);
+  margin:var(--sp2) 0;display:flex;flex-wrap:wrap;gap:4px 14px}
+.docline span{white-space:nowrap}
+
+/* Линейки трёх весов вместо одной в 1 px на всю страницу. */
+.rd{height:0;border-top:3px solid var(--heavy);
+  border-bottom:1px solid var(--heavy);padding-top:3px;margin:var(--sp2) 0 0}
+.rs{height:0;border-top:1px solid var(--rule);margin:0}
+.rh{height:0;border-top:1px solid var(--hair);margin:0}
+
+/* ---------- набор: антиква читает, гротеск служит */
+h1{font-family:var(--serif);font-size:var(--s-title);line-height:1.08;
+  letter-spacing:-.022em;font-weight:600;max-width:19em;text-wrap:balance;
+  margin:0}
+h2{font-family:var(--serif);font-size:var(--s-head);line-height:1.2;
+  letter-spacing:-.012em;font-weight:600;max-width:22em;text-wrap:balance;
+  margin:0 0 var(--sp2)}
+h3{font-family:var(--serif);font-size:var(--s-lead);line-height:1.3;
+  font-weight:600;margin:0}
+.sub{font-family:var(--serif);font-size:var(--s-lead);line-height:1.45;
+  letter-spacing:-.005em;color:var(--ink-2);max-width:32em;
+  margin:var(--sp1) 0 0}
+.q-lead{font-family:var(--serif);font-size:var(--s-lead);line-height:1.45;
+  letter-spacing:-.005em;color:var(--ink-2);max-width:32em;
+  margin:0 0 var(--sp3)}
+.q-lead strong{color:var(--ink);font-weight:600}
+.plate .q-lead strong{color:var(--deep-ink)}
+section.q p{max-width:34em}
 """
 
 MARK = ""
