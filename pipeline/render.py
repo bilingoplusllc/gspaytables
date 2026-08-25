@@ -134,6 +134,16 @@ def cities(area_name: str) -> list:
     return out
 
 
+def ordinal(n: int) -> str:
+    """Порядковое числительное по-английски. «22th» вместо «22nd» на странице
+    о деньгах читается как небрежность, а небрежность здесь стоит доверия."""
+    if 10 <= n % 100 <= 20:
+        suf = "th"
+    else:
+        suf = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+    return f"{n}{suf}"
+
+
 def stop(name: str) -> str:
     """Точка в конце предложения — но не вторая подряд.
 
@@ -467,7 +477,7 @@ def facts_grid(code, loc, T, R, ranks, ref, base_ref, n_capped, nom, adj) -> str
                                                  else "No change")
         sign = ("+" if move > 0 else ("\u2212" if move < 0 else ""))
         cls = "up" if move > 0 else ("down" if move < 0 else "")
-        c2 = (f'<div class="fact"><h3>Paid #{nom}, {adj}th in what it buys</h3>'
+        c2 = (f'<div class="fact"><h3>Paid #{nom}, {ordinal(adj)} in what it buys</h3>'
               f'<span class="kpi {cls}">{sign}{abs(move) if move else "0"}</span>'
               f'<span class="kpi-sub">{word} once local prices are counted, out of '
               f'{ranks["n"]} areas with published price data.</span></div>')
@@ -887,11 +897,15 @@ def compute_ranks(T: dict, R: dict) -> dict:
 
 
 def main() -> int:
-    global DATA_DATE
+    global DATA_DATE, FONT_CSS
     T = json.loads((DATA / "paytables-2026.json").read_text(encoding="utf-8"))
     R = json.loads((DATA / "rpp-map.json").read_text(encoding="utf-8"))
     L = json.loads((DATA / "localities-2026.json").read_text(encoding="utf-8"))
     DATA_DATE = data_date(T, R, L)
+    # Готовый блок @font-face читается с диска: сборка страниц в сеть не
+    # ходит, шрифт качает fetch.py. Нет файла — страницы соберутся на
+    # запасном системном стеке.
+    FONT_CSS = fonts.css_from_disk()
     ranks = compute_ranks(T, R)
 
     if DIST.exists():
@@ -954,6 +968,10 @@ def main() -> int:
     # Файл индексов подгружается инструментом по запросу пользователя, поэтому
     # он лежит рядом, а не внутри страницы: 203 КБ незачем возить всем.
     shutil.copyfile(DATA / "zip-zone.json", DIST / "zip-zone.json")
+    if fonts.available():
+        (DIST / "fonts").mkdir(exist_ok=True)
+        for f in list(fonts.FONTS.glob("*.woff2")) + [fonts.FONTS / "LICENSE.txt"]:
+            shutil.copyfile(f, DIST / "fonts" / f.name)
 
     # --- главная и статические
     (DIST / "index.html").write_text(
@@ -1234,6 +1252,19 @@ def main() -> int:
             problems.append("страница приватности описывает аналитику, "
                             "которой в сборке нет")
 
+    # 15. шрифт. Восстановление main() из git однажды тихо откатило две строки —
+    #     чтение @font-face и копирование файлов, — и сборка осталась зелёной:
+    #     страницы просто поехали на запасном системном стеке. Заметить это
+    #     можно было только по отсутствию каталога в готовой папке.
+    if fonts.available():
+        miss = [str(f.relative_to(DIST)) for f in htmls
+                if "@font-face" not in f.read_text(encoding="utf-8")]
+        if miss:
+            problems.append(f"шрифт не подключён на {len(miss)} страницах: {miss[0]}")
+        shipped = list((DIST / "fonts").glob("*.woff2")) if (DIST / "fonts").exists() else []
+        if not shipped:
+            problems.append("файлы шрифта не скопированы в сборку")
+
     if problems:
         print(f"\nГЕЙТ НЕ ПРОЙДЕН: {len(problems)} замечаний", file=sys.stderr)
         for p in problems[:20]:
@@ -1243,7 +1274,7 @@ def main() -> int:
     print("гейты пройдены: кириллица, битые вычисления, дисклеймер, ссылки, "
           "объём, направление, полнота охвата, пунктуация, крошки, "
           "клиентский расчёт, экранирование, управляющие символы, "
-                "внешние запросы")
+                "внешние запросы, шрифт")
     return 0
 
 
