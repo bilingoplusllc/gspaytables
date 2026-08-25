@@ -253,7 +253,7 @@ html{scroll-behavior:smooth}
   white-space:nowrap;clip-path:inset(50%)}
 .skip:focus-visible{width:auto;height:auto;overflow:visible;clip-path:none;
   margin:var(--s2);padding:var(--s2) var(--s3);background:var(--card);
-  color:var(--ink);border:2px solid var(--accent);border-radius:3px;
+  color:var(--ink);box-shadow:inset 0 0 0 2px var(--seal-fill);
   text-decoration:none;font-weight:700}
 html{-webkit-text-size-adjust:100%;background:var(--page)}
 body{margin:0;background:var(--page);color:var(--ink);
@@ -261,18 +261,6 @@ body{margin:0;background:var(--page);color:var(--ink);
   font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased}
 
 /* ---------- шапка: узкая полоса, не занимающая первый экран */
-header.site{background:var(--card);border-bottom:1px solid var(--line)}
-.masthead{max-width:1320px;margin:0 auto;padding:10px var(--s4);
-  display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
-.brand{font:800 19px/1 var(--face);letter-spacing:-.02em;color:var(--ink);
-  text-decoration:none}
-.tagline{font:500 12px/1.3 var(--face);color:var(--muted);max-width:26ch}
-header.site nav{margin-left:auto;display:flex;gap:var(--s1);flex-wrap:wrap;
-  font:600 13px/1 var(--face)}
-header.site nav a{color:var(--muted);text-decoration:none;padding:7px 9px;
-  border-radius:3px}
-header.site nav a:hover{color:var(--ink);background:var(--page)}
-header.site nav a[aria-current="page"]{color:var(--ink);background:var(--page)}
 
 /* ---------- ПОЛОСА ОТВЕТА: главное структурное отличие.
    Липнет к верху, поэтому ответ никогда не уезжает из виду. */
@@ -301,8 +289,6 @@ header.site nav a[aria-current="page"]{color:var(--ink);background:var(--page)}
 .ab-more .up{color:#8fdcb4}
 
 /* ---------- раскладка: рельс и основная колонка */
-.layout{max-width:1320px;margin:0 auto;padding:var(--s4);
-  display:grid;grid-template-columns:230px minmax(0,1fr);gap:var(--s5)}
 /* Страницы без рельса: одна колонка разумной ширины, а не дыра в сетке. */
 .layout.solo{grid-template-columns:minmax(0,1fr);max-width:820px}
 /* Широкая одноколоночная: главная. Рельса нет — он дублировал верхнее меню
@@ -310,25 +296,8 @@ header.site nav a[aria-current="page"]{color:var(--ink);background:var(--page)}
    колонок и 58 строк. */
 .layout.wide{grid-template-columns:minmax(0,1fr);max-width:1180px}
 .layout.wide .sub{max-width:60ch}
-.rail{align-self:start;position:sticky;top:96px}
-.rail h2{font:700 11px/1 var(--face);letter-spacing:.1em;text-transform:uppercase;
-  color:var(--muted);margin:0 0 var(--s2);max-width:none}
-.rail ol{list-style:none;margin:0 0 var(--s4);padding:0;
-  border-left:2px solid var(--line)}
-.rail li a{display:block;padding:5px 0 5px var(--s3);color:var(--muted);
-  text-decoration:none;font:500 13.5px/1.35 var(--face);
-  border-left:2px solid transparent;margin-left:-2px}
-.rail li a:hover{color:var(--ink);border-left-color:var(--accent)}
 .rail-note{font:500 12.5px/1.5 var(--face);color:var(--muted);
   margin:0 0 var(--s4);max-width:none}
-.rail li a[aria-current="page"]{color:var(--ink);font-weight:700;
-  border-left-color:var(--accent)}
-.rail .switch{margin-bottom:var(--s4)}
-.rail .switch label{display:block;font:700 11px/1 var(--face);letter-spacing:.1em;
-  text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.rail select{width:100%;font:500 13px/1.3 var(--face);color:var(--ink);
-  background:var(--card);border:1px solid var(--line-strong);border-radius:3px;
-  padding:7px}
 
 /* ---------- места под рекламу: заложены в раскладку заранее */
 /* Сеть не подключена. Пустые пунктирные рамки с надписью Advertisement —
@@ -352,12 +321,14 @@ h2{font:700 clamp(18px,2vw,23px)/1.3 var(--face);letter-spacing:-.015em;
   margin:0 0 var(--s3);max-width:32ch}
 h3{font:700 15px/1.35 var(--face);margin:var(--s4) 0 var(--s2)}
 p{margin:0 0 var(--s3);max-width:66ch;color:var(--ink-soft)}
-a{color:var(--accent);text-underline-offset:2px}
+/* Ссылка наследует цвет своего окружения и опознаётся подчёркиванием, а не
+   краской. Прежде она была жёстко цвета акцента — и в подвале на тёмной
+   полосе давала 1.52:1. В печатной форме ссылка и не должна быть цветной:
+   цветом там помечают величины, а не переходы. */
+a{color:inherit;text-underline-offset:.18em;text-decoration-thickness:.06em}
+a:hover{color:var(--seal)}
+.plate a:hover,footer a:hover,.mast a:hover,.menu a:hover{color:var(--deep-ink)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.crumbs{list-style:none;display:flex;flex-wrap:wrap;gap:6px;padding:0;
-  margin:0 0 var(--s3);font:500 12.5px/1 var(--face);color:var(--muted)}
-.crumbs li+li::before{content:"\203A";margin-right:6px;color:var(--line-strong)}
-.crumbs a{color:var(--muted)}
 
 /* ---------- раздел-вопрос */
 section.q{background:var(--card);border:1px solid var(--line);border-radius:4px;
@@ -606,14 +577,9 @@ thead th[data-sort] button:focus-visible{outline:2px solid var(--accent);
   outline-offset:2px}
 
 /* ---------- подвал */
-footer{background:var(--card);border-top:1px solid var(--line);margin-top:var(--s6)}
-footer .in{max-width:1320px;margin:0 auto;padding:var(--s5) var(--s4)}
-footer p{font-size:13.5px;line-height:1.6;color:var(--muted);max-width:78ch}
-footer a{color:var(--muted)}
 .disclaimer{color:var(--ink-soft);font-weight:600}
 
 @media (max-width:1080px){
-  .layout{grid-template-columns:minmax(0,1fr);gap:var(--s4)}
   /* Рельс уходит ПОД содержимое. В одну колонку он вставал первым, и на
      телефоне человек видел оглавление и рекламный блок раньше заголовка
      страницы — на странице грейда это пятнадцать ссылок до первой строки
@@ -623,14 +589,10 @@ footer a{color:var(--muted)}
      (635 px, а не 812 «экрана устройства») попадало одно. */
   .fp-fields{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2) var(--s3)}
   .fp-field.fp-wide,.fp-fields .fp-field:has(#fp-zip){grid-column:1/-1}
-  .rail{order:2;position:static;display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--s3)}
-  .rail ol{margin-bottom:0}
   .ad-rail{min-height:110px}
 }
 @media (max-width:640px){
   body{font-size:15.5px}
-  .masthead,.ab-in,.layout,footer .in{padding-left:var(--s3);padding-right:var(--s3)}
   /* На телефоне липкая полоса в две строки съедала пятую часть экрана.
      Вторичные числа стоят в карточке сразу под ней, поэтому в полосе
      остаётся только то, ради чего она липкая: где, что и сколько. */
@@ -639,7 +601,6 @@ footer a{color:var(--muted)}
   .ab-in{gap:var(--s3);padding:8px var(--s3)}
   .ab-where{font-size:11px;max-width:none;flex:1 1 100%}
   .ab-main{margin-left:auto}
-  .rail{grid-template-columns:minmax(0,1fr)}
   section.q{padding:var(--s3)}
   table{font-size:13px}
   th,td{padding:6px 8px}
@@ -649,10 +610,8 @@ footer a{color:var(--muted)}
   .bars .bar{grid-column:1 / -1;margin-top:2px}
 }
 @media print{
-  header.site nav,.rail,.ad-slot,.ab-pick,.fp-calc{display:none}
   .answerbar{position:static}
   html,body{background:#fff;color:#000}
-  .layout{display:block;max-width:none;padding:0}
   section.q,.fact,.scroll{border:1px solid #000;break-inside:avoid}
   thead th,.answerbar{background:#fff !important;color:#000 !important;
     border-bottom:2px solid #000}
@@ -676,6 +635,137 @@ table,th,td,
 .fp-hero p.fp-big,.fp-hero p.fp-ranks,
 .tlegend,.chips-pay b,.chips-pay span{
   font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* ============================================================ каркас выпуска
+   Шапка перестаёт быть строкой ссылок и становится ШАПКОЙ ВЫПУСКА: знак
+   издателя, название, номер и дата издания. Меню уезжает в собственную
+   полосу. Между ними — полоса юридической границы: в теме, где сайт можно
+   принять за государственный, оговорка обязана стоять на первом экране и
+   быть проведена приёмом оформления, а не мелким шрифтом в подвале. */
+.mast{background:var(--deep);color:var(--deep-ink)}
+.mast-in{max-width:1180px;margin:0 auto;
+  padding:14px clamp(18px,3.4vw,40px) 12px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.seal{width:50px;height:50px;flex:none;display:block}
+.s-ring{fill:none;stroke:currentColor}
+.s-w2{stroke-width:2.4}
+.s-w1{stroke-width:1}
+.s-t{font-family:var(--sans);font-size:9.5px;font-weight:600;
+  letter-spacing:.13em;fill:currentColor}
+.s-mono{font-family:var(--sans);font-size:var(--s-fine);font-weight:700;
+  letter-spacing:.04em;fill:currentColor}
+.s-step{fill:currentColor}
+.mast-name{display:flex;flex-direction:column;margin-right:auto;min-width:0}
+.brand{font-family:var(--sans);font-size:var(--s-lead);font-weight:700;
+  letter-spacing:-.005em;text-transform:uppercase;text-decoration:none;
+  color:var(--deep-ink);line-height:1.1}
+.tagline{font-size:var(--s-fine);color:var(--deep-ink-2);line-height:1.4;
+  margin-top:2px;font-family:var(--serif)}
+.edition{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--deep-ink-2);
+  text-align:right;line-height:1.5}
+
+.menu{background:var(--deep);border-top:1px solid var(--deep-hair)}
+.menu-in{max-width:1180px;margin:0 auto;padding:0 clamp(18px,3.4vw,40px);
+  display:flex;flex-wrap:wrap}
+.menu a{font-family:var(--sans);font-size:var(--s-stamp);font-weight:500;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--deep-ink-2);
+  text-decoration:none;padding:10px 15px 9px;
+  border-bottom:3px solid transparent}
+.menu a:first-child{padding-left:0}
+.menu a:hover{color:var(--deep-ink)}
+.menu a[aria-current]{color:var(--deep-ink);border-bottom-color:var(--seal-fill)}
+/* Кольцо фокуса на тёмной полосе: --focus на --deep даёт 1.52:1. */
+.menu a:focus-visible,.mast a:focus-visible,footer a:focus-visible{
+  outline-color:var(--focus-on-band)}
+
+.notice{background:var(--tint-2);border-top:3px solid var(--seal-fill);
+  border-bottom:1px solid var(--hair)}
+.notice-in{max-width:1180px;margin:0 auto;
+  padding:7px clamp(18px,3.4vw,40px);
+  font-family:var(--sans);font-size:var(--s-fine);line-height:1.45;
+  color:var(--ink-2)}
+.notice-in b{color:var(--ink);font-weight:600}
+.nt-long{display:inline}
+.nt-short{display:none}
+
+/* ---------- лист документа лежит на столе. Единственная глубина облика:
+   не «карточка с рамкой», а оттиск. */
+.wrap{max-width:1220px;margin:0 auto;
+  padding:clamp(10px,1.5vw,18px) clamp(0px,2.2vw,20px) clamp(28px,4vw,54px)}
+.sheet{background:var(--sheet);box-shadow:var(--sheet-shadow)}
+.col{max-width:1060px;margin:0 auto;
+  padding-left:clamp(18px,3.4vw,40px);padding-right:clamp(18px,3.4vw,40px)}
+.measure{max-width:34em}
+
+/* Содержание выпуска строкой. Прежде это был левый рельс: 230 px ширины на
+   153 страницах под дубликат верхнего меню. */
+.contents{border-bottom:1px solid var(--hair);
+  padding:9px clamp(18px,3.4vw,40px);
+  max-width:1060px;margin:0 auto}
+.contents h2{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2);
+  display:inline;margin:0}
+.contents h2::after{content:":";margin-right:10px}
+.contents ol{display:inline;list-style:none;margin:0;padding:0}
+.contents li{display:inline}
+.contents li+li::before{content:"";display:inline-block;width:1px;height:.8em;
+  margin:0 9px -.05em;background:var(--rule);vertical-align:baseline}
+.contents a{font-family:var(--sans);font-size:var(--s-fine);
+  color:var(--ink-2);text-decoration:none}
+.contents a:hover{color:var(--seal);text-decoration:underline}
+.contents .ad-slot,.contents .rail-note{display:none}
+/* Переключатель области живёт в той же строке содержания: в документе это
+   «перейти к другому выпуску», и место ему рядом с оглавлением. */
+.contents .switch{display:inline-flex;align-items:baseline;gap:8px;
+  margin-left:14px;padding-left:14px;border-left:1px solid var(--rule)}
+.contents .switch label{font-family:var(--sans);font-size:var(--s-stamp);
+  font-weight:600;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink-2)}
+.contents .switch select{font-family:var(--sans);font-size:var(--s-fine);
+  color:var(--ink);background:var(--field);
+  border:1px solid var(--field-line);border-radius:0;padding:3px 6px;
+  max-width:min(46vw,320px)}
+
+/* ---------- подвал */
+footer{background:var(--deep);color:var(--deep-ink);margin-top:0}
+.foot-in{max-width:1180px;margin:0 auto;
+  padding:var(--sp4) clamp(18px,3.4vw,40px);
+  display:grid;gap:var(--sp3) clamp(26px,4vw,64px);
+  grid-template-columns:minmax(0,1fr)}
+.foot-seal{width:110px;height:110px;color:var(--deep-ink-2)}
+.foot-disc{font-size:var(--s-lead);line-height:1.4;max-width:28em;
+  margin:0 0 var(--sp2);color:var(--deep-ink);font-family:var(--serif)}
+.foot-in p{color:var(--deep-ink-2);font-family:var(--sans);
+  font-size:var(--s-fine);line-height:1.55;max-width:44em}
+.foot-links{display:flex;flex-wrap:wrap;gap:6px 18px;margin:var(--sp2) 0}
+.foot-links a{font-family:var(--sans);font-size:var(--s-stamp);
+  letter-spacing:.09em;text-transform:uppercase;text-decoration:none;
+  color:var(--deep-ink)}
+.foot-links a:hover{text-decoration:underline}
+.foot-rule{border-top:1px solid var(--deep-hair);margin:var(--sp2) 0;
+  height:0;padding:0}
+
+/* ---------- крошки остаются списком: гейт крошек считает <li> и сверяет с
+   разметкой BreadcrumbList. Разделитель рисуется чертой, а не глифом:
+   U+203A не входит в подрезанную гарнитуру и уехал бы на системный шрифт. */
+.crumbs{list-style:none;display:flex;flex-wrap:wrap;align-items:center;
+  margin:0;padding:var(--sp2) 0 0;
+  font-family:var(--sans);font-size:var(--s-stamp);letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-2)}
+.crumbs a{text-decoration:none}
+.crumbs a:hover{text-decoration:underline}
+.crumbs li+li::before{content:"";display:inline-block;width:1px;height:.75em;
+  margin:0 8px -.05em;background:var(--rule)}
+
+@media (min-width:820px){
+  .foot-in{grid-template-columns:120px minmax(0,1fr)}
+}
+@media (max-width:700px){
+  .nt-long{display:none}
+  .nt-short{display:inline}
+  .edition{display:none}
+}
 """
 
 MARK = ""

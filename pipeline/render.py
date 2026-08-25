@@ -241,24 +241,30 @@ def jsonld(title: str, desc: str, canonical: str, crumbs: list) -> str:
             + "</script>")
 
 
+SEAL_MAST = '<svg class="seal" viewBox="0 0 100 100" role="img" aria-label="FedPay mark: an independent reference, not a government seal"><defs><path id="mt" d="M14,50 A36,36 0 0 1 86,50"></path><path id="mb" d="M17,50 A33,33 0 0 0 83,50"></path></defs><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="42.5"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="29"></circle><text class="s-t"><textPath href="#mt" startOffset="50%" text-anchor="middle">INDEPENDENT</textPath></text><text class="s-t"><textPath href="#mb" startOffset="50%" text-anchor="middle">REFERENCE</textPath></text><text class="s-mono" x="50" y="47" text-anchor="middle">GS</text><rect class="s-step" x="36" y="56" width="6" height="4"></rect><rect class="s-step" x="43" y="53" width="6" height="7"></rect><rect class="s-step" x="50" y="50" width="6" height="10"></rect><rect class="s-step" x="57" y="47" width="6" height="13"></rect></svg>'
+SEAL_FOOT = '<svg class="seal foot-seal" viewBox="0 0 100 100" role="img" aria-label="FedPay mark: an independent reference, not a government seal"><defs><path id="ft" d="M14,50 A36,36 0 0 1 86,50"></path><path id="fb" d="M17,50 A33,33 0 0 0 83,50"></path></defs><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="42.5"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="29"></circle><text class="s-t"><textPath href="#ft" startOffset="50%" text-anchor="middle">INDEPENDENT</textPath></text><text class="s-t"><textPath href="#fb" startOffset="50%" text-anchor="middle">REFERENCE</textPath></text><text class="s-mono" x="50" y="47" text-anchor="middle">GS</text><rect class="s-step" x="36" y="56" width="6" height="4"></rect><rect class="s-step" x="43" y="53" width="6" height="7"></rect><rect class="s-step" x="50" y="50" width="6" height="10"></rect><rect class="s-step" x="57" y="47" width="6" height="13"></rect></svg>'
+# Год выпуска нужен шапке. Ставится в main() вместе с остальными
+# значениями, зависящими от данных.
+T_YEAR = ""
+
+
 def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
           crumbs: list = None, js: str = "", bar: str = "", rail: str = "",
           wide: bool = False, noindex: bool = False) -> str:
-    """Каркас страницы.
+    """Каркас выпуска.
 
-    bar  — залипающая полоса ответа. Есть на страницах, у которых ответ
-           выражается одним числом: зона, грейд, сравнение.
-    rail — левый рельс: оглавление страницы, переключатель и место под рекламу.
-           Пустой рельс превращает раскладку в одноколоночную, а не оставляет
-           в сетке дыру.
+    bar  — залипающая полоса ответа на страницах, где ответ выражается одним
+           числом.
+    rail — строка содержания в начале листа. Прежде это был левый рельс: он
+           отбирал 22% ширины первого экрана и дублировал верхнее меню из
+           восьми пунктов. В документе содержание стоит строкой под шапкой и
+           стоит 40 px высоты вместо 230 px ширины.
+    wide — оставлен ради совместимости вызовов; ширину теперь держит лист.
     """
     updated = DATA_DATE
     cur = lambda k: ' aria-current="page"' if k == nav else ""
-    # wide — раскладка без рельса и без колонки в 820 px: на главной её
-    # занимала таблица из 58 строк на семь колонок, а рельс отбирал под
-    # дубликат верхнего меню ещё 230 px слева.
-    layout = "layout" if rail else ("layout wide" if wide else "layout solo")
-    rail_html = f'<aside class="rail">{rail}</aside>' if rail else ""
+    contents = (f'<nav class="contents" aria-label="Sections of this report">'
+                f'{rail}</nav>' if rail else "")
     return f"""<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -284,45 +290,64 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 {jsonld(title, desc, canonical, crumbs or [])}
 </head><body>
 <a class="skip" href="#content">Skip to content</a>
-<header class="site">
-  <div class="masthead">
-    <a class="brand" href="/">{SITE}</a>
-    <span class="tagline">{TAGLINE}</span>
-    <nav aria-label="Main">
-      <a href="/"{cur('home')}>Localities</a>
-      <a href="/calculator/"{cur('calc')}>Calculator</a>
-      <a href="/compare/"{cur('compare')}>Compare</a>
-      <a href="/states/"{cur('states')}>States</a>
-      <a href="/promotion/"{cur('promotion')}>Promotions</a>
-      <a href="/grades/"{cur('grades')}>Grades</a>
-      <a href="/how-locality-pay-works/"{cur('how')}>How it works</a>
-      <a href="/about/"{cur('about')}>About</a>
-    </nav>
+<header class="mast">
+  <div class="mast-in">
+    {SEAL_MAST}
+    <span class="mast-name">
+      <a class="brand" href="/">{SITE}</a>
+      <span class="tagline">{TAGLINE}</span>
+    </span>
+    <span class="edition">{T_YEAR} edition<br>Effective January {T_YEAR}</span>
   </div>
 </header>
+<nav class="menu" aria-label="Main">
+  <div class="menu-in">
+    <a href="/"{cur('home')}>Localities</a>
+    <a href="/calculator/"{cur('calc')}>Calculator</a>
+    <a href="/compare/"{cur('compare')}>Compare</a>
+    <a href="/states/"{cur('states')}>States</a>
+    <a href="/promotion/"{cur('promotion')}>Promotions</a>
+    <a href="/grades/"{cur('grades')}>Grades</a>
+    <a href="/how-locality-pay-works/"{cur('how')}>How it works</a>
+    <a href="/about/"{cur('about')}>About</a>
+  </div>
+</nav>
+<div class="notice">
+  <p class="notice-in"><b>This is not a U.S. government website.</b>
+  <span class="nt-long">{SITE} is an independent reference published by {OWNER}
+  and is not affiliated with, endorsed by, or connected to the U.S. Office of
+  Personnel Management or any federal agency.</span><span class="nt-short">Not
+  affiliated with OPM or any federal agency.</span></p>
+</div>
 {bar}
-<div class="{layout}">
-{rail_html}
+<div class="wrap">
+  <div class="sheet">
+{contents}
 <main id="content">
 {body}
 </main>
+  </div>
 </div>
-<footer><div class="in">
-  <p class="disclaimer">FedPay is an independent reference published by {OWNER}.
-  It is not affiliated with, endorsed by, or connected to the U.S. Office of Personnel
-  Management or any government agency.</p>
-  <p>Pay figures are computed from the official OPM salary tables and verified cell by
-  cell against them. Price levels are Regional Price Parities from the U.S. Bureau of
-  Economic Analysis. Both are works of the U.S. government and in the public domain.</p>
-  <p><a href="/how-locality-pay-works/">How locality pay works</a> ·
-  <a href="/grades/">All grades</a> · <a href="/compare/">Compare areas</a> ·
-  <a href="/methodology/">Methodology</a> · <a href="/about/">About</a> ·
-  <a href="/contact/">Contact</a> ·
-  <a href="/privacy/">Privacy</a> ·
+<footer><div class="foot-in">
+  <div>{SEAL_FOOT}</div>
+  <div>
+  <p class="foot-disc">Not affiliated with the U.S. Office of Personnel
+  Management or any federal agency.</p>
+  <p class="disclaimer">{SITE} is an independent reference published by {OWNER}.
+  Pay figures are computed from the official OPM salary tables and verified cell
+  by cell against them. Price levels are Regional Price Parities from the U.S.
+  Bureau of Economic Analysis. Both are works of the U.S. government and in the
+  public domain.</p>
+  <p class="foot-links"><a href="/how-locality-pay-works/">How locality pay works</a>
+  <a href="/grades/">All grades</a> <a href="/compare/">Compare areas</a>
+  <a href="/methodology/">Methodology</a> <a href="/about/">About</a>
+  <a href="/contact/">Contact</a> <a href="/privacy/">Privacy</a>
   <a href="/terms/">Terms</a></p>
+  <p class="foot-rule"></p>
   <p>Data last changed {updated}. Pay tables are published once a year, so this
   date moves when the underlying figures move, not when the site is rebuilt.<br>
   <a href="mailto:{CONTACT}">{CONTACT}</a></p>
+  </div>
 </div></footer>
 {js}
 </body></html>"""
@@ -979,8 +1004,9 @@ def compute_ranks(T: dict, R: dict) -> dict:
 
 
 def main() -> int:
-    global DATA_DATE, FONT_CSS, JS_TAG, FONT_PRELOAD
+    global DATA_DATE, FONT_CSS, JS_TAG, FONT_PRELOAD, T_YEAR
     T = json.loads((DATA / "paytables-2026.json").read_text(encoding="utf-8"))
+    T_YEAR = str(T["year"])
     R = json.loads((DATA / "rpp-map.json").read_text(encoding="utf-8"))
     L = json.loads((DATA / "localities-2026.json").read_text(encoding="utf-8"))
     DATA_DATE = data_date(T, R, L)
