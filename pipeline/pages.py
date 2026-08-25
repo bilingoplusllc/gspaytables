@@ -408,17 +408,16 @@ def privacy(shell) -> str:
          'information. The hosting provider keeps standard server request logs for '
          'security and to see which pages are used.</p>',
          '<h2>Analytics</h2>',
-         '<p>This site uses Google Analytics 4 to count visits and see which pages are '
-         'read. It records the page you viewed, where you arrived from, your approximate '
-         'location derived from your IP address, and your browser and device type. '
-         'Google Analytics 4 does not log or store IP addresses. We never see your name, '
-         'your email or anything that identifies you personally.</p>',
-         '<p>Outside the European Economic Area, the United Kingdom and Switzerland, '
-         'Analytics sets its own cookies to tell a returning visit from a new one. '
-         'Inside those regions analytics storage is switched off by default, so no '
-         'analytics cookie is set at all unless you choose otherwise. You can block '
-         'Analytics everywhere with Google\'s official '
-         '<a href="https://tools.google.com/dlpage/gaoptout">opt-out browser add-on</a>.</p>',
+         '<p>This site runs <strong>no analytics of any kind</strong>. There is '
+         'no Google Analytics, no tag manager, no pixel and no third-party '
+         'script of any sort. You can check that yourself: open the network tab '
+         'of your browser and every request a page makes goes to this domain '
+         'and nowhere else.</p>',
+         '<p>The only record of your visit is the standard request log kept by '
+         'the hosting provider for security and capacity. If analytics is ever '
+         'added, this page will be rewritten <em>before</em> the code goes live, '
+         'not after. A privacy notice describes what your browser actually '
+         'loads, not what the publisher intends to do later.</p>',
          '<h2>Advertising</h2>',
          '<p>This site does not yet carry advertising and sets no advertising cookies. '
          'When advertising is added, partners may set cookies or use similar technology. '
@@ -741,3 +740,71 @@ def calculator(T: dict, R: dict, shell, esc, money, widget, js: str) -> str:
                  f"after local prices.",
                  "\n".join(B), "https://fedpayscale.com/calculator/", "calc",
                  crumbs=[("All localities", "/"), ("Pay calculator", None)], js=js)
+
+
+def contact(shell, contact_email: str, owner: str) -> str:
+    """Одна страница, один адрес, читает человек."""
+    B = ['<ol class="crumbs"><li><a href="/">All localities</a></li>'
+         '<li>Contact</li></ol>',
+         '<h1>Contact FedPay</h1>',
+         '<p class="sub">One address, read by a person. There is no support queue, '
+         'no ticket number and no chatbot.</p>',
+
+         '<section class="q"><h2>Write to us</h2>',
+         f'<p class="q-lead"><a href="mailto:{contact_email}">{contact_email}</a></p>',
+         f'<p>FedPay is published by {owner}, a limited liability company registered '
+         f'in the State of Wyoming. Postal correspondence can be sent through the '
+         f'company\u2019s registered agent; write to the address above and we will '
+         f'provide the details.</p>',
+         '<p>We read everything and answer anything that needs an answer. What we '
+         'do not do is send marketing: there is no mailing list to join and no '
+         'reason for us to write to you unprompted.</p></section>',
+
+         '<section class="q"><h2>If a number here is wrong</h2>',
+         '<p class="q-lead">Tell us, and include the page and the figure you think '
+         'is incorrect.</p>',
+         '<p>Every rate on this site is recomputed from the published OPM base '
+         'table and the locality percentage, in the order the law sets, and checked '
+         'against the official table cell by cell \u2014 all 8,700 of them. So a '
+         'genuine discrepancy means one of two things: the source has changed, or '
+         'we have a defect. Both matter, and both get fixed.</p>',
+         '<p>Corrections are made on the page itself, and the change moves the '
+         '"data last changed" date in the footer. We do not quietly edit a figure '
+         'and leave the date where it was.</p></section>',
+
+         '<section class="q"><h2>What a reference site cannot do</h2>',
+         '<p class="q-lead">Three things people write to ask, and the honest answer '
+         'to each.</p>',
+         '<p><strong>Which locality pay area am I in?</strong> We cannot tell you. '
+         'Locality follows your official duty station, which is a fact about your '
+         'paperwork, not about geography \u2014 telework arrangements, military '
+         'installations and county lines all complicate it. Our '
+         '<a href="/calculator/">calculator</a> will find the area a ZIP code sits '
+         'in, and that is right far more often than not, but the authority is your '
+         'servicing human resources office.</p>',
+         '<p><strong>Should I take this job, or this transfer?</strong> We cannot '
+         'advise you. FedPay publishes public federal data and arithmetic performed '
+         'on it. It is not a licensed adviser of any kind, nothing here is advice, '
+         'and the parts of that decision that matter most are usually not about '
+         'money at all.</p>',
+         '<p><strong>Can you change a rate?</strong> No. If a published rate looks '
+         'wrong to you, the authority is the U.S. Office of Personnel Management, '
+         'not this site. We report what OPM publishes; where we disagree with our '
+         'own arithmetic, the build stops.</p></section>',
+
+         '<section class="q"><h2>Press, researchers and data use</h2>',
+         '<p>The underlying data \u2014 OPM salary tables, OPM locality pay area '
+         'definitions, BEA Regional Price Parities and the Census Bureau '
+         'ZIP-code-to-county file \u2014 are works of the United States government '
+         'and in the public domain. You need nobody\u2019s permission to use them, '
+         'and for anything serious you should go to the source rather than to '
+         'us.</p>',
+         '<p>What is ours is the arrangement of this site, its wording, and the '
+         'purchasing-power comparison that sits at the centre of it. If you want to '
+         'quote or reproduce that, write to the address above. We answer, and the '
+         'answer is usually yes.</p></section>']
+    return shell("Contact FedPay",
+                 "How to reach FedPay, how to report a figure you think is wrong, "
+                 "and what a reference site can and cannot answer.",
+                 "\n".join(B), "https://fedpayscale.com/contact/", "contact",
+                 crumbs=[("All localities", "/"), ("Contact", None)])

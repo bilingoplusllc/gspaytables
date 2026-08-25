@@ -256,7 +256,8 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
   Economic Analysis. Both are works of the U.S. government and in the public domain.</p>
   <p><a href="/how-locality-pay-works/">How locality pay works</a> ·
   <a href="/grades/">All grades</a> · <a href="/compare/">Compare areas</a> ·
-  <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> ·
+  <a href="/about/">About</a> · <a href="/contact/">Contact</a> ·
+  <a href="/privacy/">Privacy</a> ·
   <a href="/terms/">Terms</a></p>
   <p>Data last changed {updated}. Pay tables are published once a year, so this
   date moves when the underlying figures move, not when the site is rebuilt.<br>
@@ -960,6 +961,7 @@ def main() -> int:
     for rel, html_ in (
         ("how-locality-pay-works", P.how_it_works(T, shell, money)),
         ("about", P.about(shell)),
+        ("contact", P.contact(shell, CONTACT, OWNER)),
         ("privacy", P.privacy(shell)),
         ("terms", P.terms(shell)),
     ):
@@ -1018,7 +1020,9 @@ def main() -> int:
     # 6. объём текста — только для КОНТЕНТНЫХ страниц.
     #    404, политика, условия и «о сайте» существуют не ради объёма, и
     #    требовать от них 700 слов — значит лить воду в юридический документ.
-    SERVICE = {"404.html", "privacy", "terms", "about"}
+    # Служебные страницы существуют не ради объёма. Дописывать контакты до
+    # семисот слов — значит лить воду туда, где нужен адрес.
+    SERVICE = {"404.html", "privacy", "terms", "about", "contact"}
     thin = []
     for f in htmls:
         rel = f.relative_to(DIST)
@@ -1198,6 +1202,38 @@ def main() -> int:
     if ctl:
         problems.append(f"управляющие символы в выводе: {len(ctl)} — {ctl[0]}")
 
+    # 14. внешние запросы и правдивость заявления о приватности.
+    #     Правило «сайт не ходит наружу» существовало без проверки, а страница
+    #     приватности при этом подробно описывала Google Analytics 4, которого
+    #     в сборке не было ни строчки. Заявление обязано описывать то, что
+    #     реально загружает браузер, — в обе стороны.
+    ext_pat = re.compile(
+        r'(?:src|href)\s*=\s*["\']https?://(?!fedpayscale\.com)([^/"\']+)',
+        re.I)
+    outside = {}
+    for f in htmls:
+        h = f.read_text(encoding="utf-8")
+        # Ссылки на источники — это ссылки, а не загрузки. Считаем только то,
+        # что браузер тянет сам: скрипты, стили, шрифты, картинки, iframe.
+        for m in re.finditer(
+                r"<(script|link|img|iframe|source)\b[^>]*>", h, re.I):
+            hit = ext_pat.search(m.group(0))
+            if hit:
+                outside.setdefault(hit.group(1), str(f.relative_to(DIST)))
+    if outside:
+        first = next(iter(outside.items()))
+        problems.append(f"внешние запросы на {len(outside)} доменов: "
+                        f"{first[0]} на {first[1]}")
+
+    priv = DIST / "privacy" / "index.html"
+    if priv.exists():
+        p_txt = priv.read_text(encoding="utf-8")
+        claims_analytics = ("Google Analytics" in p_txt
+                            and "no analytics of any kind" not in p_txt)
+        if claims_analytics and not outside:
+            problems.append("страница приватности описывает аналитику, "
+                            "которой в сборке нет")
+
     if problems:
         print(f"\nГЕЙТ НЕ ПРОЙДЕН: {len(problems)} замечаний", file=sys.stderr)
         for p in problems[:20]:
@@ -1206,7 +1242,8 @@ def main() -> int:
 
     print("гейты пройдены: кириллица, битые вычисления, дисклеймер, ссылки, "
           "объём, направление, полнота охвата, пунктуация, крошки, "
-          "клиентский расчёт, экранирование, управляющие символы")
+          "клиентский расчёт, экранирование, управляющие символы, "
+                "внешние запросы")
     return 0
 
 
