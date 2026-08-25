@@ -44,9 +44,22 @@ MEASUREMENT_ID = "G-7744PF99S1"
 
 ANALYTICS_LIVE = True
 
-# Хосты, которые появляются в сети при включённом счётчике. Список нужен и
-# гейту внешних запросов, и политике безопасности — поэтому он один.
-HOSTS = ("www.googletagmanager.com", "www.google-analytics.com")
+# Хосты, которые появляются В РАЗМЕТКЕ при включённом счётчике. Этот список
+# читают гейты внешних адресов.
+HOSTS = ("www.googletagmanager.com",)
+
+# Куда счётчик СТУЧИТСЯ из скрипта. Отдельно от HOSTS, потому что в разметке
+# этих адресов нет — их видно только в браузере.
+#   GA4 отправляет данные на РЕГИОНАЛЬНЫЙ сборщик: region1.google-analytics.com,
+# region2 и так далее, в зависимости от страны посетителя. Список с одним
+# www.google-analytics.com выглядел правильным и блокировал всё: страница
+# грузилась, скрипт исполнялся, согласие применялось — и ни одно событие не
+# уходило. Поймать это можно было только в браузере.
+CONNECT = (
+    "https://*.google-analytics.com",
+    "https://*.analytics.google.com",
+    "https://www.googletagmanager.com",
+)
 
 # Регионы, где по умолчанию запрещено хранение: ЕЭЗ + Великобритания +
 # Швейцария. Коды в формате, который принимает Consent Mode.
@@ -106,10 +119,17 @@ def head_tag() -> str:
 
 
 def csp_sources() -> str:
-    """Хосты счётчика для политики безопасности. Пусто, если он выключен."""
+    """Хосты для script-src и img-src. Пусто, если счётчик выключен."""
     if not ANALYTICS_LIVE:
         return ""
-    return " https://www.googletagmanager.com https://www.google-analytics.com"
+    return " https://www.googletagmanager.com https://*.google-analytics.com"
+
+
+def csp_connect() -> str:
+    """Хосты для connect-src: сюда счётчик отправляет события."""
+    if not ANALYTICS_LIVE:
+        return ""
+    return " " + " ".join(CONNECT)
 
 
 def csp_script_src() -> str:

@@ -1454,7 +1454,7 @@ def main() -> int:
         "style-src 'self' 'unsafe-inline'; img-src 'self'"
         + analytics.csp_sources() + "; font-src 'self'; "
         "connect-src 'self'"
-        + analytics.csp_sources() + "; object-src 'none'; base-uri 'none'; "
+        + analytics.csp_connect() + "; object-src 'none'; base-uri 'none'; "
         "form-action 'none'; frame-ancestors 'none'\n"
         "\n"
         "# Fonts and the ZIP lookup change once a year and carry stable\n"
