@@ -142,26 +142,6 @@ CSS = r"""
     "Times New Roman",serif;
   --sans:"Libre Franklin","Helvetica Neue",Arial,sans-serif;
 
-  /* ---------- алиасы прежних имён. Существуют ровно затем, чтобы шаг
-     смены краски не тронул ни одного селектора: скелет старый, краска
-     новая, гейт «класс без правила» зелёный. Уходят по мере того, как
-     каждый блок переписывается на новый словарь. */
-  --page:var(--ground);
-  --card:var(--sheet);
-  --ink-soft:var(--ink-2);
-  --muted:var(--ink-2);
-  --line:var(--hair);
-  --line-strong:var(--rule);
-  --control-line:var(--field-line);
-  --bar:var(--band);
-  --bar-ink:var(--band-ink);
-  --accent:var(--seal);
-  --accent-soft:var(--tint);
-  --warn:var(--loss);
-  --warn-soft:var(--loss-soft);
-  --up:var(--gain);
-  --s1:7px; --s2:14px; --s3:27px; --s4:27px; --s5:54px; --s6:81px;
-  --face:var(--sans);
 }
 
 @media (prefers-color-scheme:dark){
@@ -254,10 +234,10 @@ html{scroll-behavior:smooth}
 .skip{display:block;width:0;height:0;overflow:hidden;
   white-space:nowrap;clip-path:inset(50%)}
 .skip:focus-visible{display:inline-block;width:auto;height:auto;overflow:visible;clip-path:none;
-  margin:var(--s2);padding:var(--s2) var(--s3);background:var(--card);
+  margin:var(--sp1);padding:var(--sp1) var(--sp2);background:var(--sheet);
   color:var(--ink);box-shadow:inset 0 0 0 2px var(--seal-fill);
   text-decoration:none;font-weight:700}
-html{-webkit-text-size-adjust:100%;background:var(--page)}
+html{-webkit-text-size-adjust:100%;background:var(--ground)}
 body{margin:0;background:var(--ground);color:var(--ink);
   font:400 var(--s-text)/1.62 var(--serif);font-variant-numeric:tabular-nums;
   font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased}
@@ -283,7 +263,7 @@ body{margin:0;background:var(--ground);color:var(--ink);
    блоками, зарезервировав высоту под конкретный формат. */
 
 /* ---------- типографика основной колонки */
-p{margin:0 0 var(--s3);max-width:66ch;color:var(--ink-soft)}
+p{margin:0 0 var(--sp2);max-width:34em;color:var(--ink)}
 /* Ссылка наследует цвет своего окружения и опознаётся подчёркиванием, а не
    краской. Прежде она была жёстко цвета акцента — и в подвале на тёмной
    полосе давала 1.52:1. В печатной форме ссылка и не должна быть цветной:
@@ -291,11 +271,9 @@ p{margin:0 0 var(--s3);max-width:66ch;color:var(--ink-soft)}
 a{color:inherit;text-underline-offset:.18em;text-decoration-thickness:.06em}
 a:hover{color:var(--seal)}
 .plate a:hover,footer a:hover,.mast a:hover,.menu a:hover{color:var(--deep-ink)}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 
 /* ---------- раздел-вопрос */
-section.q{background:var(--card);border:1px solid var(--line);border-radius:4px;
-  padding:var(--s4);margin:0 0 var(--s4)}
 section.q>:last-child{margin-bottom:0}
 
 /* ---------- сетка фактов на первом экране */
@@ -358,7 +336,7 @@ figure.ex{margin:0;padding:0}
    таблица из 58 строк оставалась для скринридера без заголовков вообще. */
 
 /* ---------- подвал */
-.disclaimer{color:var(--ink-soft);font-weight:600}
+.disclaimer{color:var(--deep-ink-2);font-weight:600}
 
 @media (max-width:1080px){
   /* Рельс уходит ПОД содержимое. В одну колонку он вставал первым, и на
@@ -374,7 +352,7 @@ figure.ex{margin:0;padding:0}
   /* На телефоне липкая полоса в две строки съедала пятую часть экрана.
      Вторичные числа стоят в карточке сразу под ней, поэтому в полосе
      остаётся только то, ради чего она липкая: где, что и сколько. */
-  section.q{padding:var(--s3)}
+  section.q{padding:var(--sp3) 0}
 }
 /* ---------- печать: бланк остаётся бланком, но без навигации и без земель.
    Прежнее правило обводило каждый раздел рамкой в 1 px — печатной форме
@@ -557,24 +535,7 @@ section.q.plate{background:var(--deep);color:var(--deep-ink);
   --rule:var(--deep-hair);
   --heavy:var(--deep-ink);
   --focus:var(--focus-on-band);
-  /* Алиасы прежних имён приходится переопределять ОТДЕЛЬНО: значение вида
-     --card:var(--sheet) вычисляется там, где объявлено, то есть на :root, и
-     наследуется уже вычисленным. Переопределение --sheet ниже по дереву его
-     не трогает. Из-за этого карточка внутри тёмной полосы осталась светлой
-     бумагой со светлым текстом — 1.07:1. Слой алиасов уйдёт вместе с
-     последним перенесённым блоком, и это одна из причин его убрать. */
-  --card:var(--deep);
-  --page:var(--deep);
-  --muted:var(--deep-ink-2);
-  --ink-soft:var(--deep-ink-2);
-  --line:var(--deep-hair);
-  --line-strong:var(--deep-hair);
-  --control-line:var(--deep-hair);
-  --accent:var(--deep-ink);
-  --accent-soft:var(--deep);
-  --warn:#e8a49b;
-  --warn-soft:var(--deep);
-  --up:#93cfa8}
+  --focus:var(--focus-on-band)}
 .plate a{color:var(--deep-ink)}
 
 /* Номер раздела — счётчиком: генератору о номерах знать незачем. */
@@ -970,22 +931,11 @@ table.pay td.cell:focus-visible{outline:2px solid var(--focus);
   .scroll{max-height:calc(min(70vh,620px) - var(--stick))}
 }
 
-/* ---------- табличные цифры: восстановление после сокращений font:
-   По CSS Fonts 4 сокращение `font:` сбрасывает font-variant-numeric в
-   исходное значение. Объявление на body уничтожается на каждом элементе,
-   который набран сокращением, а это все элементы с числами. Сайт про деньги
-   набирал бы суммы пропорциональными цифрами, объявив табличные.
-   Селекторы повторены один в один: та же специфичность, более поздний
-   порядок. Блок тает по мере того, как старые сокращения уходят вместе с
-   перенесёнными компонентами. */
-table,th,td,
-.ab-big,
-.fact .fact-k,.fact .kpi,.fact .kpi-sub,
-.ledger dt,.ledger dd,
-.fp-out p.fp-big,.fp-lines dt,.fp-lines dd,
-.fp-hero .fp-big,.fp-hero .fp-ranks,
-.tlegend,.chips-pay b,.chips-pay span{
-  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+/* Табличные цифры объявлены один раз на body и наследуются: блок
+   восстановления больше не нужен, потому что сокращений font: в этом
+   файле не осталось нигде, кроме самого body, где длинная запись
+   стоит следом. Гейт табличных цифр остаётся: он покраснеет, если
+   сокращение вернётся. */
 
 /* Графа наименования: короткое имя крупно, официальное — мелко и одной
    строкой. Прежде официальное имя переносилось на шесть строк, и строки
