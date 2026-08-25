@@ -14,6 +14,11 @@
 """
 from __future__ import annotations
 
+# Адрес сайта живёт одной константой в render.py и подставляется
+# сюда на старте сборки. Домен ещё не выбран, и он обязан
+# меняться одной строкой, а не обходом шести файлов.
+DOMAIN = ""
+
 from datetime import date
 
 
@@ -135,7 +140,7 @@ def home(T: dict, R: dict, ranks: dict, L: dict, shell, esc, money, slug,
                  f"Complete {year} General Schedule pay tables for all {len(locs)} "
                  f"locality pay areas, ranked by what each salary buys after local "
                  f"prices, not just by the headline number.",
-                 "\n".join(B), "https://fedpayscale.com/", "home",
+                 "\n".join(B), f"{DOMAIN}/", "home",
                  js=js, wide=True)
 
 
@@ -356,7 +361,7 @@ tables; BEA Regional Price Parities {R['bea_year']}.</figcaption>
                  f"What a GS-{g} earns in {year} in each of the {len(rows)} locality pay "
                  f"areas, from {money(lo['pay'])} to {money(hi['pay'])}, with each "
                  f"salary adjusted for local prices.",
-                 "\n".join(B), f"https://fedpayscale.com/gs-{g}/", "grades",
+                 "\n".join(B), f"{DOMAIN}/gs-{g}/", "grades",
                  crumbs=[("All localities", "/"),
                          ("All grades", "/grades/"),
                          (f"GS-{g}", None)], js=js, rail=rail)
@@ -457,7 +462,7 @@ def how_it_works(T: dict, shell, money) -> str:
                  "Locality pay is a labor-market adjustment, not a cost-of-living "
                  "one. How duty station, waiting periods and the statutory ceiling "
                  "set a federal salary.",
-                 "\n".join(B), "https://fedpayscale.com/how-locality-pay-works/", "how")
+                 "\n".join(B), f"{DOMAIN}/how-locality-pay-works/", "how")
 
 
 def about(shell) -> str:
@@ -491,7 +496,7 @@ def about(shell) -> str:
     return shell("About FedPay — how the numbers are built and checked",
                  "FedPay recomputes every federal pay rate from the OPM source tables "
                  "and verifies all 8,700 of them before publishing.",
-                 "\n".join(B), "https://fedpayscale.com/about/", "about")
+                 "\n".join(B), f"{DOMAIN}/about/", "about")
 
 
 def privacy(shell) -> str:
@@ -526,7 +531,7 @@ def privacy(shell) -> str:
          'and runs no advertising today.</p>']
     return shell("Privacy — FedPay", "What FedPay collects and what it does not: no analytics, no advertising "
                  "cookies, no accounts, and no third-party requests of any kind.",
-                 "\n".join(B), "https://fedpayscale.com/privacy/")
+                 "\n".join(B), f"{DOMAIN}/privacy/")
 
 
 def terms(shell) -> str:
@@ -554,7 +559,7 @@ def terms(shell) -> str:
          'be an official source.</p>']
     return shell("Terms — FedPay", "Terms of use for FedPay: what the pay figures are, what they are not, "
                  "and the limits of relying on an independent reference.",
-                 "\n".join(B), "https://fedpayscale.com/terms/")
+                 "\n".join(B), f"{DOMAIN}/terms/")
 
 
 def not_found(shell) -> str:
@@ -689,7 +694,7 @@ independently recomputed and matched to the published figures.</figcaption>
                  f"All fifteen General Schedule grades for {year}: base rates, the "
                  f"lowest and highest actual salary across every locality, and where "
                  f"the statutory ceiling bites.",
-                 "\n".join(B), "https://fedpayscale.com/grades/", "grades",
+                 "\n".join(B), f"{DOMAIN}/grades/", "grades",
                  crumbs=[("All localities", "/"),
                          ("All grades", None)], rail=rail)
 
@@ -845,7 +850,7 @@ def calculator(T: dict, R: dict, shell, esc, money, widget, js: str,
                  f"Work out any {year} General Schedule salary by ZIP code, grade and "
                  f"step. Annual, biweekly, hourly and overtime, plus what it is worth "
                  f"after local prices.",
-                 "\n".join(B), "https://fedpayscale.com/calculator/", "calc",
+                 "\n".join(B), f"{DOMAIN}/calculator/", "calc",
                  crumbs=[("All localities", "/"), ("Pay calculator", None)], js=js, rail=rail)
 
 
@@ -913,7 +918,7 @@ def contact(shell, contact_email: str, owner: str) -> str:
     return shell("Contact FedPay",
                  "How to reach FedPay, how to report a figure you think is wrong, "
                  "and what a reference site can and cannot answer.",
-                 "\n".join(B), "https://fedpayscale.com/contact/", "contact",
+                 "\n".join(B), f"{DOMAIN}/contact/", "contact",
                  crumbs=[("All localities", "/"), ("Contact", None)])
 
 
@@ -1045,5 +1050,5 @@ def methodology(T: dict, R: dict, shell, money, owner: str, contact_email: str) 
                  "The sources, the arithmetic in the order the law sets it, the "
                  "sixteen checks that stop publication, and what this site "
                  "deliberately does not do.",
-                 "\n".join(B), "https://fedpayscale.com/methodology/", "method",
+                 "\n".join(B), f"{DOMAIN}/methodology/", "method",
                  crumbs=[("All localities", "/"), ("Methodology", None)])

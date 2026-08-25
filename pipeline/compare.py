@@ -21,6 +21,11 @@ california-vs-texas), а у нас не было ничего.
 """
 from __future__ import annotations
 
+# Адрес сайта живёт одной константой в render.py и подставляется
+# сюда на старте сборки. Домен ещё не выбран, и он обязан
+# меняться одной строкой, а не обходом шести файлов.
+DOMAIN = ""
+
 REF_GRADE, REF_STEP = "12", "5"
 
 
@@ -181,7 +186,7 @@ comparable; the full tables for each area are linked below.</figcaption>
             f"{money(pb)} in {short_b}{_dot(short_b)} Which one leaves you better "
             f"off after local prices, grade by grade.")
     return rel, shell(
-        title, desc, "\n".join(B), f"https://fedpayscale.com/{rel}/", "compare",
+        title, desc, "\n".join(B), f"{DOMAIN}/{rel}/", "compare",
         crumbs=[("All localities", "/"), ("Compare", "/compare/"),
                 (f"{short_a} vs {short_b}", None)], rail=rail)
 
@@ -554,5 +559,5 @@ def compare_index(items: list, shell, esc) -> str:
     return shell("Compare GS Pay Between Localities",
                  "Two locality pay areas side by side: the salaries, and which one "
                  "leaves you better off once local prices are counted.",
-                 "\n".join(B), "https://fedpayscale.com/compare/", "compare",
+                 "\n".join(B), f"{DOMAIN}/compare/", "compare",
                  crumbs=[("All localities", "/"), ("Compare", None)])

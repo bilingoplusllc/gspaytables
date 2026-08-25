@@ -25,6 +25,11 @@
 """
 from __future__ import annotations
 
+# Адрес сайта живёт одной константой в render.py и подставляется
+# сюда на старте сборки. Домен ещё не выбран, и он обязан
+# меняться одной строкой, а не обходом шести файлов.
+DOMAIN = ""
+
 # 5 CFR 531.405: сроки до следующей ступени.
 WAITS = [1, 1, 1, 2, 2, 2, 3, 3, 3]
 
@@ -228,7 +233,7 @@ def ladder_page(g: int, T: dict, R: dict, ranks: dict, shell, esc, money, slug,
             f"from step 10, {money(last['gain'])}.")
     rel = f"promotion/gs-{g}-to-gs-{nxt}"
     return rel, shell(
-        title, desc, "\\n".join(B), f"https://fedpayscale.com/{rel}/", "promotion",
+        title, desc, "\\n".join(B), f"{DOMAIN}/{rel}/", "promotion",
         crumbs=[("All localities", "/"), ("Promotions", "/promotion/"),
                 (f"GS-{g} to GS-{nxt}", None)],
         rail=rail)
@@ -337,5 +342,5 @@ def ladder_index(items: list, T: dict, shell, esc, money) -> str:
     return shell("GS Promotion Pay: Which Step You Land On",
                  "What a promotion between General Schedule grades is worth, which "
                  "step you land on, and why the raise shrinks the longer you wait.",
-                 "\\n".join(B), "https://fedpayscale.com/promotion/", "promotion",
+                 "\\n".join(B), f"{DOMAIN}/promotion/", "promotion",
                  crumbs=[("All localities", "/"), ("Promotions", None)])

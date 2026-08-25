@@ -17,6 +17,11 @@
 """
 from __future__ import annotations
 
+# Адрес сайта живёт одной константой в render.py и подставляется
+# сюда на старте сборки. Домен ещё не выбран, и он обязан
+# меняться одной строкой, а не обходом шести файлов.
+DOMAIN = ""
+
 REF_GRADE, REF_STEP = "12", "5"
 
 # Коды и названия штатов. Это не данные о зарплатах, а общеизвестный справочник:
@@ -451,7 +456,7 @@ def state_page(st: str, zones: dict, T: dict, R: dict, ranks: dict,
 
     rel = f"states/{slug(name)}"
     return rel, shell(
-        title, desc, "\n".join(B), f"https://fedpayscale.com/{rel}/", "states",
+        title, desc, "\n".join(B), f"{DOMAIN}/{rel}/", "states",
         crumbs=[("All localities", "/"), ("States", "/states/"), (name, None)], rail=rail)
 
 
@@ -528,7 +533,7 @@ def states_index(items: list, shell, esc) -> str:
     return shell("GS Pay Scale by State",
                  "Which locality pay areas cover each state, what each pays, and "
                  "how much the answer depends on the county.",
-                 "\n".join(B), "https://fedpayscale.com/states/", "states",
+                 "\n".join(B), f"{DOMAIN}/states/", "states",
                  crumbs=[("All localities", "/"), ("States", None)])
 
 
@@ -639,7 +644,7 @@ def no_area_page(codes: list, T: dict, shell, esc, money, slug) -> str:
                  f"{len(names)} states contain no named locality pay area: every "
                  f"federal duty station in them is paid the Rest of U.S. rate. "
                  f"Which states, what it pays, and what it means.",
-                 "\n".join(B), "https://fedpayscale.com/states/no-locality-area/",
+                 "\n".join(B), f"{DOMAIN}/states/no-locality-area/",
                  "states",
                  crumbs=[("All localities", "/"), ("States", "/states/"),
                          ("No named area", None)])
