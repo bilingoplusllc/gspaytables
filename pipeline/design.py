@@ -392,7 +392,12 @@ footer a{color:var(--muted)}
 
 @media (max-width:1080px){
   .layout{grid-template-columns:minmax(0,1fr);gap:var(--s4)}
-  .rail{position:static;display:grid;
+  /* Рельс уходит ПОД содержимое. В одну колонку он вставал первым, и на
+     телефоне человек видел оглавление и рекламный блок раньше заголовка
+     страницы — на странице грейда это пятнадцать ссылок до первой строки
+     текста. Навигация не должна стоять между читателем и ответом. */
+  main{order:1}
+  .rail{order:2;position:static;display:grid;
     grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--s3)}
   .rail ol{margin-bottom:0}
   .ad-rail{min-height:110px}
@@ -401,8 +406,13 @@ footer a{color:var(--muted)}
 @media (max-width:640px){
   body{font-size:15.5px}
   .masthead,.ab-in,.layout,footer .in{padding-left:var(--s3);padding-right:var(--s3)}
-  .ab-more{gap:var(--s3)}
-  .ab-more .v{font-size:13.5px}
+  /* На телефоне липкая полоса в две строки съедала пятую часть экрана.
+     Вторичные числа стоят в карточке сразу под ней, поэтому в полосе
+     остаётся только то, ради чего она липкая: где, что и сколько. */
+  .ab-more{display:none}
+  .ab-in{gap:var(--s3);padding:8px var(--s3)}
+  .ab-where{font-size:11px;max-width:none;flex:1 1 100%}
+  .ab-main{margin-left:auto}
   .rail{grid-template-columns:minmax(0,1fr)}
   section.q{padding:var(--s3)}
   table{font-size:13px}
