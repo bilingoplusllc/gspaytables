@@ -1382,11 +1382,16 @@ def main() -> int:
     (DIST / "robots.txt").write_text(
         f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n", encoding="utf-8")
     (DIST / "_redirects").write_text("/index.html  /  301\n", encoding="utf-8")
+    # Cache-Control для HTML здесь НЕ объявляется намеренно. Cloudflare
+    # Pages СКЛЕИВАЕТ заголовки всех подошедших правил, а не отдаёт победу
+    # последнему: шрифт получал "max-age=0, must-revalidate, ...,
+    # max-age=31536000, immutable", браузер читал первый max-age, и кеша
+    # не было вовсе. Для HTML у Pages свой умолчательный
+    # max-age=0, must-revalidate — проверено на живом хосте.
     (DIST / "_headers").write_text(
         "/*\n  X-Content-Type-Options: nosniff\n"
         "  Referrer-Policy: strict-origin-when-cross-origin\n"
         "  X-Frame-Options: DENY\n"
-        "  Cache-Control: public, max-age=0, must-revalidate\n"
         "\n"
         "# Fonts and the ZIP lookup change once a year and carry stable\n"
         "# names, so they may be cached indefinitely.\n"
