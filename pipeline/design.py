@@ -249,12 +249,9 @@ body{margin:0;background:var(--ground);color:var(--ink);
 
 /* ---------- раскладка: рельс и основная колонка */
 /* Страницы без рельса: одна колонка разумной ширины, а не дыра в сетке. */
-.layout.solo{grid-template-columns:minmax(0,1fr);max-width:820px}
 /* Широкая одноколоночная: главная. Рельса нет — он дублировал верхнее меню
    и отбирал 230 px слева, — но и 820 px колонки мало таблице на семь
    колонок и 58 строк. */
-.layout.wide{grid-template-columns:minmax(0,1fr);max-width:1180px}
-.layout.wide .sub{max-width:60ch}
 
 /* ---------- места под рекламу: заложены в раскладку заранее */
 /* Сеть не подключена. Пустые пунктирные рамки с надписью Advertisement —
@@ -437,7 +434,6 @@ figure.ex{margin:0;padding:0}
 .sheet{background:var(--sheet);box-shadow:var(--sheet-shadow)}
 .col{max-width:1060px;margin:0 auto;
   padding-left:clamp(18px,3.4vw,40px);padding-right:clamp(18px,3.4vw,40px)}
-.measure{max-width:34em}
 
 /* Содержание выпуска строкой. Прежде это был левый рельс: 230 px ширины на
    153 страницах под дубликат верхнего меню. */
@@ -557,8 +553,6 @@ section.q>.col::before{content:"Section " counter(secn);
 /* Линейки трёх весов вместо одной в 1 px на всю страницу. */
 .rd{height:0;border-top:3px solid var(--heavy);
   border-bottom:1px solid var(--heavy);padding-top:3px;margin:var(--sp2) 0 0}
-.rs{height:0;border-top:1px solid var(--rule);margin:0}
-.rh{height:0;border-top:1px solid var(--hair);margin:0}
 
 /* ---------- набор: антиква читает, гротеск служит */
 h1{font-family:var(--serif);font-size:var(--s-title);line-height:1.08;
@@ -814,6 +808,10 @@ section.q p{max-width:34em}
    его краю, и смещение на высоту полосы оставляло бы внутри контейнера
    пустую полосу в 44-56 px, над которой уезжали бы строки. */
 body{--stick:0px}
+/* Признак «на странице есть липкая полоса». Правило было снесено чисткой
+   Ш8 (её шаблон начинался с body и захватил body.withbar), и отступ
+   якоря на десктопе молча обнулился на 58 страницах. */
+body.withbar{--stick:56px}
 /* Дополнительные цифры полосы требуют около 600 px сверх остального и не
    помещаются вплоть до 1080: при 768 они уезжали за правый край на 291 px и
    давали горизонтальную прокрутку всей странице. Полоса без них по-прежнему
@@ -822,6 +820,9 @@ body{--stick:0px}
 @media (max-width:760px){
   .ab-in{height:44px;gap:10px}
   .ab-pick label{display:none}
+  /* Отступ якоря обязан идти за высотой полосы: иначе переход из содержания
+     перелетает заголовок на 12 px. Правило было снесено той же чисткой Ш8. */
+  body.withbar{--stick:44px}
 }
 @media (max-width:520px){
   .ab-where{display:none}
