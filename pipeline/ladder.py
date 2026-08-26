@@ -115,7 +115,7 @@ def ladder_page(g: int, T: dict, R: dict, ranks: dict, shell, esc, money, slug,
              f'<th class="num">Base increase</th></tr></thead>'
              f'<tbody>{body}</tbody></table></div>'
              f'<p>These are <strong>base rates</strong>, before locality pay. Your '
-             f'actual figures are these multiplied by your area\’s percentage, '
+             f'actual figures are these multiplied by your area’s percentage, '
              f'and the increase scales with it: in an area at 30% the numbers above '
              f'are roughly a third larger. The '
              f'<a href="/calculator/">calculator</a> will do it for your area.</p>'
@@ -235,7 +235,7 @@ def ladder_page(g: int, T: dict, R: dict, ranks: dict, shell, esc, money, slug,
             f"from step 10, {money(last['gain'])}.")
     rel = f"promotion/gs-{g}-to-gs-{nxt}"
     return rel, shell(
-        title, desc, "\\n".join(B), f"{DOMAIN}/{rel}/", "promotion",
+        title, desc, "\n".join(B), f"{DOMAIN}/{rel}/", "promotion",
         crumbs=[("All localities", "/"), ("Promotions", "/promotion/"),
                 (f"GS-{g} to GS-{nxt}", None)],
         rail=rail)
@@ -344,5 +344,5 @@ def ladder_index(items: list, T: dict, shell, esc, money) -> str:
     return shell("GS Promotion Pay: Which Step You Land On",
                  "What a promotion between General Schedule grades is worth, which "
                  "step you land on, and why the raise shrinks the longer you wait.",
-                 "\\n".join(B), f"{DOMAIN}/promotion/", "promotion",
+                 "\n".join(B), f"{DOMAIN}/promotion/", "promotion",
                  crumbs=[("All localities", "/"), ("Promotions", None)])
