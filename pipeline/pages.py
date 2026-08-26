@@ -125,7 +125,7 @@ def home(T: dict, R: dict, ranks: dict, L: dict, shell, esc, money, slug,
     B.append(f'<p class="q-lead">Every rate on this site was recomputed from the '
              f'published base table and the locality percentage, then checked against '
              f'the official OPM figure. All 8,700 cells match to the dollar.</p>')
-    B.append(f'<p class="src">Salary tables and locality percentages: U.S. Office of Personnel '
+    B.append(f'<p>Salary tables and locality percentages: U.S. Office of Personnel '
              f'Management, {year} General Schedule salary tables. Locality pay area '
              f'definitions: OPM, {year}. Price levels: U.S. Bureau of Economic '
              f'Analysis Regional Price Parities, {R["bea_year"]}, shown to one decimal '
@@ -921,7 +921,7 @@ def calculator(T: dict, R: dict, shell, esc, money, widget, js: str,
              'the figure here is a floor rather than an answer.</p>')
 
     B.append('<h2>Where the numbers come from</h2>')
-    B.append(f'<p class="src">Salary tables and locality percentages: U.S. Office of Personnel '
+    B.append(f'<p>Salary tables and locality percentages: U.S. Office of Personnel '
              f'Management, {year} General Schedule salary tables. Locality pay area '
              f'definitions: OPM, {year}. Price levels: U.S. Bureau of Economic '
              f'Analysis Regional Price Parities, {R["bea_year"]}. ZIP-code-to-county '

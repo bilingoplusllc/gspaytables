@@ -196,6 +196,7 @@ comparable; the full tables for each area are linked below.</figcaption>
             f"off after local prices, grade by grade.")
     facts = {"a": short_a, "b": short_b,
              "pay_a": pa, "pay_b": pb, "buys_a": aa, "buys_b": ab,
+             "gap": gap,
              "ppw": ppw, "material": material, "better": better}
     return rel, shell(
         title, desc, "\n".join(B), f"{DOMAIN}/{rel}/", "compare",
@@ -492,74 +493,99 @@ def _places(sa, sb, na, nb, pa, pb, money, esc, slug) -> str:
 
 
 def compare_index(items: list, shell, esc, money) -> str:
-    """Указатель сравнений: группа — зона, а в ней все её пары.
+    """Указатель сравнений: группа — это ОТВЕТ, а не зона.
 
-    Две беды разом. Текст ссылки собирался из АДРЕСА заглавными буквами и давал
-    «San Jose Ca Vs Rest Of U S», хотя настоящее имя зоны страница пары печатает
-    у себя в заголовке — 273 неверные подписи по сайту. И порядок: двадцать одна
-    ссылка шла сплошной лентой, а лежала при этом «сначала все пары Сан-Хосе,
-    потом все пары Нью-Йорка», то есть под Хьюстоном стояли три пары из шести, и
-    читатель, не найдя там Нью-Йорка, делал вывод, что такой страницы нет.
+    Прежде группой была зона, и в ней стояли все шесть её пар: расчёт на
+    читателя, который знает одну из двух зон. Цена оказалась выше расчёта.
+    Каждая пара стояла ДВАЖДЫ — 42 строки на 21 страницу, — и число справа
+    меняло знак между двумя своими вхождениями, потому что считалось от
+    заголовка группы: «San Jose, CA → Houston, TX −$8,925» и
+    «Houston, TX → San Jose, CA +$8,925» суть одно утверждение, а читателю
+    приходилось это выводить самому.
 
-    Читатель знает ОДНУ из двух зон: ту, где работает, или ту, откуда пришло
-    предложение. Поэтому группа — это зона, и в ней стоят все шесть её
-    сравнений; пара стоит в обеих своих группах. Оформление взято у указателя
-    штатов без единого нового класса: там та же задача — заголовок группы,
-    пояснение и ровная сетка имён с числом справа.
+    Двадцать одну строку незачем раскладывать по зоне: их мало, и они
+    помещаются в один экран целиком. Раскладывать их стоит по тому, ради чего
+    страница существует, — по ответу. Четыре группы, каждая пара ровно один
+    раз. Числа групп считаются, а не пишутся: в издании 2026 это 4 пары, где
+    побеждает МЕНЬШИЙ оклад, 9 — где больший, 2 неразличимые внутри
+    погрешности и 6 против Rest of U.S., где сравнивать не с чем.
+    Перевес выделен полужирным прямо в названии пары, поэтому строка не
+    требует помнить, какая из двух зон платит больше.
+
+    Оформление взято у указателя штатов: .st-group/.st-head/.st-note/
+    .st-count/.st-list/.st-n. Своя здесь одна величина — ширина колонки:
+    имена ДВУХ зон в строке вдвое длиннее имени одного штата.
     """
-    # Все числа приходят из фактов, которые вернула САМА страница пары.
-    # Пересчитать их здесь значило бы завести второй источник одной величины
-    # и однажды напечатать на указателе не тот вердикт, что на странице.
-    areas: dict = {}
+    # Все числа и вердикты приходят из фактов, которые вернула САМА страница
+    # пары. Пересчитать их здесь значило бы завести второй источник одной
+    # величины и однажды напечатать на указателе не тот вердикт, что на
+    # странице.
+    flip, same, even, none = [], [], [], []
     for rel, _t, f in items:
-        for me, other in (("a", "b"), ("b", "a")):
-            slot = areas.setdefault(f[me], {"pay": f["pay_" + me],
-                                            "buys": f["buys_" + me],
-                                            "rows": []})
-            slot["rows"].append((f["pay_" + other], f[other], rel, f))
+        # ИМЕННО `is None`, а не `not`: ноль — это «разница ровно нулевая»,
+        # то есть индекс ЕСТЬ и покупательная способность совпала. Признак
+        # «индекса нет» обязан отличаться от признака «нет разницы».
+        if f["ppw"] is None:
+            none.append((rel, f))
+        elif not f["material"]:
+            even.append((rel, f))
+        elif f["better"] == f["b"]:
+            flip.append((rel, f))
+        else:
+            same.append((rel, f))
+
+    def line(rel, f, mark, aria, winner):
+        # Полужирным — сторона, за которой перевес. Там, где победителя нет,
+        # не выделяется ничто: выделить формального лидера в группе
+        # «неразличимы» значило бы спорить с её же заголовком.
+        def side(nm):
+            return ("<strong>%s</strong>" % esc(nm)) if nm == winner else esc(nm)
+        return ('<li><a href="/%s/">%s vs %s</a>'
+                '<span class="st-n" aria-label="%s">%s</span></li>'
+                % (rel, side(f["a"]), side(f["b"]), esc(aria), esc(mark)))
+
+    # Знак минус U+2212 часть скринридеров не озвучивает вовсе, поэтому
+    # подпись для голоса — словами, а не знаком.
+    won = lambda f: "%s better off by %s" % (f["better"], money(f["ppw"]))
+    # Разницу окладов считает СТРАНИЦА ПАРЫ и печатает её в подзаголовке;
+    # пересчёт здесь был бы вторым источником одной величины.
+    gap = lambda f: f["gap"]
     blocks = []
-    for nm, d in sorted(areas.items(), key=lambda kv: -kv[1]["pay"]):
-        li = []
-        for _p, other, rel, f in sorted(d["rows"], key=lambda r: -r[0]):
-            aria = ""
-            # ИМЕННО `is None`, а не `not`: ноль — это «разница ровно нулевая»,
-            # то есть индекс ЕСТЬ и покупательная способность совпала. Признак
-            # «индекса нет» обязан отличаться от признака «нет разницы».
-            if f["ppw"] is None:
-                # У зоны без индекса пуста вся графа, и печатать «no index»
-                # шесть раз подряд значит шесть раз извиниться: причина стоит
-                # в пояснении к группе один раз. В остальных группах пометка
-                # нужна — там она исключение посреди столбца чисел.
-                mark = "no index" if d["buys"] else ""
-                aria = "no price index for %s" % other
-            elif not f["material"]:
-                mark = "even"
-                aria = "within one percent of the larger salary"
-            else:
-                ahead = f["better"] == nm
-                mark = ("+" if ahead else "\u2212") + money(f["ppw"])
-                # Знак минус U+2212 часть скринридеров не озвучивает вовсе,
-                # и «−$8,925» читается как «8,925» — ровно наоборот по смыслу.
-                aria = "%s better in %s" % (money(f["ppw"]),
-                                            nm if ahead else other)
-            li.append('<li><a href="/%s/">%s</a>%s</li>'
-                      % (rel, esc(other),
-                         ('<span class="st-n" aria-label="%s">%s</span>'
-                          % (esc(aria), esc(mark))) if mark else ""))
-        # Формулировка совпадает со страницей самой зоны: BEA публикует индексы
-        # для агломераций, а Rest of U.S. — не агломерация, поэтому «no SINGLE
-        # index», а не «индекс не публикуется».
-        note = (("%s at GS-%s step %s, worth %s at average prices"
-                 % (money(d["pay"]), REF_GRADE, REF_STEP, money(d["buys"])))
-                if d["buys"] else
-                ("%s at GS-%s step %s; this area has no single metropolitan "
-                 "price index published for it"
-                 % (money(d["pay"]), REF_GRADE, REF_STEP)))
+    for head, note, bunch, key, mark, aria, named in (
+            ("The lower salary wins",
+             "the area that pays less on paper is the one that buys more",
+             flip, lambda r: -r[1]["ppw"], lambda f: money(f["ppw"]), won, True),
+            ("The bigger salary wins",
+             "the higher-paying area is also the one that buys more",
+             same, lambda r: -r[1]["ppw"], lambda f: money(f["ppw"]), won, True),
+            ("Too close to call",
+             "less than one percent of the larger salary apart, which is "
+             "inside the error of the price data",
+             even, lambda r: -r[1]["ppw"],
+             lambda f: "%s apart" % money(f["ppw"]),
+             lambda f: "%s apart, inside one percent of the larger salary"
+                       % money(f["ppw"]), False),
+            # Формулировка совпадает со страницей самой зоны: BEA публикует
+            # индексы для агломераций, а Rest of U.S. — не агломерация,
+            # поэтому «no SINGLE metropolitan index», а не «индекс не
+            # публикуется».
+            ("Salaries only",
+             "Rest of U.S. has no single metropolitan price index published "
+             "for it, so only the salaries can be compared",
+             none, lambda r: -gap(r[1]),
+             lambda f: "%s on paper" % money(gap(f)),
+             lambda f: "%s more on paper" % money(gap(f)), False)):
+        if not bunch:
+            continue
+        rows = "".join(line(rel, f, mark(f), aria(f),
+                            f["better"] if named else None)
+                       for rel, f in sorted(bunch, key=key))
         blocks.append('<div class="st-group"><h3 class="st-head">%s '
-                      '<span class="st-note">%s</span></h3>'
+                      '<span class="st-note">%s</span> '
+                      '<span class="st-count">%d</span></h3>'
                       '<ul class="st-list">%s</ul></div>'
-                      % (esc(nm), esc(note), "".join(li)))
-    links = '<div class="states-index">%s</div>' % "".join(blocks)
+                      % (esc(head), esc(note), len(bunch), rows))
+    links = '<div class="states-index pairs">%s</div>' % "".join(blocks)
     B = ['<ol class="crumbs"><li><a href="/">All localities</a></li>'
          '<li>Compare</li></ol>',
          '<h1>Compare two locality pay areas</h1>',
@@ -572,16 +598,16 @@ def compare_index(items: list, shell, esc, money) -> str:
          'against. Each page compares every grade at step 5, works out the grade in '
          'the cheaper area that matches the more expensive one, and shows which of '
          'the two runs into the statutory ceiling first.</p>',
-         '<p>Each group below is one area, and under it every comparison '
-         'that area has a page for. The figure at the right of a line is '
-         f'what a GS-{REF_GRADE} step {REF_STEP} gains or loses in '
-         'purchasing power by taking the area at the head of the group '
-         'instead of the one named on the line, so a minus sign means the '
-         'area on the line leaves you better off — sometimes while paying '
-         'less on paper. “Even” means the two are within one percent of '
-         'the larger salary, which is inside the error of the price data. '
-         '“No index” means the area on that line has no published price '
-         'index, so only the salaries can be compared.</p>',
+         f'<p>The {len(items)} pairs below are grouped by the answer, and each '
+         'pair appears once. The area in bold is the one that comes out ahead '
+         'once local prices are counted — not always the one that pays more '
+         '— and the figure at the right is how much better off it '
+         f'leaves you at GS-{REF_GRADE} step {REF_STEP}. Where nothing is in '
+         'bold there is no winner to name: either the two are less than one '
+         'percent of the larger salary apart, which is inside the error of the '
+         'price data, or one of them is Rest of U.S., which has no single '
+         'metropolitan price index published for it and can be compared on '
+         'salary alone — those figures are marked “on paper”.</p>',
          links,
          '<h2>Why the bigger salary is not always the better offer</h2>',
          '<p>Locality pay is set from what private employers in the same region pay '

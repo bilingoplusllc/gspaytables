@@ -34,6 +34,8 @@ from __future__ import annotations
 
 import json
 
+import names
+
 
 def calc_data(T: dict, R: dict, ranks: dict, slug) -> str:
     """Компактные данные для клиента: база, зоны, проценты, цены, ранги."""
@@ -47,6 +49,7 @@ def calc_data(T: dict, R: dict, ranks: dict, slug) -> str:
         zones.append({
             "c": code,
             "n": loc["area_name"],
+            "sn": names.short_name(loc["area_name"]),
             "u": "/locality/" + slug(loc["area_name"]) + "/",
             "p": loc["locality_pct"],
             "r": rp.get("rpp"),
@@ -202,9 +205,11 @@ CALC_JS = r"""
     /* The year is deliberately absent here: it is already printed in the
        edition line and in the heading, and on a phone the area name alone
        takes five lines and pushes the ranks below the fold. */
-    /* The area name is wrapped so a line break can never fall inside it. */
+    /* Two names: the full one, and a short one for screens too narrow to
+       fit it. CSS picks; both come from the same source. */
     var head = 'GS-' + g + ', step ' + s + ' in ' +
-               '<span class="fp-area">' + esc(zone.n) + '</span>';
+               '<span class="fp-area">' + esc(zone.n) + '</span>' +
+               '<span class="fp-area-s">' + esc(zone.sn) + '</span>';
     if (hBig){
       var hWhat = box.querySelector("[data-what]");
       var hRank = box.querySelector("[data-ranks]");

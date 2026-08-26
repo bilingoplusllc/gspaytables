@@ -472,10 +472,9 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 <a class="skip" href="#content">Skip to content</a>
 <header class="mast">
   <div class="mast-in">
-    <a class="brand" href="/" aria-label="{SITE} — home">{SEAL_MAST}<span
-      class="brand-name">{SITE}</span></a>
+    <div class="mast-id"><a class="brand" href="/" aria-label="{SITE} — home">{SEAL_MAST}<span
+      class="brand-name">{SITE}</span></a><span class="tagline">{TAGLINE}</span></div>
     <span class="edition">{T_YEAR} edition<br>Effective January {T_YEAR}</span>
-    <span class="tagline">{TAGLINE}</span>
   </div>
 </header>
 <nav class="menu" aria-label="Main">
@@ -508,10 +507,10 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
   </div>
 </div>
 <footer><div class="foot-in">
+  <div class="foot-mark">{SEAL_FOOT}</div>
   <p class="foot-disc">Not affiliated with the U.S. Office of Personnel
   Management or any federal agency.</p>
-  <div>{SEAL_FOOT}</div>
-  <div>
+  <div class="foot-body">
   <p class="disclaimer">{SITE} is an independent reference published by {OWNER}.
   Pay figures are computed from the official OPM salary tables and verified cell
   by cell against them. Price levels are Regional Price Parities from the U.S.
@@ -1211,8 +1210,14 @@ def page_hero(T: dict, ranks: dict, esc, money,
             'purchasing-power rank.')
     # Год здесь не печатается: он уже стоит в строке выпуска и в заголовке,
     # а на телефоне название зоны и без него занимает пять строк.
+    # Два имени, потому что при 375 полное не помещается ни при каком
+    # кегле: самому длинному из 58 нужно 330px при 283 доступных.
+    # Короткое берётся из того же names.short_name, которым набрана вся
+    # остальная навигация, — второго источника имени не заводим.
     return (f'<p class="fp-what" data-what>GS-{g}, step {s} in '
-            f'<span class="fp-area">{esc(loc["area_name"])}</span></p>'
+            f'<span class="fp-area">{esc(loc["area_name"])}</span>'
+            f'<span class="fp-area-s">'
+            f'{esc(names.short_name(loc["area_name"]))}</span></p>'
             f'<p class="fp-big" data-big>{money(cell["annual"])}</p>'
             f'<p class="fp-ranks" data-ranks>{line}</p>')
 
@@ -1421,19 +1426,19 @@ def main() -> int:
     urls.append("/states/")
 
     # --- лестница грейдов: типа страниц нет ни у одного конкурента
-    lad_items = [(f"promotion/gs-{g}-to-gs-{g+1}", f"GS-{g} to GS-{g+1}")
-                 for g in range(1, 15)]
+    lad_items = []
     for g in range(1, 15):
         lad_rail = side_rail(
             "Every promotion",
             [(f"/promotion/gs-{x}-to-gs-{x+1}/", f"GS-{x} to GS-{x+1}", x == g)
              for x in range(1, 15)],
             "The step you land on is set by rule, not by negotiation.")
-        rel, html_page = ladder.ladder_page(g, T, R, ranks, shell, esc, money,
-                                            slug, lad_rail)
+        rel, html_page, facts = ladder.ladder_page(g, T, R, ranks, shell, esc,
+                                                   money, slug, lad_rail)
         write(rel, html_page)
         urls.append(f"/{rel}/")
-    write("promotion", ladder.ladder_index(lad_items, T, shell, esc, money))
+        lad_items.append((rel, facts))
+    write("promotion", ladder.ladder_index(lad_items, shell, esc))
     urls.append("/promotion/")
 
     # Файл индексов подгружается инструментом по запросу пользователя, поэтому

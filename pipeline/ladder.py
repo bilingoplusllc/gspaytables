@@ -234,26 +234,39 @@ def ladder_page(g: int, T: dict, R: dict, ranks: dict, shell, esc, money, slug,
             f"is worth. From step 1 it adds {money(first['gain'])} to base pay; "
             f"from step 10, {money(last['gain'])}.")
     rel = f"promotion/gs-{g}-to-gs-{nxt}"
+    # Указатель печатает те же величины, что стоят в карточках фактов ЭТОЙ
+    # страницы, и берёт их отсюда. Пересчитать их у себя значило бы завести
+    # второй источник одной величины — так уже сделано у сравнений зон, и по
+    # той же причине: иначе указатель однажды напечатает не то, что страница.
+    facts = {"pair": f"GS-{g} to GS-{nxt}",
+             "gain_1": first["gain"], "gain_10": last["gain"],
+             "land_10": last["ns"], "ceiling": top_n - top_g}
     return rel, shell(
         title, desc, "\n".join(B), f"{DOMAIN}/{rel}/", "promotion",
         crumbs=[("All localities", "/"), ("Promotions", "/promotion/"),
                 (f"GS-{g} to GS-{nxt}", None)],
-        rail=rail)
+        rail=rail), facts
 
 
-def ladder_index(items: list, T: dict, shell, esc, money) -> str:
-    """Указатель по всем парам."""
-    base = T["base"]["grades"]
-    links = "".join(f'<li><a href="/{rel}/">{esc(t)}</a></li>' for rel, t in items)
+def ladder_index(items: list, shell, esc) -> str:
+    """Указатель по всем парам — ведомостью, а не россыпью ссылок.
 
-    sample = []
-    for g in (7, 9, 11, 12, 13):
-        ns, newpay, _, cur = promo_step(base, g, 1)
-        _, lastpay, _, lastcur = promo_step(base, g, 10)
-        sample.append(f'<tr><th scope="row">GS-{g} to GS-{g + 1}</th>'
-                      f'<td class="num up">+{newpay - cur:,}</td>'
-                      f'<td class="num">+{lastpay - lastcur:,}</td>'
-                      f'<td class="num">{base[str(g + 1)]["10"]["annual"] - base[str(g)]["10"]["annual"]:,}</td></tr>')
+    Прежде тут лежали четырнадцать одинаковых на вид ссылок «GS-1 to GS-2»,
+    а числа стояли ниже и отдельно — выборочной таблицей на ПЯТЬ пар из
+    четырнадцати. Человек, которому предложили повышение, видел сначала
+    перечень без единого числа, а потом числа для чужой пары. Теперь ссылка
+    и её числа стоят в одной строке, и строк все четырнадцать: указатель
+    отвечает на вопрос «сколько мне это даст», а не перечисляет адреса.
+
+    Числа приходят из фактов, которые вернула САМА страница перехода, и
+    совпадают с её карточками знак в знак.
+    """
+    rows = "".join(
+        f'<tr><th scope="row"><a href="/{rel}/">{esc(f["pair"])}</a></th>'
+        f'<td class="num up">+{f["gain_1"]:,}</td>'
+        f'<td class="num">+{f["gain_10"]:,}</td>'
+        f'<td class="num">Step {f["land_10"]}</td>'
+        f'<td class="num">{f["ceiling"]:,}</td></tr>' for rel, f in items)
 
     B = ['<ol class="crumbs"><li><a href="/">All localities</a></li>'
          '<li>Promotions</li></ol>',
@@ -261,7 +274,28 @@ def ladder_index(items: list, T: dict, shell, esc, money) -> str:
          '<p class="sub">The step you land on after a promotion is decided by a '
          'rule, and the raise it produces is smaller the longer you waited. These '
          'pages work out both, for every pair of adjacent grades.</p>',
-         f'<div class="chips">{links}</div>',
+
+         # Пояснение к графам стоит ДО ведомости, как в указателе сравнений:
+         # число без единицы измерения читатель истолкует сам. Обычный абзац,
+         # а НЕ .tlegend: механизм полей уносит легенду в боковое поле, а
+         # занятое поле сжимает содержимое и заводит на странице ВТОРОЙ
+         # правый край — ровно тот, который только что убрали. Замер при
+         # 1440: правый край ведомости с легендой 971, без неё 1203.
+         '<p>Every promotion between adjacent grades has a page below. The '
+         'figures are base rates before locality pay: what the promotion adds '
+         'from step 1 of your current grade, what it adds from step 10 and which '
+         'step of the new grade that lands you on, and how much higher the top '
+         'of the new grade sits. Fifty-two weeks at the lower grade is the '
+         'eligibility floor for every one of them.</p>',
+         f'<div class="scroll" tabindex="0" role="region" '
+         f'aria-label="Scrollable table"><table><thead><tr><th>Promotion</th>'
+         f'<th class="num">From step 1</th><th class="num">From step 10</th>'
+         f'<th class="num">Step 10 lands on</th>'
+         f'<th class="num">Ceiling raised by</th></tr></thead>'
+         f'<tbody>{rows}</tbody></table></div>',
+         '<p>In an area paying 30% above base every number is roughly a third '
+         'larger, and the <a href="/calculator/">calculator</a> will do it for '
+         'a specific area.</p>',
 
          '<section class="q"><h2>The short version</h2>',
          '<p class="q-lead">Two within-grade increases of your current grade, then '
@@ -271,16 +305,7 @@ def ladder_index(items: list, T: dict, shell, esc, money) -> str:
          'at step 1 — your position in the old grade carries over. And the '
          'increase shrinks as your step rises, because adjacent grades overlap: near '
          'the top of one grade you are already earning what the next grade pays near '
-         'its bottom.</p>',
-         f'<div class="scroll" tabindex="0" role="region" '
-         f'aria-label="Scrollable table"><table><thead><tr><th>Promotion</th>'
-         f'<th class="num">From step 1</th><th class="num">From step 10</th>'
-         f'<th class="num">Ceiling raised by</th></tr></thead>'
-         f'<tbody>{"".join(sample)}</tbody></table></div>',
-         '<p>All figures are base rates before locality pay. In an area paying 30% '
-         'above base every number is roughly a third larger, and the '
-         '<a href="/calculator/">calculator</a> will do it for a specific '
-         'area.</p></section>',
+         'its bottom.</p></section>',
 
          '<section class="q"><h2>Time in grade is a floor, not a schedule</h2>',
          '<p class="q-lead">Fifty-two weeks at the next-lower grade makes you '
