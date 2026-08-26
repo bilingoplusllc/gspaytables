@@ -136,6 +136,20 @@ CSS = r"""
      был МЕНЬШЕ одной строки текста. */
   --sp1:7px; --sp2:14px; --sp3:27px; --sp4:54px; --sp5:81px; --sp6:108px;
 
+  /* Горизонталь выводится из вертикали, а не назначается отдельно.
+     578 = 34em при 17px: мера строки не тронута, но объявлена ОДИН раз и
+     в абсолютной величине. Пока она стояла в em у каждого элемента, 44em
+     при 15px давали 660, а 32em при 21px — 672, и на одной странице
+     оказывалось четыре правых края.
+     578 + 81 + 321 = 980 — ровно внутренняя ширина колонки.
+     Имя --marg-w, а не --field: --field выше уже занят цветом. */
+  --page:1060px;
+  --pad:clamp(18px,3.4vw,40px);
+  --calc-pad:clamp(18px,3vw,34px);
+  --measure:calc(var(--s-text) * 34);
+  --gutter:var(--sp5);
+  --marg-w:calc(var(--page) - var(--pad) - var(--pad) - var(--measure) - var(--gutter));
+
   /* Georgia в запасном стеке стоять не может: это гарнитура соседнего
      сайта фермы, и провал загрузки превратил бы GS Pay Tables в его двойника. */
   --serif:"Source Serif 4","Iowan Old Style","Palatino Linotype",
@@ -260,7 +274,7 @@ body{margin:0;background:var(--ground);color:var(--ink);
    блоками, зарезервировав высоту под конкретный формат. */
 
 /* ---------- типографика основной колонки */
-p{margin:0 0 var(--sp2);max-width:34em;color:var(--ink)}
+p{margin:0 0 var(--sp2);max-width:var(--measure);color:var(--ink)}
 /* Ссылка наследует цвет своего окружения и опознаётся подчёркиванием, а не
    краской. Прежде она была жёстко цвета акцента — и в подвале на тёмной
    полосе давала 1.52:1. В печатной форме ссылка и не должна быть цветной:
@@ -309,7 +323,10 @@ section.q>:last-child{margin-bottom:0}
 /* ---------- полосы сравнения */
 
 /* ---------- подписи и источники */
-figure.ex{margin:0;padding:0}
+/* Сброс браузерных 1em 40px делается на ТЕГЕ. Пока он стоял на
+   figure.ex, специфичность (0,1,1) перебивала .ex (0,1,0), и все
+   экспонаты стояли с нулевым отступом. */
+figure{margin:0;padding:0}
 
 /* ---------- плитки и списки */
 
@@ -381,8 +398,8 @@ figure.ex{margin:0;padding:0}
    принять за государственный, оговорка обязана стоять на первом экране и
    быть проведена приёмом оформления, а не мелким шрифтом в подвале. */
 .mast{background:var(--deep);color:var(--deep-ink)}
-.mast-in{max-width:1180px;margin:0 auto;
-  padding:14px clamp(18px,3.4vw,40px) 12px;
+.mast-in{max-width:var(--page);margin:0 auto;
+  padding:14px var(--pad) 12px;
   display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .seal{width:50px;height:50px;flex:none;display:block}
 .s-ring{fill:none;stroke:currentColor}
@@ -404,7 +421,7 @@ figure.ex{margin:0;padding:0}
   text-align:right;line-height:1.5}
 
 .menu{background:var(--deep);border-top:1px solid var(--deep-hair)}
-.menu-in{max-width:1180px;margin:0 auto;padding:0 clamp(18px,3.4vw,40px);
+.menu-in{max-width:var(--page);margin:0 auto;padding:0 var(--pad);
   display:flex;flex-wrap:wrap}
 .menu a{font-family:var(--sans);font-size:var(--s-stamp);font-weight:500;
   letter-spacing:.08em;text-transform:uppercase;color:var(--deep-ink-2);
@@ -419,8 +436,8 @@ figure.ex{margin:0;padding:0}
 
 .notice{background:var(--tint-2);border-top:3px solid var(--seal-fill);
   border-bottom:1px solid var(--hair)}
-.notice-in{max-width:1180px;margin:0 auto;
-  padding:7px clamp(18px,3.4vw,40px);
+.notice-in{max-width:var(--page);margin:0 auto;
+  padding:var(--sp1) var(--pad);
   font-family:var(--sans);font-size:var(--s-fine);line-height:1.45;
   color:var(--ink-2)}
 .notice-in b{color:var(--ink);font-weight:600}
@@ -429,17 +446,18 @@ figure.ex{margin:0;padding:0}
 
 /* ---------- лист документа лежит на столе. Единственная глубина облика:
    не «карточка с рамкой», а оттиск. */
-.wrap{max-width:1220px;margin:0 auto;
-  padding:clamp(10px,1.5vw,18px) clamp(0px,2.2vw,20px) clamp(28px,4vw,54px)}
+/* Низ листа 54 плюс низ последнего раздела 54 = 108 до подвала. */
+.wrap{max-width:calc(var(--page) + 40px);margin:0 auto;
+  padding:var(--sp2) clamp(0px,2.2vw,20px) var(--sp4)}
 .sheet{background:var(--sheet);box-shadow:var(--sheet-shadow)}
-.col{max-width:1060px;margin:0 auto;
-  padding-left:clamp(18px,3.4vw,40px);padding-right:clamp(18px,3.4vw,40px)}
+.col{max-width:var(--page);margin:0 auto;
+  padding-left:var(--pad);padding-right:var(--pad)}
 
 /* Содержание выпуска строкой. Прежде это был левый рельс: 230 px ширины на
    153 страницах под дубликат верхнего меню. */
 .contents{border-bottom:1px solid var(--hair);
-  padding:9px clamp(18px,3.4vw,40px);
-  max-width:1060px;margin:0 auto}
+  padding:var(--sp1) var(--pad);
+  max-width:var(--page);margin:0 auto}
 .contents h2{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
   letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2);
   display:inline;margin:0}
@@ -466,12 +484,12 @@ figure.ex{margin:0;padding:0}
 
 /* ---------- подвал */
 footer{background:var(--deep);color:var(--deep-ink);margin-top:0}
-.foot-in{max-width:1180px;margin:0 auto;
-  padding:var(--sp4) clamp(18px,3.4vw,40px);
+.foot-in{max-width:var(--page);margin:0 auto;
+  padding:var(--sp5) var(--pad);
   display:grid;gap:var(--sp3) clamp(26px,4vw,64px);
   grid-template-columns:minmax(0,1fr)}
 .foot-seal{width:110px;height:110px;color:var(--deep-ink-2)}
-.foot-disc{font-size:var(--s-lead);line-height:1.4;max-width:28em;
+.foot-disc{font-size:var(--s-lead);line-height:1.4;max-width:var(--measure);
   margin:0 0 var(--sp2);color:var(--deep-ink);font-family:var(--serif)}
 .foot-in p{color:var(--deep-ink-2);font-family:var(--sans);
   font-size:var(--s-fine);line-height:1.55;max-width:44em}
@@ -555,34 +573,88 @@ section.q>.col::before{content:"Section " counter(secn);
   border-bottom:1px solid var(--heavy);padding-top:3px;margin:var(--sp2) 0 0}
 
 /* ---------- набор: антиква читает, гротеск служит */
+/* Заголовку выпуска позволено занять меру плюс поле: это витринная
+   строка, а не проза. Всё остальное встаёт ровно на меру. */
 h1{font-family:var(--serif);font-size:var(--s-title);line-height:1.08;
-  letter-spacing:-.022em;font-weight:600;max-width:19em;text-wrap:balance;
+  letter-spacing:-.022em;font-weight:600;text-wrap:balance;
+  max-width:calc(var(--measure) + var(--gutter));
   margin:0}
 h2{font-family:var(--serif);font-size:var(--s-head);line-height:1.2;
-  letter-spacing:-.012em;font-weight:600;max-width:22em;text-wrap:balance;
+  letter-spacing:-.012em;font-weight:600;max-width:var(--measure);
+  text-wrap:balance;
   margin:0 0 var(--sp2)}
 h3{font-family:var(--serif);font-size:var(--s-lead);line-height:1.3;
-  font-weight:600;margin:0}
+  font-weight:600;max-width:var(--measure);
+  margin:0 0 var(--sp1)}
 .sub{font-family:var(--serif);font-size:var(--s-lead);line-height:1.45;
-  letter-spacing:-.005em;color:var(--ink-2);max-width:32em;
-  margin:var(--sp1) 0 0}
+  letter-spacing:-.005em;color:var(--ink-2);max-width:var(--measure);
+  margin:var(--sp2) 0 0}
 .q-lead{font-family:var(--serif);font-size:var(--s-lead);line-height:1.45;
-  letter-spacing:-.005em;color:var(--ink-2);max-width:32em;
+  letter-spacing:-.005em;color:var(--ink-2);max-width:var(--measure);
   margin:0 0 var(--sp3)}
 .plate .q-lead strong{color:var(--deep-ink)}
-section.q p{max-width:34em}
+section.q p{max-width:var(--measure)}
+
+/* ==================================== система вертикальных отношений
+   Строка прозы = 17 x 1.62 = 27.5, поэтому --sp3 это ОДНА строка,
+   --sp4 две, --sp6 четыре. Пять расстояний, у каждого своя работа:
+      7  подпись и её величина; h3 и его текст
+     14  абзац к абзацу; h2 к СВОЕМУ тексту; части одного рисунка
+     27  текст к блоку и блок к тексту; текст к h3
+     54  текст к h2; титул к первому блоку; раздел сверху и снизу
+    108  раздел к разделу (54+54); низ листа до подвала
+   До заголовка вчетверо больше, чем после: 54 против 14 и 27 против 7.
+   Пока верхнего отступа у h2 не было вовсе, ВСЕ зазоры были равны 14, и
+   заголовок стоял на равном расстоянии от чужого текста и от своего.
+
+   Поток документа — прямые дети колонки и прямые дети её обёртки на
+   страницах с полями. Комбинатор ">" обязателен: внутренности рисунка,
+   врезки, ведомости и инструмента живут по своим отступам и сюда не
+   попадают. :where() держит специфичность на нуле, поэтому порядок
+   правил читается сверху вниз, а не выясняется арифметикой.
+   Отступы соседей схлопываются: 14 снизу у абзаца и 54 сверху у h2
+   дают ровно 54, а не 68.
+   Титул выпуска исключён — у него своя плотность, посчитанная по
+   первому экрану телефона. */
+main :where(.col:not(.titleblock),.grid>div)>*{margin-block:var(--sp3)}
+main :where(.col:not(.titleblock),.grid>div)>p{margin-block:0 var(--sp2)}
+main :where(.col:not(.titleblock),.grid>div)>h2{margin-block:var(--sp4) var(--sp2)}
+main :where(.col:not(.titleblock),.grid>div)>h3{margin-block:var(--sp3) var(--sp1)}
+main :where(.col:not(.titleblock),.grid>div)>h2+*,
+main :where(.col:not(.titleblock),.grid>div)>h3+*{margin-top:var(--sp2)}
+main :where(.col:not(.titleblock),.grid>div)>.q-lead{margin-block:0 var(--sp3)}
+main :where(.col:not(.titleblock),.grid>div)>:first-child{margin-top:0}
+main :where(.col:not(.titleblock),.grid>div)>:last-child{margin-bottom:0}
+
+/* Перечни — единственные блоки, у которых во всём файле нет ни одного
+   правила: они едут на браузерных 1em 40px и на полную ширину колонки,
+   то есть ещё одним правым краем. Втяжка берётся из шкалы, а мера
+   считается от ТЕКСТА, а не от маркера. */
+main :where(.col,.grid>div)>ul:not([class]),
+main :where(.col,.grid>div)>ol:not([class]){padding-left:var(--sp3);
+  max-width:calc(var(--measure) + var(--sp3))}
+main :where(.col,.grid>div)>ul:not([class])>li,
+main :where(.col,.grid>div)>ol:not([class])>li{margin-bottom:var(--sp1)}
+main :where(.col,.grid>div)>ul:not([class])>li:last-child,
+main :where(.col,.grid>div)>ol:not([class])>li:last-child{margin-bottom:0}
+
+/* Титул отдаёт нижнюю отбивку следующему блоку: два отступа подряд
+   складывались бы, а расстояние должно быть одно. */
+.titleblock+.col{padding-top:var(--sp4)}
+
 
 /* ======================================================== ордер на оплату
    Карточка ответа перестаёт быть «блоком с рамкой» и становится ордером:
    тёмная плашка с реквизитами сверху, крупное число, подпись под чертой.
    В тёмной теме плашка инвертируется в пергамент — самая громкая мелкая
    поверхность страницы не должна тонуть в фоне. */
-.fp-calc{border:0;border-radius:0;background:transparent;margin:0}
+.fp-calc{border:0;border-radius:0;background:transparent;
+  margin:var(--sp3) 0}
 .fp-calc>h2{margin:0;padding:0;border:0;font-family:var(--serif);
   font-size:var(--s-head);font-weight:600;letter-spacing:-.012em}
 
 .fp-lead .fp-hero{background:var(--band);color:var(--band-ink);
-  padding:var(--sp2) clamp(18px,3vw,34px) var(--sp3);margin-top:var(--sp2)}
+  padding:var(--sp2) var(--calc-pad) var(--sp3);margin-top:var(--sp2)}
 .fp-hero .fp-what{font-family:var(--serif);font-size:var(--s-lead);
   line-height:1.35;color:var(--band-ink);letter-spacing:0;
   text-transform:none;margin:0 0 var(--sp1);max-width:26em;
@@ -603,7 +675,7 @@ section.q p{max-width:34em}
 /* ---------- поля бланка: подчёркнутая строка, а не коробка */
 .fp-fields{display:grid;gap:var(--sp2) clamp(16px,2.4vw,30px);
   grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
-  padding:var(--sp3) clamp(18px,3vw,34px) 0;background:transparent;border:0}
+  padding:var(--sp3) var(--calc-pad) 0;background:transparent;border:0}
 .fp-field{display:flex;flex-direction:column;gap:4px;min-width:0;flex:none}
 .fp-field label{font-family:var(--sans);font-size:var(--s-stamp);
   font-weight:600;letter-spacing:.11em;text-transform:uppercase;
@@ -629,18 +701,18 @@ section.q p{max-width:34em}
 
 .fp-hint{font-family:var(--serif);font-size:var(--s-fine);line-height:1.55;
   color:var(--ink-2);background:transparent;
-  padding:var(--sp2) clamp(18px,3vw,34px) 0;margin:0;max-width:44em}
+  padding:var(--sp2) var(--calc-pad) 0;margin:0;max-width:calc(var(--measure) + var(--calc-pad) + var(--calc-pad))}
 .fp-note{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
-  color:var(--ink-2);padding:var(--sp2) clamp(18px,3vw,34px) 0;margin:0;
-  max-width:44em}
+  color:var(--ink-2);padding:var(--sp2) var(--calc-pad) 0;margin:0;
+  max-width:calc(var(--measure) + var(--calc-pad) + var(--calc-pad))}
 /* Отметка о приёме индекса: без :not(:empty) пустой отступ висел бы на
    всех 75 страницах с инструментом. */
 .fp-zipmsg:not(:empty){font-family:var(--sans);font-size:var(--s-fine);
   color:var(--seal);background:transparent;border:0;border-top:1px solid var(--rule);
-  margin:var(--sp2) clamp(18px,3vw,34px) 0;padding:9px 0 0}
+  margin:var(--sp2) var(--calc-pad) 0;padding:var(--sp1) 0 0}
 
 /* ---------- вывод скрипта: ведомость на бумаге, без рамки */
-.fp-out{padding:var(--sp3) clamp(18px,3vw,34px) 0}
+.fp-out{padding:var(--sp3) var(--calc-pad) 0}
 .fp-out p.fp-what{font-family:var(--sans);font-size:var(--s-stamp);
   font-weight:600;letter-spacing:.11em;text-transform:uppercase;
   color:var(--ink-2);margin:0 0 var(--sp1)}
@@ -654,7 +726,7 @@ section.q p{max-width:34em}
 .fp-lines dd{margin:0;font-family:var(--sans);font-size:var(--s-fine);
   font-weight:700;text-align:right;line-height:1.5}
 .fp-lines dt,.fp-lines dd{padding:7px 0;border-bottom:1px solid var(--hair)}
-.fp-out p{margin-bottom:var(--sp2);max-width:44em}
+.fp-out p{margin-bottom:var(--sp2);max-width:var(--measure)}
 .fp-out p.fp-src{margin-bottom:0}
 
 @media (max-width:760px){
@@ -732,7 +804,11 @@ section.q p{max-width:34em}
 @media (min-width:761px){
   .mast-in{padding-top:11px;padding-bottom:10px}
   .docline{font-size:var(--s-stamp);gap:3px 16px}
-  section.q{padding-top:var(--sp3);padding-bottom:var(--sp4)}
+  /* Граница разделов 54+54 = 108 заведомо больше самого крупного
+     внутрираздельного зазора (54), и подкреплена сменой земли:
+     границы начинают существовать двумя признаками сразу. */
+  section.q{padding-top:var(--sp4);padding-bottom:var(--sp4)}
+  .titleblock{padding-bottom:0}
 }
 @media (max-width:760px){
   .notice-in{font-size:var(--s-stamp);letter-spacing:.01em}
@@ -767,12 +843,17 @@ section.q p{max-width:34em}
 .answerbar{position:sticky;top:0;z-index:20;background:var(--band);
   color:var(--band-ink);
   box-shadow:0 3px 0 var(--band),0 4px 0 var(--band-hair)}
-.ab-in{max-width:1180px;margin:0 auto;
-  padding:0 clamp(18px,3.4vw,40px);height:56px;box-sizing:border-box;
+.ab-in{max-width:var(--page);margin:0 auto;
+  padding:0 var(--pad);height:56px;box-sizing:border-box;
   display:flex;align-items:center;gap:clamp(12px,2vw,26px);flex-wrap:nowrap}
 .ab-where{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
   letter-spacing:.11em;text-transform:uppercase;color:var(--band-ink-2);
-  flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  /* Имя зоны важнее второстепенных чисел и получает место первым.
+     Пока оно стояло flex:0 1 auto с min-width:0, а .ab-more был
+     flex:none, три дополнительных числа забирали всё, и в полосе
+     оставалось число без указания зоны — на Денвере имя имело
+     ширину 0, и это была не редкость, а обычный случай. */
+  flex:0 1 auto;min-width:9em;overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap}
 .ab-pick{display:flex;align-items:center;gap:7px;flex:none}
 .ab-pick label{font-family:var(--sans);font-size:var(--s-stamp);
@@ -790,7 +871,12 @@ section.q p{max-width:34em}
   line-height:1;font-weight:600;letter-spacing:-.02em;color:var(--band-ink)}
 .ab-unit{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
   letter-spacing:.11em;text-transform:uppercase;color:var(--band-ink-2)}
-.ab-more{display:flex;gap:clamp(14px,2vw,26px);flex:none}
+.ab-more{display:flex;gap:clamp(14px,2vw,26px);
+  flex:0 6 auto;min-width:0;overflow:hidden}
+/* Пересчёты оклада скрыты в полосе, но остаются в разметке: скрипт
+   обновляет ячейки по порядковому номеру, и удаление сдвинуло бы
+   индексы рангов. Величины показаны ниже на самой странице. */
+.ab-more .ab-cell.pay{display:none}
 .ab-more div{display:flex;flex-direction:column;gap:1px}
 .ab-more .v{font-family:var(--sans);font-size:var(--s-fine);font-weight:700;
   line-height:1.2;color:var(--band-ink)}
@@ -816,7 +902,9 @@ body.withbar{--stick:56px}
    помещаются вплоть до 1080: при 768 они уезжали за правый край на 291 px и
    давали горизонтальную прокрутку всей странице. Полоса без них по-прежнему
    отвечает на главный вопрос: область, клетка, число. */
-@media (max-width:1200px){.ab-more{display:none}}
+/* Полоса потеряла 120px ширины вместе с листом — порог сдвигается на
+   те же 120, иначе пять дополнительных чисел не помещаются. */
+@media (max-width:1320px){.ab-more{display:none}}
 @media (max-width:760px){
   .ab-in{height:44px;gap:10px}
   .ab-pick label{display:none}
@@ -894,7 +982,8 @@ td.down{color:var(--loss);font-weight:600}
 td.flat{color:var(--ink-3)}
 
 .tlegend{display:grid;gap:5px;margin:10px 0 0;font-family:var(--sans);
-  font-size:var(--s-fine);line-height:1.5;color:var(--ink-2);max-width:52em}
+  font-size:var(--s-fine);line-height:1.5;color:var(--ink-2);
+  max-width:var(--measure)}
 
 /* ---------- тарифная сетка: та же разлиновка, но плотнее и служебным
    шрифтом. 8 700 клеток — это таблица, а не перечень. */
@@ -956,7 +1045,7 @@ tbody th a{white-space:nowrap}
    прописными. */
 .facts{display:grid;gap:0 clamp(26px,3.4vw,52px);
   grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  margin:var(--sp3) 0 0}
+  margin:var(--sp3) 0}
 .fact{padding:var(--sp2) 0;border:0;border-radius:0;background:transparent;
   border-top:3px solid var(--rule)}
 .fact .fact-k{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
@@ -983,7 +1072,7 @@ tbody th a{white-space:nowrap}
 
 /* ---------- ответ на странице сравнения */
 .answer{border:0;border-radius:0;background:transparent;
-  border-top:3px solid var(--heavy);padding:var(--sp2) 0 0;margin:var(--sp3) 0 0}
+  border-top:3px solid var(--heavy);padding:var(--sp2) 0 0;margin:var(--sp3) 0}
 .answer .what{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
   letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2);margin:0}
 .answer .big{display:block;font-family:var(--serif);font-size:var(--s-kpi);
@@ -1008,20 +1097,21 @@ tbody th a{white-space:nowrap}
 .bars li.hi .nm{font-weight:600}
 
 /* ---------- экспонат: то, чего нет ни у кого, помечено как приложение */
-.ex{margin:var(--sp3) 0 0;border-top:3px solid var(--heavy);
-  padding-top:var(--sp2)}
+/* Отступ снаружи отдан системе, оформление осталось компоненту. */
+.ex{border-top:3px solid var(--heavy);padding-top:var(--sp2)}
+.ex>.scroll{margin-top:var(--sp2)}
 .ex-kicker{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
   letter-spacing:.14em;text-transform:uppercase;color:var(--seal);margin:0}
 .ex-title{font-family:var(--serif);font-size:var(--s-lead);font-weight:600;
-  line-height:1.3;margin:var(--sp1) 0 var(--sp2);max-width:30em}
+  line-height:1.3;margin:var(--sp1) 0 var(--sp2);max-width:var(--measure)}
 .ex-note{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
-  color:var(--ink-2);margin:var(--sp2) 0 0;max-width:44em}
+  color:var(--ink-2);margin:var(--sp2) 0 0;max-width:var(--measure)}
 figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
-  color:var(--ink-2);margin-top:var(--sp2)}
+  color:var(--ink-2);margin-top:var(--sp2);max-width:var(--measure)}
 
 /* ---------- плитки потолка */
 .grid2{display:grid;gap:0 clamp(20px,3vw,44px);
-  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin:var(--sp2) 0 0}
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin:var(--sp3) 0}
 .tile{border:0;border-radius:0;background:transparent;
   border-top:1px solid var(--rule);padding:var(--sp2) 0}
 .tile .k{display:block;font-family:var(--sans);font-size:var(--s-stamp);
@@ -1033,7 +1123,10 @@ figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
   line-height:1.5;color:var(--ink-2)}
 
 /* ---------- перечни: не «плашки», а строки указателя */
-.chips,.chips-plain,.counties{display:flex;flex-wrap:wrap;gap:0 0;
+/* .counties живёт ВНУТРИ рисунка — там интервал 14, а не 27. */
+.chips,.chips-plain{display:flex;flex-wrap:wrap;gap:0 0;
+  margin:var(--sp3) 0;padding:0;list-style:none}
+.counties{display:flex;flex-wrap:wrap;gap:0 0;
   margin:var(--sp2) 0 0;padding:0;list-style:none}
 .chips a,.chips-plain li,.counties li{display:inline-block;
   font-family:var(--sans);font-size:var(--s-fine);color:var(--ink);
@@ -1043,7 +1136,7 @@ figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
   height:.75em;margin:0 11px -.05em;background:var(--rule)}
 .chips a:hover{color:var(--seal);text-decoration:underline}
 
-.chips-pay{display:grid;gap:0;margin:var(--sp2) 0 0;
+.chips-pay{display:grid;gap:0;margin:var(--sp3) 0;
   grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
 .chips-pay a{display:flex;justify-content:space-between;align-items:baseline;
   gap:10px;padding:9px 0;border:0;border-radius:0;background:transparent;
@@ -1058,7 +1151,8 @@ figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
    начертание не вшито, а наклонять римское значит подделывать. */
 .caveat{border:0;border-radius:0;background:transparent;
   border-left:3px solid var(--seal-fill);padding:2px 0 2px var(--sp2);
-  margin:var(--sp3) 0 0;color:var(--ink-2);max-width:38em}
+  margin:var(--sp3) 0;color:var(--ink-2);
+  max-width:calc(var(--measure) + var(--sp2))}
 .caveat p{margin:0}
 .caveat strong{color:var(--ink)}
 
@@ -1092,7 +1186,7 @@ figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
 
 /* Полоса объявления во всю ширину листа. .adzone существует всегда, чтобы
    разметка не менялась при подключении сети; высоту держит само место. */
-.adzone{padding:0 clamp(14px,2.2vw,20px)}
+.adzone{max-width:var(--page);margin:0 auto;padding:0 var(--pad)}
 .adzone .ad-band.on{margin:0 auto}
 
 /* ================================================== поля документа
@@ -1105,12 +1199,17 @@ figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
   /* Колонка полей меряется по содержимому: пока сеть не подключена и на поле
      нет ничего, кроме скрытой башни, она занимает ноль и содержание
      пользуется всей шириной. */
-  .grid{grid-template-columns:minmax(0,1fr) auto;
-    gap:0 clamp(26px,3.6vw,56px)}
-  .marg{max-width:300px}
+  /* Отбивка поля переехала с сетки на СОДЕРЖИМОЕ поля. Прежде gap в
+     51px держался и тогда, когда на поле лежала одна скрытая башня:
+     правый край таблицы уезжал на 1151 при крае заголовка 1203.
+     Теперь пустое поле стоит ноль, и колонка получает все 980;
+     занятое поле стоит 321 + 81, и колонка получает ровно меру. */
+  .grid{grid-template-columns:minmax(0,1fr) auto;gap:0}
+  .marg{max-width:calc(var(--marg-w) + var(--gutter))}
+  .marg:not(.marg-under)>*{margin-left:var(--gutter)}
 }
 .marg{min-width:0}
-.marg .note{border-top:1px solid var(--rule);padding-top:9px;
+.marg .note{border-top:1px solid var(--rule);padding-top:var(--sp1);
   margin-bottom:var(--sp3)}
 .marg .note:last-child{margin-bottom:0}
 .marg .note-k{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
@@ -1122,8 +1221,8 @@ figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
 /* Широкая таблица полей себе позволить не может: главная ведомость на семь
    граф сжималась с 965 до 634. Её пометки и башня встают под таблицей. */
 .marg-under{display:flex;flex-wrap:wrap;align-items:flex-start;
-  gap:var(--sp3) clamp(26px,3.6vw,56px);margin-top:var(--sp2)}
-.marg-under .note{flex:1 1 320px;max-width:44em}
+  gap:var(--sp3) var(--gutter);margin-top:var(--sp3)}
+.marg-under .note{flex:1 1 320px;max-width:var(--measure)}
 .marg-under .ad-rail.on{flex:none;margin-top:0}
 """
 

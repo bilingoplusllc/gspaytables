@@ -535,9 +535,18 @@ def answer_bar(code: str, loc: dict, T: dict, ranks: dict, rp: dict) -> str:
         f'<option value="{s}"{" selected" if str(s) == REF_STEP else ""}>Step {s}</option>'
         for s in range(1, 11))
 
-    more = [("Every two weeks", f'${ref["hourly"] * 80:,.2f}', ""),
-            ("Per hour", f'${ref["hourly"]:,.2f}', ""),
-            ("Overtime hour", f'${ref["overtime"]:,.2f}', "")]
+    # В закреплённой полосе помещается ограниченное число величин: она не
+    # растягивается шире листа, и пять дополнительных чисел выдавливали ИМЯ
+    # ЗОНЫ в ноль — читатель, прокручивая таблицу, видел число без указания,
+    # к какой зоне оно относится.
+    #   Три пересчёта оклада помечены классом и скрыты стилем, а НЕ удалены:
+    # скрипт обновляет ячейки по порядковому номеру, и удаление сдвинуло бы
+    # индексы — под ярлыком «на бумаге» оказалась бы сумма вместо ранга.
+    # Проверено в браузере, именно так и произошло. Сами величины остались на
+    # странице ниже.
+    more = [("Every two weeks", f'${ref["hourly"] * 80:,.2f}', "pay"),
+            ("Per hour", f'${ref["hourly"]:,.2f}', "pay"),
+            ("Overtime hour", f'${ref["overtime"]:,.2f}', "pay")]
     if nom and adj:
         more.append(("On paper", f"#{nom}", ""))
         move = nom - adj
@@ -545,13 +554,17 @@ def answer_bar(code: str, loc: dict, T: dict, ranks: dict, rp: dict) -> str:
                      "up" if move > 0 else ("down" if move < 0 else "")))
 
     cells = "".join(
-        f'<div><span class="v {cls}" data-ab="{i}">{v}</span>'
+        f'<div class="ab-cell {cls}">'
+        f'<span class="v {cls}" data-ab="{i}">{v}</span>'
         f'<span class="k">{k}</span></div>'
         for i, (k, v, cls) in enumerate(more))
 
     return (f'<div class="answerbar" data-bar data-zone="{code}">'
             f'<div class="ab-in">'
-            f'<span class="ab-where">{esc(name_of(loc))} &middot; {year}</span>'
+            # Год из полосы убран: он уже стоит в выходных данных и в заголовке
+            # страницы, а здесь занимал 60px, которых не хватало имени
+            # зоны — и имя схлопывалось в ноль на обычных страницах.
+            f'<span class="ab-where">{esc(name_of(loc))}</span>'
             f'<span class="ab-pick"><label for="ab-grade">Grade</label>'
             f'<select id="ab-grade" data-grade>{grades}</select></span>'
             f'<span class="ab-pick"><label for="ab-step">Step</label>'
