@@ -144,9 +144,19 @@ CSS = r"""
      578 + 81 + 321 = 980 — ровно внутренняя ширина колонки.
      Имя --marg-w, а не --field: --field выше уже занят цветом. */
   --page:1060px;
+  /* Высота закреплённой полосы меню. Объявлена ЯВНО, потому что от неё
+     зависят и вторая липкая полоса, и отступ прокрутки к якорю. */
+  --menu-h:44px;
   --pad:clamp(18px,3.4vw,40px);
-  --calc-pad:clamp(18px,3vw,34px);
-  --measure:calc(var(--s-text) * 34);
+  /* Ноль намеренно: собственный внутренний отступ калькулятора ставил
+     его содержимое на 257 при заголовке на 223, и блок выглядел
+     съехавшим. Плашка ответа держит свои поля сама. */
+  --calc-pad:0px;
+  /* 44 знака, а не 34: при 34 абзац занимал 578 из 980 и справа
+     оставалось 402 пикселя пустоты. Полностью на ширину полосы не
+     пускаем — 980 это около 115 знаков в строке, и глаз теряет начало
+     следующей. 44em оставляет 232 пикселя: ровно поле под башню. */
+  --measure:calc(var(--s-text) * 44);
   --gutter:var(--sp5);
   --marg-w:calc(var(--page) - var(--pad) - var(--pad) - var(--measure) - var(--gutter));
 
@@ -405,27 +415,41 @@ figure{margin:0;padding:0}
 .s-ring{fill:none;stroke:currentColor}
 .s-w2{stroke-width:2.4}
 .s-w1{stroke-width:1}
-.s-t{font-family:var(--sans);font-size:9.5px;font-weight:600;
-  letter-spacing:.13em;fill:currentColor}
-.s-mono{font-family:var(--sans);font-size:var(--s-fine);font-weight:700;
-  letter-spacing:.04em;fill:currentColor}
+/* «GS» стало главным элементом знака вместо кольцевой надписи, поэтому
+   кегль задан в единицах системы координат, а не наследуется. */
+.s-mono{font-family:var(--sans);font-size:26px;font-weight:700;
+  letter-spacing:.02em;fill:currentColor}
 .s-step{fill:currentColor}
 .mast-name{display:flex;flex-direction:column;margin-right:auto;min-width:0}
-.brand{font-family:var(--sans);font-size:var(--s-lead);font-weight:700;
-  letter-spacing:-.005em;text-transform:uppercase;text-decoration:none;
-  color:var(--deep-ink);line-height:1.1}
+.mast-name .tagline{margin-top:0}
+/* Знак и имя — одна ссылка на главную. Раньше знак стоял отдельно и не
+   был кликабелен, хотя выглядит как логотип и читатель по нему бьёт. */
+.brand{display:flex;align-items:center;gap:14px;text-decoration:none;
+  color:var(--deep-ink);min-width:0}
+.brand-name{font-family:var(--sans);font-size:var(--s-lead);
+  font-weight:700;letter-spacing:-.005em;text-transform:uppercase;
+  line-height:1.1}
 .tagline{font-size:var(--s-fine);color:var(--deep-ink-2);line-height:1.4;
   margin-top:2px;font-family:var(--serif)}
 .edition{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
   letter-spacing:.11em;text-transform:uppercase;color:var(--deep-ink-2);
   text-align:right;line-height:1.5}
 
-.menu{background:var(--deep);border-top:1px solid var(--deep-hair)}
+/* Меню закреплено: навигация нужна на любой глубине страницы, а имя
+   издателя и выходные данные при прокрутке не нужны — поэтому липкой
+   становится только эта полоса, а не вся шапка. */
+.menu{background:var(--deep);border-top:1px solid var(--deep-hair);
+  position:sticky;top:0;z-index:30}
+/* Девять пунктов требовали 981px при доступных 980 — один пиксель, и
+   строка ломалась. Перенос запрещён совсем: десятый пункт уедет в
+   прокрутку, а не сломает ряд. */
 .menu-in{max-width:var(--page);margin:0 auto;padding:0 var(--pad);
+  flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;
+  scrollbar-width:none;
   display:flex;flex-wrap:wrap}
 .menu a{font-family:var(--sans);font-size:var(--s-stamp);font-weight:500;
   letter-spacing:.08em;text-transform:uppercase;color:var(--deep-ink-2);
-  text-decoration:none;padding:10px 15px 9px;
+  text-decoration:none;padding:10px 12px 9px;white-space:nowrap;
   border-bottom:3px solid transparent}
 .menu a:first-child{padding-left:0}
 .menu a:hover{color:var(--deep-ink)}
@@ -449,7 +473,10 @@ figure{margin:0;padding:0}
 /* Низ листа 54 плюс низ последнего раздела 54 = 108 до подвала. */
 .wrap{max-width:calc(var(--page) + 40px);margin:0 auto;
   padding:var(--sp2) clamp(0px,2.2vw,20px) var(--sp4)}
-.sheet{background:var(--sheet);box-shadow:var(--sheet-shadow)}
+/* Нижнее поле бумаги. Без него последняя строка текста упиралась в край
+   листа: замер на /pay-raise/ давал ровно 0. */
+.sheet{background:var(--sheet);box-shadow:var(--sheet-shadow);
+  padding-bottom:var(--sp4)}
 .col{max-width:var(--page);margin:0 auto;
   padding-left:var(--pad);padding-right:var(--pad)}
 
@@ -488,6 +515,9 @@ footer{background:var(--deep);color:var(--deep-ink);margin-top:0}
   padding:var(--sp5) var(--pad);
   display:grid;gap:var(--sp3) clamp(26px,4vw,64px);
   grid-template-columns:minmax(0,1fr)}
+/* Подвал казался узким, потому что сетка была в ОДНУ колонку и весь
+   текст шёл лентой шириной в меру, оставляя половину полосы пустой. */
+.foot-in>*{min-width:0}
 .foot-seal{width:110px;height:110px;color:var(--deep-ink-2)}
 .foot-disc{font-size:var(--s-lead);line-height:1.4;max-width:var(--measure);
   margin:0 0 var(--sp2);color:var(--deep-ink);font-family:var(--serif)}
@@ -514,7 +544,8 @@ footer{background:var(--deep);color:var(--deep-ink);margin-top:0}
   margin:0 8px -.05em;background:var(--rule)}
 
 @media (min-width:820px){
-  .foot-in{grid-template-columns:120px minmax(0,1fr)}
+  .foot-in{grid-template-columns:120px minmax(0,1fr) minmax(0,1fr)}
+  .foot-disc{grid-column:2 / 4;max-width:none}
 }
 @media (max-width:700px){
   .nt-long{display:none}
@@ -563,10 +594,17 @@ section.q>.col::before{content:"Section " counter(secn);
 
 /* ---------- титул выпуска: у документа обязаны быть выходные данные */
 .titleblock{padding-top:var(--sp2);padding-bottom:var(--sp3)}
+/* Четыре величины шли двумя рядами без разделителей и сливались в кашу.
+   Теперь одна строка с разделителями; при нехватке места строка
+   прокручивается, а не ломается — иначе разделитель повисает в конце. */
 .docline{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
   letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2);
-  margin:var(--sp2) 0;display:flex;flex-wrap:wrap;gap:4px 14px}
+  margin:var(--sp2) 0;display:flex;flex-wrap:nowrap;gap:0;
+  overflow-x:auto;scrollbar-width:none}
 .docline span{white-space:nowrap}
+.docline span+span::before{content:"";display:inline-block;
+  width:1px;height:.85em;margin:0 12px -.08em;vertical-align:baseline;
+  background:var(--rule)}
 
 /* Линейки трёх весов вместо одной в 1 px на всю страницу. */
 .rd{height:0;border-top:3px solid var(--heavy);
@@ -594,6 +632,32 @@ h3{font-family:var(--serif);font-size:var(--s-lead);line-height:1.3;
   margin:0 0 var(--sp3)}
 .plate .q-lead strong{color:var(--deep-ink)}
 section.q p{max-width:var(--measure)}
+
+/* ---------- указатель штатов: три группы, ровная сетка, число зон
+   Прежде 51 ссылка шла сплошным потоком в пять рядов и не сообщала ничего
+   сверх имён. Сетка с фиксированной колонкой выравнивает имена по вертикали,
+   а группировка по числу зон отвечает на вопрос страницы. */
+.states-index{margin:var(--sp3) 0}
+.st-group+.st-group{margin-top:var(--sp4)}
+.st-head{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink);
+  margin:0 0 var(--sp2);padding-bottom:var(--sp1);
+  border-bottom:1px solid var(--rule);display:flex;align-items:baseline;
+  gap:10px;max-width:none}
+.st-note{font-family:var(--serif);font-size:var(--s-fine);font-weight:400;
+  letter-spacing:0;text-transform:none;color:var(--ink-3);flex:1 1 auto}
+.st-count{font-family:var(--sans);font-variant-numeric:tabular-nums;
+  color:var(--ink-3);flex:none}
+.st-list{display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:0 var(--sp3);margin:0;padding:0;list-style:none;max-width:none}
+.st-list li{display:flex;align-items:baseline;gap:8px;
+  padding:6px 0;border-bottom:1px solid var(--hair)}
+.st-list a{flex:1 1 auto;text-decoration:none;
+  border-bottom:1px solid transparent}
+.st-list a:hover{border-bottom-color:var(--seal)}
+.st-n{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
+  font-variant-numeric:tabular-nums;color:var(--ink-3);flex:none}
 
 /* ==================================== система вертикальных отношений
    Строка прозы = 17 x 1.62 = 27.5, поэтому --sp3 это ОДНА строка,
@@ -730,6 +794,10 @@ main :where(.col,.grid>div)>ol:not([class])>li:last-child{margin-bottom:0}
 .fp-out p.fp-src{margin-bottom:0}
 
 @media (max-width:760px){
+  /* menu bar is shorter on phones: measured 39px against 44 on wide
+     screens. Without this the two sticky bars left a five-pixel gap
+     with page text visible sliding through it. */
+  :root{--menu-h:39px}
   /* Одна колонка полей загоняла в видимую область iOS одно поле из
      четырёх. Два в ряд помещаются: 2 x 150 + зазор < 335. */
   .fp-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -840,7 +908,10 @@ main :where(.col,.grid>div)>ol:not([class])>li:last-child{margin-bottom:0}
 /* Правило полосы восстановлено: моя же чистка сняла его по префиксу —
    селектор `.answer` совпал с началом `.answerbar`. Тот же класс ошибки,
    что был в гейте «класс без правила», только теперь в правящем скрипте. */
-.answerbar{position:sticky;top:0;z-index:20;background:var(--band);
+/* Под меню, а не на его место: две липкие полосы на top:0 перекрывали бы
+   друг друга. */
+.answerbar{position:sticky;top:var(--menu-h);z-index:20;
+  background:var(--band);
   color:var(--band-ink);
   box-shadow:0 3px 0 var(--band),0 4px 0 var(--band-hair)}
 .ab-in{max-width:var(--page);margin:0 auto;
@@ -893,11 +964,11 @@ main :where(.col,.grid>div)>ol:not([class])>li:last-child{margin-bottom:0}
    таблица лежит в своём контейнере с ограниченной высотой, шапка липнет к
    его краю, и смещение на высоту полосы оставляло бы внутри контейнера
    пустую полосу в 44-56 px, над которой уезжали бы строки. */
-body{--stick:0px}
+body{--stick:var(--menu-h)}
 /* Признак «на странице есть липкая полоса». Правило было снесено чисткой
    Ш8 (её шаблон начинался с body и захватил body.withbar), и отступ
    якоря на десктопе молча обнулился на 58 страницах. */
-body.withbar{--stick:56px}
+body.withbar{--stick:calc(var(--menu-h) + 56px)}
 /* Дополнительные цифры полосы требуют около 600 px сверх остального и не
    помещаются вплоть до 1080: при 768 они уезжали за правый край на 291 px и
    давали горизонтальную прокрутку всей странице. Полоса без них по-прежнему
@@ -910,7 +981,7 @@ body.withbar{--stick:56px}
   .ab-pick label{display:none}
   /* Отступ якоря обязан идти за высотой полосы: иначе переход из содержания
      перелетает заголовок на 12 px. Правило было снесено той же чисткой Ш8. */
-  body.withbar{--stick:44px}
+  body.withbar{--stick:calc(var(--menu-h) + 44px)}
 }
 @media (max-width:520px){
   .ab-where{display:none}

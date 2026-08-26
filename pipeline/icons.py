@@ -100,11 +100,17 @@ class Canvas:
 
 
 def _mark(c: Canvas, x: int, y: int, unit: int):
-    """Знак: три полосы, короткая подсвечена — перевёрнутый рейтинг."""
-    lengths = (10, 7, 4)
-    for i, ln in enumerate(lengths):
+    """Знак: лестница вверх — ступени оклада.
+
+    Прежде это были три УБЫВАЮЩИЕ полосы, и на 16 пикселях они читались как
+    значок «меню», а не как знак сайта о зарплатах. Лестница повторяет фигуру
+    на знаке издателя и ни на что другое не похожа.
+    """
+    heights = (3, 6, 9)
+    base = y + unit * 10
+    for i, h in enumerate(heights):
         colour = OCHRE if i == 2 else PAPER
-        c.rect(x, y + i * unit * 3, ln * unit, unit * 2, colour)
+        c.rect(x + i * unit * 4, base - h * unit, unit * 3, h * unit, colour)
 
 
 def favicon_svg() -> str:
@@ -112,9 +118,9 @@ def favicon_svg() -> str:
     return (
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">'
         '<rect width="32" height="32" fill="#132440"/>'
-        '<rect x="5" y="7" width="22" height="4" fill="#fdfaf3"/>'
-        '<rect x="5" y="14" width="15" height="4" fill="#fdfaf3"/>'
-        '<rect x="5" y="21" width="9" height="4" fill="#7b1e2b"/>'
+        '<rect x="5" y="19" width="6" height="8" fill="#fdfaf3"/>'
+        '<rect x="13" y="13" width="6" height="14" fill="#fdfaf3"/>'
+        '<rect x="21" y="7" width="6" height="20" fill="#7b1e2b"/>'
         '</svg>')
 
 

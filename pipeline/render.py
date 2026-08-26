@@ -278,8 +278,13 @@ def jsonld(title: str, desc: str, canonical: str, crumbs: list) -> str:
             + "</script>")
 
 
-SEAL_MAST = '<svg class="seal" viewBox="0 0 100 100" role="img" aria-label="GS Pay Tables mark: an independent reference, not a government seal"><defs><path id="mt" d="M14,50 A36,36 0 0 1 86,50"></path><path id="mb" d="M17,50 A33,33 0 0 0 83,50"></path></defs><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="42.5"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="29"></circle><text class="s-t"><textPath href="#mt" startOffset="50%" text-anchor="middle">INDEPENDENT</textPath></text><text class="s-t"><textPath href="#mb" startOffset="50%" text-anchor="middle">REFERENCE</textPath></text><text class="s-mono" x="50" y="47" text-anchor="middle">GS</text><rect class="s-step" x="36" y="56" width="6" height="4"></rect><rect class="s-step" x="43" y="53" width="6" height="7"></rect><rect class="s-step" x="50" y="50" width="6" height="10"></rect><rect class="s-step" x="57" y="47" width="6" height="13"></rect></svg>'
-SEAL_FOOT = '<svg class="seal foot-seal" viewBox="0 0 100 100" role="img" aria-label="GS Pay Tables mark: an independent reference, not a government seal"><defs><path id="ft" d="M14,50 A36,36 0 0 1 86,50"></path><path id="fb" d="M17,50 A33,33 0 0 0 83,50"></path></defs><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="42.5"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="29"></circle><text class="s-t"><textPath href="#ft" startOffset="50%" text-anchor="middle">INDEPENDENT</textPath></text><text class="s-t"><textPath href="#fb" startOffset="50%" text-anchor="middle">REFERENCE</textPath></text><text class="s-mono" x="50" y="47" text-anchor="middle">GS</text><rect class="s-step" x="36" y="56" width="6" height="4"></rect><rect class="s-step" x="43" y="53" width="6" height="7"></rect><rect class="s-step" x="50" y="50" width="6" height="10"></rect><rect class="s-step" x="57" y="47" width="6" height="13"></rect></svg>'
+# Кольцевая надпись убрана НАМЕРЕННО. Знак стоит 50 пикселей, и текст
+# кеглем 9.5 в системе координат 100 рендерится меньше пяти пикселей —
+# он нечитаем и работает как грязь, налезая на кольца. Фраза
+# «independent reference» и так стоит в дисклеймере на каждой странице
+# и в подписи под именем издателя.
+SEAL_MAST = '<svg class="seal" viewBox="0 0 100 100" role="img" aria-label="GS Pay Tables mark: an independent reference, not a government seal"><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="40"></circle><text class="s-mono" x="50" y="40" text-anchor="middle">GS</text><rect class="s-step" x="31" y="60" width="8" height="5"></rect><rect class="s-step" x="41" y="55" width="8" height="10"></rect><rect class="s-step" x="51" y="50" width="8" height="15"></rect><rect class="s-step" x="61" y="45" width="8" height="20"></rect></svg>'
+SEAL_FOOT = '<svg class="seal foot-seal" viewBox="0 0 100 100" role="img" aria-label="GS Pay Tables mark: an independent reference, not a government seal"><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="40"></circle><text class="s-mono" x="50" y="40" text-anchor="middle">GS</text><rect class="s-step" x="31" y="60" width="8" height="5"></rect><rect class="s-step" x="41" y="55" width="8" height="10"></rect><rect class="s-step" x="51" y="50" width="8" height="15"></rect><rect class="s-step" x="61" y="45" width="8" height="20"></rect></svg>'
 # Год выпуска нужен шапке. Ставится в main() вместе с остальными
 # значениями, зависящими от данных.
 T_YEAR = ""
@@ -455,9 +460,9 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 <a class="skip" href="#content">Skip to content</a>
 <header class="mast">
   <div class="mast-in">
-    {SEAL_MAST}
+    <a class="brand" href="/" aria-label="{SITE} — home">{SEAL_MAST}<span
+      class="brand-name">{SITE}</span></a>
     <span class="mast-name">
-      <a class="brand" href="/">{SITE}</a>
       <span class="tagline">{TAGLINE}</span>
     </span>
     <span class="edition">{T_YEAR} edition<br>Effective January {T_YEAR}</span>
@@ -1392,7 +1397,7 @@ def main() -> int:
     for c in sorted(no_area, key=lambda z: states.NAMES[z]):
         st_items.append(("states/no-locality-area", states.NAMES[c]))
     st_items.sort(key=lambda x: x[1])
-    write("states", states.states_index(st_items, shell, esc))
+    write("states", states.states_index(st_items, shell, esc, sz))
     urls.append("/states/")
 
     # --- лестница грейдов: типа страниц нет ни у одного конкурента

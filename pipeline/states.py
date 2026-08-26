@@ -462,16 +462,54 @@ def state_page(st: str, zones: dict, T: dict, R: dict, ranks: dict,
         crumbs=[("All localities", "/"), ("States", "/states/"), (name, None)], rail=rail)
 
 
-def states_index(items: list, shell, esc) -> str:
-    """Указатель штатов."""
-    links = "".join(f'<li><a href="/{rel}/">{esc(nm)}</a></li>' for rel, nm in items)
+def states_index(items: list, shell, esc, sz: dict | None = None) -> str:
+    """Указатель штатов, разложенный по числу зон.
+
+    Прежде это был сплошной поток из 51 ссылки в пять рядов: ширины от 56 до
+    161 пикселя, глазу не за что зацепиться, и указатель не сообщал ничего
+    сверх набора имён. Между тем тезис страницы написан ниже по тексту —
+    в одних штатах ответ сильно зависит от округа, в других не зависит вовсе.
+    Это и есть порядок: три группы, внутри алфавит, у каждого штата число зон.
+    """
+    sz = sz or {}
+    # state_zones ключуется ДВУХБУКВЕННЫМ кодом, а указатель знает названия.
+    # Поиск по названию молча давал ноль у всех, и все 51 штат оказывались в
+    # группе «без именованных зон» — поймано гейтом «правило без класса».
+    by_name = {v: k for k, v in NAMES.items()}
+
+    def zones_of(nm: str) -> int:
+        return len(sz.get(by_name.get(nm, ""), {}))
+
+    groups = [
+        ("Several pay areas", "the county decides",
+         lambda n: n > 1),
+        ("One pay area", "the whole state on one rate",
+         lambda n: n == 1),
+        ("No named area", "every duty station on the Rest of U.S. rate",
+         lambda n: n == 0),
+    ]
+    blocks = []
+    for title, note, test in groups:
+        rows = [(rel, nm) for rel, nm in items if test(zones_of(nm))]
+        if not rows:
+            continue
+        li = "".join(
+            f'<li><a href="/{rel}/">{esc(nm)}</a>'
+            + (f'<span class="st-n">{zones_of(nm)}</span>' if zones_of(nm) > 1 else "")
+            + "</li>" for rel, nm in rows)
+        blocks.append(
+            f'<div class="st-group"><p class="st-head">{esc(title)} '
+            f'<span class="st-note">{esc(note)}</span> '
+            f'<span class="st-count">{len(rows)}</span></p>'
+            f'<ul class="st-list">{li}</ul></div>')
+    links = "".join(blocks)
     B = ['<ol class="crumbs"><li><a href="/">All localities</a></li>'
          '<li>States</li></ol>',
          '<h1>GS pay scale by state</h1>',
          '<p class="sub">Locality pay areas do not follow state lines. Most states '
          'contain more than one, and the same grade and step can differ by tens of '
          'thousands of dollars inside a single state.</p>',
-         f'<div class="chips">{links}</div>',
+         f'<div class="states-index">{links}</div>',
          '<section class="q"><h2>Why a state is not a pay area</h2>',
          '<p class="q-lead">The General Schedule knows nothing about states. It is '
          'built from 58 locality pay areas, and those are defined as lists of '
