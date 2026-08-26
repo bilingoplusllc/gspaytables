@@ -390,9 +390,11 @@ def _titleblock(chunk: str) -> str:
     данные: без них страница — это просто текст. У нас все четыре значения
     уже есть и ни одно не выдумано.
     """
+    # Год издания и дата вступления в силу стоят В ШАПКЕ, справа сверху,
+    # на каждой странице. Здесь они дублировались, и четыре величины
+    # перестали помещаться в строку: последняя обрезалась на полуслове
+    # («DATA LAST CHA»). Осталось то, чего в шапке нет.
     line = (f'<p class="docline">'
-            f'<span>{T_YEAR} edition</span>'
-            f'<span>Effective January {T_YEAR}</span>'
             f'<span>{T_AREAS} locality pay areas</span>'
             f'<span>Data last changed {DATA_DATE}</span></p>')
     crumbs = ""

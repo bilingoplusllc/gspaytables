@@ -501,6 +501,13 @@ figure{margin:0;padding:0}
    «перейти к другому выпуску», и место ему рядом с оглавлением. */
 .contents .switch{display:inline-flex;align-items:baseline;gap:8px;
   margin-left:14px;padding-left:14px;border-left:1px solid var(--rule)}
+/* Переключатель зоны стоит ПЕРВЫМ в строке содержания, а разделители у
+   него навешены слева — то есть рассчитаны на позицию после чего-то.
+   Получались лишняя черта у самого края и полное отсутствие зазора
+   справа: «ON THIS PAGE» упиралось в выпадающий список. */
+.contents .switch:first-child{margin-left:0;padding-left:0;border-left:0;
+  margin-right:14px;padding-right:14px;
+  border-right:1px solid var(--rule)}
 .contents .switch label{font-family:var(--sans);font-size:var(--s-stamp);
   font-weight:600;letter-spacing:.11em;text-transform:uppercase;
   color:var(--ink-2)}
@@ -599,23 +606,27 @@ section.q>.col::before{content:"Section " counter(secn);
    прокручивается, а не ломается — иначе разделитель повисает в конце. */
 .docline{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
   letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2);
-  margin:var(--sp2) 0;display:flex;flex-wrap:nowrap;gap:0;
-  overflow-x:auto;scrollbar-width:none}
+  margin:var(--sp2) 0;display:flex;flex-wrap:wrap;gap:0;max-width:none}
 .docline span{white-space:nowrap}
 .docline span+span::before{content:"";display:inline-block;
   width:1px;height:.85em;margin:0 12px -.08em;vertical-align:baseline;
   background:var(--rule)}
 
 /* Линейки трёх весов вместо одной в 1 px на всю страницу. */
+/* Издательская линейка и выходные данные — это ГРАФИКА и реквизиты, а не
+   проза: мера строки к ним применяться не должна. Оба свёрстаны тегом p,
+   поэтому молча получали max-width меры и обрывались раньше блоков под
+   собой — отсюда разные правые края на одном экране. */
 .rd{height:0;border-top:3px solid var(--heavy);
-  border-bottom:1px solid var(--heavy);padding-top:3px;margin:var(--sp2) 0 0}
+  border-bottom:1px solid var(--heavy);padding-top:3px;
+  margin:var(--sp2) 0 0;max-width:none}
 
 /* ---------- набор: антиква читает, гротеск служит */
 /* Заголовку выпуска позволено занять меру плюс поле: это витринная
    строка, а не проза. Всё остальное встаёт ровно на меру. */
 h1{font-family:var(--serif);font-size:var(--s-title);line-height:1.08;
   letter-spacing:-.022em;font-weight:600;text-wrap:balance;
-  max-width:calc(var(--measure) + var(--gutter));
+  max-width:var(--measure);
   margin:0}
 h2{font-family:var(--serif);font-size:var(--s-head);line-height:1.2;
   letter-spacing:-.012em;font-weight:600;max-width:var(--measure);
@@ -762,6 +773,23 @@ main :where(.col,.grid>div)>ol:not([class])>li:last-child{margin-bottom:0}
   background:var(--tint);border-color:var(--hair);cursor:not-allowed;
   opacity:1}
 .fp-field.fp-wide{grid-column:span 2}
+/* Сетка полей: четыре поля, из них поле выбора зоны вдвое шире —
+   в нём лежат 58 названий, самые длинные строки на сайте.
+   При auto-fit это давало пять единиц в четырёх дорожках, и ступень
+   уезжала одна на вторую строку. Дорожки задаются явно, а двойная
+   ширина отменяется: пропорция 1:3:1:1 оставляет полю зоны около
+   445px против прежних 475, тогда как равные дорожки дали бы 374 и
+   обрезали бы даже значение по умолчанию. */
+@media (min-width:1000px){
+  .fp-fields{grid-template-columns:minmax(0,1fr) minmax(0,3fr) minmax(0,1fr) minmax(0,1fr)}
+  .fp-field.fp-wide{grid-column:auto}
+}
+/* На средних ширинах пять единиц не помещаются никогда: два на два,
+   и поле зоны получает половину полосы целиком. */
+@media (min-width:761px) and (max-width:999px){
+  .fp-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fp-field.fp-wide{grid-column:auto}
+}
 
 .fp-hint{font-family:var(--serif);font-size:var(--s-fine);line-height:1.55;
   color:var(--ink-2);background:transparent;
@@ -871,7 +899,9 @@ main :where(.col,.grid>div)>ol:not([class])>li:last-child{margin-bottom:0}
 .rd{margin-top:var(--sp2)}
 @media (min-width:761px){
   .mast-in{padding-top:11px;padding-bottom:10px}
-  .docline{font-size:var(--s-stamp);gap:3px 16px}
+  /* Разделители между реквизитами сами дают 24px; ещё 16 сверху
+     превращали зазор в 41. */
+  .docline{gap:3px 0}
   /* Граница разделов 54+54 = 108 заведомо больше самого крупного
      внутрираздельного зазора (54), и подкреплена сменой земли:
      границы начинают существовать двумя признаками сразу. */
@@ -1144,12 +1174,20 @@ tbody th a{white-space:nowrap}
 /* ---------- ответ на странице сравнения */
 .answer{border:0;border-radius:0;background:transparent;
   border-top:3px solid var(--heavy);padding:var(--sp2) 0 0;margin:var(--sp3) 0}
+/* Когда карточка открывает страницу сразу под издательской линейкой, её
+   собственная линейка становится второй тяжёлой подряд, и между ними
+   висит пустота. Замер: низ первой на 552, верх второй на 606. Живёт на
+   36 страницах — 21 сравнение и 15 грейдов. Селектор нарочно узкий: не
+   «первый ребёнок», а «сразу под титулом», иначе погасил бы линейку и у
+   карточек внутри разделов, где над ними стоит номер раздела. */
+.titleblock+.col>.grid>div>.answer:first-child{border-top:0;padding-top:0}
 .answer .what{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
   letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2);margin:0}
 .answer .big{display:block;font-family:var(--serif);font-size:var(--s-kpi);
   line-height:1.1;font-weight:600;letter-spacing:-.02em;margin:var(--sp1) 0 0}
 .answer .body{display:block;font-family:var(--sans);font-size:var(--s-fine);
-  line-height:1.5;color:var(--ink-2);margin-top:var(--sp1);max-width:40em}
+  line-height:1.5;color:var(--ink-2);margin-top:var(--sp1);
+  max-width:var(--measure)}
 
 /* ---------- полосы величин. Полоса всегда идёт рядом с числом, а шкала
    объявлена в подписи: полоса без объявленной шкалы врёт ровно так, как
@@ -1276,7 +1314,10 @@ figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
      Теперь пустое поле стоит ноль, и колонка получает все 980;
      занятое поле стоит 321 + 81, и колонка получает ровно меру. */
   .grid{grid-template-columns:minmax(0,1fr) auto;gap:0}
-  .marg{max-width:calc(var(--marg-w) + var(--gutter))}
+  /* Зажим шириной поля — только для БОКОВОГО поля. Подтабличная пометка
+     живёт под таблицей во всю её ширину, и тот же зажим давал ей 232px
+     при таблице 980: легенду визуально утягивало обратно на поле. */
+  .marg:not(.marg-under){max-width:calc(var(--marg-w) + var(--gutter))}
   .marg:not(.marg-under)>*{margin-left:var(--gutter)}
 }
 .marg{min-width:0}

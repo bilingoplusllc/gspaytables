@@ -93,15 +93,17 @@ def page(T: dict, shell, money) -> str:
              f'each answer arrives. Checked {checked}.</p>')
 
     # ---- ответ первым экраном, без единого клика и без скрипта
-    B.append('<div class="answer">')
-    B.append('<p class="what">Status</p>')
-    B.append(f'<p class="body"><strong>Not decided.</strong> As of {checked} the '
+    # Карточка .answer здесь НЕ используется: она рисует собственную тяжёлую
+    # линейку сверху, а прямо над ней уже стоит издательская линейка титула —
+    # получались две подряд с пустотой между ними. Карточка рассчитана на
+    # место ПОСЛЕ текста, а не сразу под заголовком страницы.
+    B.append('<p class="q-lead">')
+    B.append(f'<strong>Status: not decided.</strong> As of {checked} the '
              f'President had not sent Congress the alternative pay plan letter '
              f'that sets the {nxt} raise. The letter is due before 1 September '
              f'{year}. Nothing is binding until an executive order is signed, '
              f'which for the last five years has happened between 18 and 23 '
              f'December.</p>')
-    B.append('</div>')
 
     # ---- три статуса, которые все смешивают
     B.append('<h2>Three different things get called "the raise"</h2>')
@@ -233,11 +235,13 @@ def page(T: dict, shell, money) -> str:
              '<table><thead><tr><th>Year</th><th>Base</th><th>Locality</th>'
              '<th>Overall</th><th>Letter sent</th><th>Order signed</th></tr>'
              f'</thead><tbody>{rows}</tbody></table></div>')
-    B.append('<p class="tlegend"><span>Base and locality are announced separately '
-             'in the President’s letter and fixed together in the executive '
-             'order. The overall figure is the government-wide average, not '
-             'anybody’s actual raise: what you get depends on your locality '
-             'area.</span></p>')
+    # Обычный абзац, а НЕ .tlegend: механизм полей уносит легенды на боковое
+    # поле, и на этой странице она оказалась в начале колонки, за экран до
+    # своей таблицы.
+    B.append('<p>Base and locality are announced separately in the President’s '
+             'letter and fixed together in the executive order. The overall figure '
+             'is the government-wide average, not anybody’s actual raise: what '
+             'you get depends on your locality area.</p>')
 
     # ---- календарь
     B.append('<h2>When the answer arrives</h2>')
