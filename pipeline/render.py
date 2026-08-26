@@ -283,8 +283,8 @@ def jsonld(title: str, desc: str, canonical: str, crumbs: list) -> str:
 # он нечитаем и работает как грязь, налезая на кольца. Фраза
 # «independent reference» и так стоит в дисклеймере на каждой странице
 # и в подписи под именем издателя.
-SEAL_MAST = '<svg class="seal" viewBox="0 0 100 100" role="img" aria-label="GS Pay Tables mark: an independent reference, not a government seal"><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="40"></circle><text class="s-mono" x="50" y="40" text-anchor="middle">GS</text><rect class="s-step" x="31" y="60" width="8" height="5"></rect><rect class="s-step" x="41" y="55" width="8" height="10"></rect><rect class="s-step" x="51" y="50" width="8" height="15"></rect><rect class="s-step" x="61" y="45" width="8" height="20"></rect></svg>'
-SEAL_FOOT = '<svg class="seal foot-seal" viewBox="0 0 100 100" role="img" aria-label="GS Pay Tables mark: an independent reference, not a government seal"><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="40"></circle><text class="s-mono" x="50" y="40" text-anchor="middle">GS</text><rect class="s-step" x="31" y="60" width="8" height="5"></rect><rect class="s-step" x="41" y="55" width="8" height="10"></rect><rect class="s-step" x="51" y="50" width="8" height="15"></rect><rect class="s-step" x="61" y="45" width="8" height="20"></rect></svg>'
+SEAL_MAST = '<svg class="seal" viewBox="0 0 100 100" role="img" aria-label="GS Pay Tables mark: an independent reference, not a government seal"><defs><path id="mt" d="M17.6,50 A32.4,32.4 0 0 1 82.4,50"></path><path id="mb" d="M10.9,50 A39.1,39.1 0 0 0 89.1,50"></path></defs><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="42.5"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="29"></circle><text class="s-t"><textPath href="#mt" startOffset="50%" text-anchor="middle">INDEPENDENT</textPath></text><text class="s-t"><textPath href="#mb" startOffset="50%" text-anchor="middle">REFERENCE</textPath></text><text class="s-mono" x="50" y="47" text-anchor="middle">GS</text><rect class="s-step" x="33.75" y="58" width="7" height="4"></rect><rect class="s-step" x="42.25" y="55" width="7" height="7"></rect><rect class="s-step" x="50.75" y="52" width="7" height="10"></rect><rect class="s-step" x="59.25" y="49" width="7" height="13"></rect></svg>'
+SEAL_FOOT = '<svg class="seal foot-seal" viewBox="0 0 100 100" role="img" aria-label="GS Pay Tables mark: an independent reference, not a government seal"><defs><path id="ft" d="M17.6,50 A32.4,32.4 0 0 1 82.4,50"></path><path id="fb" d="M10.9,50 A39.1,39.1 0 0 0 89.1,50"></path></defs><circle class="s-ring s-w2" cx="50" cy="50" r="47"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="42.5"></circle><circle class="s-ring s-w1" cx="50" cy="50" r="29"></circle><text class="s-t"><textPath href="#ft" startOffset="50%" text-anchor="middle">INDEPENDENT</textPath></text><text class="s-t"><textPath href="#fb" startOffset="50%" text-anchor="middle">REFERENCE</textPath></text><text class="s-mono" x="50" y="47" text-anchor="middle">GS</text><rect class="s-step" x="33.75" y="58" width="7" height="4"></rect><rect class="s-step" x="42.25" y="55" width="7" height="7"></rect><rect class="s-step" x="50.75" y="52" width="7" height="10"></rect><rect class="s-step" x="59.25" y="49" width="7" height="13"></rect></svg>'
 # Год выпуска нужен шапке. Ставится в main() вместе с остальными
 # значениями, зависящими от данных.
 T_YEAR = ""
@@ -328,6 +328,16 @@ def _with_margin(inner: str) -> str:
         body = inner[:m.start()] + inner[m.end():]
         note = (f'<div class="note"><p class="note-k">Reading this table</p>'
                 f'{m.group(0)}</div>')
+    # Поля, на котором ничего не лежит, не бывает — но коробка под него
+    # ставилась всегда, и стоила она не ноль. Пока сеть не подключена,
+    # ads.slot отдаёт СКРЫТЫЙ div: у .marg-under оставался её margin-top
+    # (61 блок), в сетке — зазор строки .grid ниже 1000px (207 блоков).
+    # Замер на /grades/ при 1440: низ последнего абзаца 2891, низ листа
+    # 2972, то есть 81 вместо 54. Сетку оставляем и пустой: разметка под
+    # её правила обязана существовать, иначе гейт «правило без разметки»
+    # покраснеет — class="grid" во всей выдаче родится только здесь.
+    if not note and not ads.ADS_LIVE:
+        return body if wide else f'<div class="grid"><div>{body}</div></div>'
     notes = note + ads.slot("rail")
     if wide:
         return f'{body}<div class="marg marg-under">{notes}</div>'
@@ -464,10 +474,8 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
   <div class="mast-in">
     <a class="brand" href="/" aria-label="{SITE} — home">{SEAL_MAST}<span
       class="brand-name">{SITE}</span></a>
-    <span class="mast-name">
-      <span class="tagline">{TAGLINE}</span>
-    </span>
     <span class="edition">{T_YEAR} edition<br>Effective January {T_YEAR}</span>
+    <span class="tagline">{TAGLINE}</span>
   </div>
 </header>
 <nav class="menu" aria-label="Main">
@@ -500,10 +508,10 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
   </div>
 </div>
 <footer><div class="foot-in">
-  <div>{SEAL_FOOT}</div>
-  <div>
   <p class="foot-disc">Not affiliated with the U.S. Office of Personnel
   Management or any federal agency.</p>
+  <div>{SEAL_FOOT}</div>
+  <div>
   <p class="disclaimer">{SITE} is an independent reference published by {OWNER}.
   Pay figures are computed from the official OPM salary tables and verified cell
   by cell against them. Price levels are Regional Price Parities from the U.S.
@@ -681,8 +689,16 @@ def locality_page(code: str, loc: dict, T: dict, R: dict, ranks: dict,
                  f'worth its full face value all the way to GS-15 step 10.</p>'
                  f'</section>')
 
-    # --- 4. соседи
-    B.append(f'<section class="q" id="near">{neighbors_section(code, ranks)}</section>')
+    # --- 4. соседи. Rest of U.S. в рейтинге покупательной способности не
+    # стоит — своей цены у него нет, и neighbors_section отдаёт пустую
+    # строку. Раздел при этом всё равно выходил: 136px пустой бумаги под
+    # номером «Section 4», под которым нет ничего. Раздела без содержания
+    # не бывает — тогда и номер ему не полагается. Побочное следствие,
+    # названное вслух: на /locality/rest-of-u-s/ разделы ниже сдвигают
+    # номер на единицу и меняют чередование земель. Это одна страница.
+    near = neighbors_section(code, ranks)
+    if near:
+        B.append(f'<section class="q" id="near">{near}</section>')
 
     # --- 5. где это
     B.append('<section class="q" id="where">')
@@ -1196,7 +1212,7 @@ def page_hero(T: dict, ranks: dict, esc, money,
     # Год здесь не печатается: он уже стоит в строке выпуска и в заголовке,
     # а на телефоне название зоны и без него занимает пять строк.
     return (f'<p class="fp-what" data-what>GS-{g}, step {s} in '
-            f'{esc(loc["area_name"])}</p>'
+            f'<span class="fp-area">{esc(loc["area_name"])}</span></p>'
             f'<p class="fp-big" data-big>{money(cell["annual"])}</p>'
             f'<p class="fp-ranks" data-ranks>{line}</p>')
 
@@ -1341,23 +1357,25 @@ def main() -> int:
     # служит навигацией между ними.
     cmp_rail = ""
     for a, b in compare.pairs(T, ranks):
-        rel, html_page = compare.compare_page(a, b, T, R, ranks, L, shell, esc,
-                                              money, slug, cmp_rail)
+        rel, html_page, facts = compare.compare_page(
+            a, b, T, R, ranks, L, shell, esc, money, slug, cmp_rail)
         write(rel, html_page)
         urls.append(f"/{rel}/")
-        cmp_items.append((rel, rel.split("/")[-1].replace("-vs-", " vs ")
-                          .replace("-", " ").title()))
+        # Имя зоны берётся У СТРАНИЦЫ ПАРЫ, а не собирается из адреса:
+        # ".title()" по слагу давал «San Jose Ca Vs Rest Of U S» —
+        # 21 подпись на указателе и 252 в рельсе на страницах пар.
+        cmp_items.append((rel, f'{facts["a"]} vs {facts["b"]}', facts))
     # Второй проход: теперь список пар известен, и рельс можно наполнить.
     cmp_rail = side_rail(
         "Other comparisons",
-        [(f"/{rel}/", title, False) for rel, title in cmp_items[:12]],
+        [(f"/{rel}/", title, False) for rel, title, _f in cmp_items[:12]],
         "Highest-paying areas against each other and against Rest of U.S.")
     for a, b in compare.pairs(T, ranks):
-        rel, html_page = compare.compare_page(a, b, T, R, ranks, L, shell, esc,
-                                              money, slug, cmp_rail)
+        rel, html_page, _facts = compare.compare_page(
+            a, b, T, R, ranks, L, shell, esc, money, slug, cmp_rail)
         write(rel, html_page)
 
-    write("compare", compare.compare_index(cmp_items, shell, esc))
+    write("compare", compare.compare_index(cmp_items, shell, esc, money))
     urls.append("/compare/")
 
     # --- штаты: у конкурента это позиция №1 в выдаче, а у нас данных больше.
@@ -1995,6 +2013,23 @@ def main() -> int:
                 problems.append(f"{f.relative_to(DIST)}: чужой домен {d}")
                 break
 
+    # 22. пустая коробка в отгружаемой разметке. Обе главные правки этого
+    #     прохода чинят одно и то же: блок, который ничего не рисует, всё
+    #     равно занимал место — поле с одной скрытой башней 27px, раздел
+    #     без содержания 136px. Ни один из 27 гейтов этого не видел:
+    #     разметка валидна, текст на месте, а на экране дыра.
+    #     Гейт проверен на сборке ДО правки: 268 полей на 154 страницах и
+    #     1 раздел — то есть он срабатывает, а не молчит по построению.
+    for f in htmls:
+        h = f.read_text(encoding="utf-8")
+        if not ads.ADS_LIVE and re.search(
+                r'class="marg[^"]*">\s*<div class="ad-slot[^"]*">'
+                r'[^<]*</div>\s*</(?:div|aside)>', h):
+            problems.append(f"{f.relative_to(DIST)}: поле без содержания")
+        if re.search(r'<section class="q[^"]*"[^>]*>\s*'
+                     r'<div class="col">\s*</div>\s*</section>', h):
+            problems.append(f"{f.relative_to(DIST)}: раздел без содержания")
+
     # 19. реклама без ads.txt. Файл нужен всем трём сетям в день
     #     подключения, и забыть его легче всего: правка переключателя — одна
     #     строка, а файл живёт отдельно. Гейт связывает их: включённая
@@ -2125,7 +2160,7 @@ def main() -> int:
           "клиентский расчёт, экранирование, управляющие символы, "
                 "внешние запросы, шрифт, стили, карта сайта, американское написание, табличные цифры, покрытие шрифта, совпадение гарнитуры, "
           "правила без разметки, описание, адрес, год издания, реклама, "
-          "свежесть статуса, следы вычислений")
+          "свежесть статуса, следы вычислений, пустая коробка")
     return 0
 
 

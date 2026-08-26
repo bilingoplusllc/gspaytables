@@ -74,6 +74,15 @@ def compare_page(a: str, b: str, T: dict, R: dict, ranks: dict,
     short_a, short_b = _short(na), _short(nb)
     rel = f"compare/{slug(short_a)}-vs-{slug(short_b)}"
 
+    # Разница покупательной способности, порог существенности и сторона,
+    # за которой перевес, считаются ЗДЕСЬ и отдаются наружу вместе со
+    # страницей: указатель /compare/ печатает то же число и тот же
+    # вердикт. Посчитать их у указателя отдельно — значит однажды
+    # разойтись с собственной страницей на глазах у читателя.
+    ppw = abs(aa - ab) if (aa and ab) else None
+    material = bool(ppw is not None and ppw >= max(pa, pb) * 0.01)
+    better = (short_a if aa > ab else short_b) if (aa and ab) else None
+
     B = ['<ol class="crumbs"><li><a href="/">All localities</a></li>'
          '<li><a href="/compare/">Compare</a></li>'
          f'<li>{esc(short_a)} vs {esc(short_b)}</li></ol>']
@@ -89,9 +98,9 @@ def compare_page(a: str, b: str, T: dict, R: dict, ranks: dict,
     B.append(f'<span class="what">GS-{REF_GRADE} step {REF_STEP}, {year}</span>')
     B.append('<div class="body">')
     if aa and ab:
-        winner, loser = (short_a, short_b) if aa > ab else (short_b, short_a)
-        diff = abs(aa - ab)
-        material = diff >= max(pa, pb) * 0.01
+        winner = better
+        loser = short_b if better == short_a else short_a
+        diff = ppw
         B.append(f'<span class="big">{money(diff)}</span>')
         if material:
             B.append(f'<p>That is how much more a GS-{REF_GRADE} step {REF_STEP} is '
@@ -185,10 +194,13 @@ comparable; the full tables for each area are linked below.</figcaption>
     desc = (f"GS-{REF_GRADE} step {REF_STEP} pays {money(pa)} in {short_a} and "
             f"{money(pb)} in {short_b}{_dot(short_b)} Which one leaves you better "
             f"off after local prices, grade by grade.")
+    facts = {"a": short_a, "b": short_b,
+             "pay_a": pa, "pay_b": pb, "buys_a": aa, "buys_b": ab,
+             "ppw": ppw, "material": material, "better": better}
     return rel, shell(
         title, desc, "\n".join(B), f"{DOMAIN}/{rel}/", "compare",
         crumbs=[("All localities", "/"), ("Compare", "/compare/"),
-                (f"{short_a} vs {short_b}", None)], rail=rail)
+                (f"{short_a} vs {short_b}", None)], rail=rail), facts
 
 
 def _dot(name: str) -> str:
@@ -479,9 +491,75 @@ def _places(sa, sb, na, nb, pa, pb, money, esc, slug) -> str:
     return "\n".join(out)
 
 
-def compare_index(items: list, shell, esc) -> str:
-    """Указатель сравнений."""
-    links = "".join(f'<li><a href="/{rel}/">{esc(t)}</a></li>' for rel, t in items)
+def compare_index(items: list, shell, esc, money) -> str:
+    """Указатель сравнений: группа — зона, а в ней все её пары.
+
+    Две беды разом. Текст ссылки собирался из АДРЕСА заглавными буквами и давал
+    «San Jose Ca Vs Rest Of U S», хотя настоящее имя зоны страница пары печатает
+    у себя в заголовке — 273 неверные подписи по сайту. И порядок: двадцать одна
+    ссылка шла сплошной лентой, а лежала при этом «сначала все пары Сан-Хосе,
+    потом все пары Нью-Йорка», то есть под Хьюстоном стояли три пары из шести, и
+    читатель, не найдя там Нью-Йорка, делал вывод, что такой страницы нет.
+
+    Читатель знает ОДНУ из двух зон: ту, где работает, или ту, откуда пришло
+    предложение. Поэтому группа — это зона, и в ней стоят все шесть её
+    сравнений; пара стоит в обеих своих группах. Оформление взято у указателя
+    штатов без единого нового класса: там та же задача — заголовок группы,
+    пояснение и ровная сетка имён с числом справа.
+    """
+    # Все числа приходят из фактов, которые вернула САМА страница пары.
+    # Пересчитать их здесь значило бы завести второй источник одной величины
+    # и однажды напечатать на указателе не тот вердикт, что на странице.
+    areas: dict = {}
+    for rel, _t, f in items:
+        for me, other in (("a", "b"), ("b", "a")):
+            slot = areas.setdefault(f[me], {"pay": f["pay_" + me],
+                                            "buys": f["buys_" + me],
+                                            "rows": []})
+            slot["rows"].append((f["pay_" + other], f[other], rel, f))
+    blocks = []
+    for nm, d in sorted(areas.items(), key=lambda kv: -kv[1]["pay"]):
+        li = []
+        for _p, other, rel, f in sorted(d["rows"], key=lambda r: -r[0]):
+            aria = ""
+            # ИМЕННО `is None`, а не `not`: ноль — это «разница ровно нулевая»,
+            # то есть индекс ЕСТЬ и покупательная способность совпала. Признак
+            # «индекса нет» обязан отличаться от признака «нет разницы».
+            if f["ppw"] is None:
+                # У зоны без индекса пуста вся графа, и печатать «no index»
+                # шесть раз подряд значит шесть раз извиниться: причина стоит
+                # в пояснении к группе один раз. В остальных группах пометка
+                # нужна — там она исключение посреди столбца чисел.
+                mark = "no index" if d["buys"] else ""
+                aria = "no price index for %s" % other
+            elif not f["material"]:
+                mark = "even"
+                aria = "within one percent of the larger salary"
+            else:
+                ahead = f["better"] == nm
+                mark = ("+" if ahead else "\u2212") + money(f["ppw"])
+                # Знак минус U+2212 часть скринридеров не озвучивает вовсе,
+                # и «−$8,925» читается как «8,925» — ровно наоборот по смыслу.
+                aria = "%s better in %s" % (money(f["ppw"]),
+                                            nm if ahead else other)
+            li.append('<li><a href="/%s/">%s</a>%s</li>'
+                      % (rel, esc(other),
+                         ('<span class="st-n" aria-label="%s">%s</span>'
+                          % (esc(aria), esc(mark))) if mark else ""))
+        # Формулировка совпадает со страницей самой зоны: BEA публикует индексы
+        # для агломераций, а Rest of U.S. — не агломерация, поэтому «no SINGLE
+        # index», а не «индекс не публикуется».
+        note = (("%s at GS-%s step %s, worth %s at average prices"
+                 % (money(d["pay"]), REF_GRADE, REF_STEP, money(d["buys"])))
+                if d["buys"] else
+                ("%s at GS-%s step %s; this area has no single metropolitan "
+                 "price index published for it"
+                 % (money(d["pay"]), REF_GRADE, REF_STEP)))
+        blocks.append('<div class="st-group"><h3 class="st-head">%s '
+                      '<span class="st-note">%s</span></h3>'
+                      '<ul class="st-list">%s</ul></div>'
+                      % (esc(nm), esc(note), "".join(li)))
+    links = '<div class="states-index">%s</div>' % "".join(blocks)
     B = ['<ol class="crumbs"><li><a href="/">All localities</a></li>'
          '<li>Compare</li></ol>',
          '<h1>Compare two locality pay areas</h1>',
@@ -494,7 +572,17 @@ def compare_index(items: list, shell, esc) -> str:
          'against. Each page compares every grade at step 5, works out the grade in '
          'the cheaper area that matches the more expensive one, and shows which of '
          'the two runs into the statutory ceiling first.</p>',
-         f'<ul class="chips-plain">{links}</ul>',
+         '<p>Each group below is one area, and under it every comparison '
+         'that area has a page for. The figure at the right of a line is '
+         f'what a GS-{REF_GRADE} step {REF_STEP} gains or loses in '
+         'purchasing power by taking the area at the head of the group '
+         'instead of the one named on the line, so a minus sign means the '
+         'area on the line leaves you better off — sometimes while paying '
+         'less on paper. “Even” means the two are within one percent of '
+         'the larger salary, which is inside the error of the price data. '
+         '“No index” means the area on that line has no published price '
+         'index, so only the salaries can be compared.</p>',
+         links,
          '<h2>Why the bigger salary is not always the better offer</h2>',
          '<p>Locality pay is set from what private employers in the same region pay '
          'for comparable work. It is not a cost-of-living adjustment, and OPM says '

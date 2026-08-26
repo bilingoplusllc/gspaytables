@@ -144,13 +144,21 @@ CSS = r"""
      578 + 81 + 321 = 980 — ровно внутренняя ширина колонки.
      Имя --marg-w, а не --field: --field выше уже занят цветом. */
   --page:1060px;
+  /* Ширина знака объявлена ТОКЕНОМ, потому что от неё зависит втяжка
+     подписи под названием. Два числа, согласуемых руками, однажды
+     разойдутся; здесь величина одна и переопределяется вместе со
+     знаком в мобильном медиазапросе. */
+  --seal-w:50px;
   /* Высота закреплённой полосы меню. Объявлена ЯВНО, потому что от неё
      зависят и вторая липкая полоса, и отступ прокрутки к якорю. */
   --menu-h:44px;
   --pad:clamp(18px,3.4vw,40px);
   /* Ноль намеренно: собственный внутренний отступ калькулятора ставил
      его содержимое на 257 при заголовке на 223, и блок выглядел
-     съехавшим. Плашка ответа держит свои поля сама. */
+     съехавшим. Полей тёмной плашки этот токен НЕ держит: с нулём
+     текст стоял ровно на границе плашки (замер 1440: плашка
+     223..1203, текст тоже 223). Плашка берёт поля из --pad и на ту
+     же величину выходит за колонку — см. правило .fp-lead .fp-hero. */
   --calc-pad:0px;
   /* 44 знака, а не 34: при 34 абзац занимал 578 из 980 и справа
      оставалось 402 пикселя пустоты. Полностью на ширину полосы не
@@ -385,7 +393,11 @@ figure{margin:0;padding:0}
   html,body{background:#fff;color:#000}
   .menu,.contents,.ad-slot,.answerbar,.skip,.fp-fields,.fp-hint{display:none}
   .mast,footer{background:#fff;color:#000;border-bottom:1px solid #000}
-  .mast .brand,.mast .tagline,.mast .edition,.foot-in p,.foot-links a{color:#000}
+  /* .foot-seal объявляет свой цвет (0-1-0) и перебивал печатное
+     правило подвала (0-0-1): в печати знак выходил 1.60:1. Пока это
+     были только кольца, было незаметно; теперь там слова. */
+  .mast .brand,.mast .tagline,.mast .edition,.foot-in p,.foot-links a,
+  .foot-seal{color:#000}
   .sheet{box-shadow:none}
   section.q,section.q.paper,section.q.register,section.q.plate{
     background:#fff;color:#000;padding:0 0 var(--sp3);break-inside:avoid}
@@ -408,29 +420,48 @@ figure{margin:0;padding:0}
    принять за государственный, оговорка обязана стоять на первом экране и
    быть проведена приёмом оформления, а не мелким шрифтом в подвале. */
 .mast{background:var(--deep);color:var(--deep-ink)}
+/* Ряд шапки переносимый, и подпись занимает вторую строку целиком:
+   зазор между рядами ноль, иначе она отрывается от названия. */
 .mast-in{max-width:var(--page);margin:0 auto;
   padding:14px var(--pad) 12px;
-  display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.seal{width:50px;height:50px;flex:none;display:block}
+  display:flex;align-items:center;gap:0 16px;flex-wrap:wrap}
+.seal{width:var(--seal-w);height:var(--seal-w);flex:none;display:block}
 .s-ring{fill:none;stroke:currentColor}
 .s-w2{stroke-width:2.4}
 .s-w1{stroke-width:1}
-/* «GS» стало главным элементом знака вместо кольцевой надписи, поэтому
-   кегль задан в единицах системы координат, а не наследуется. */
-.s-mono{font-family:var(--sans);font-size:26px;font-weight:700;
+/* Кольцевая надпись. Кегль и радиусы дуг связаны арифметикой, а не
+   подобраны на глаз: между осями колец r=29 и r=42.5 полоса 13.5,
+   высота прописной Libre Franklin 600 равна .755 кегля, значит при
+   кегле 8.8 буква занимает 6.64, и на поля остаётся по 3.43. Верхняя
+   надпись растёт НАРУЖУ — её базовая линия лежит на 29+3.43 = 32.4;
+   нижняя перевёрнута и растёт ВНУТРЬ — её линия на 42.5-3.43 = 39.1.
+   Прежде обе линии стояли снаружи полосы (36 и 33), и буквы резали
+   оба кольца: чернила шли от 26.08 до 42.93 при просвете 29.5..42.0.
+   При знаке 50px это 4.4px на экране: кольцевая надпись работает
+   ТЕКСТУРОЙ, а читается она в подвале, где знак 110px. */
+.s-t{font-family:var(--sans);font-size:8.8px;font-weight:600;
+  letter-spacing:.13em;fill:currentColor}
+/* Монограмма делит круг r=29 с лесенкой, поэтому кегль задан в
+   единицах системы координат, а не наследуется. */
+.s-mono{font-family:var(--sans);font-size:17px;font-weight:700;
   letter-spacing:.02em;fill:currentColor}
 .s-step{fill:currentColor}
-.mast-name{display:flex;flex-direction:column;margin-right:auto;min-width:0}
-.mast-name .tagline{margin-top:0}
 /* Знак и имя — одна ссылка на главную. Раньше знак стоял отдельно и не
    был кликабелен, хотя выглядит как логотип и читатель по нему бьёт. */
 .brand{display:flex;align-items:center;gap:14px;text-decoration:none;
-  color:var(--deep-ink);min-width:0}
+  color:var(--deep-ink);margin-right:auto;min-width:0}
 .brand-name{font-family:var(--sans);font-size:var(--s-lead);
   font-weight:700;letter-spacing:-.005em;text-transform:uppercase;
   line-height:1.1}
+/* Подпись — вторая строка шапки, ПОД названием и ВНЕ ссылки. Внутри
+   ссылки она ломает WCAG 2.5.3: видимая метка перестаёт быть
+   подмножеством доступного имени, и голосовое управление по видимому
+   тексту перестаёт работать; заодно якорный текст сквозной ссылки на
+   166 страницах перестал бы быть именем сайта. Втяжка выведена из
+   ширины знака и зазора ссылки, а не набрана числом. */
 .tagline{font-size:var(--s-fine);color:var(--deep-ink-2);line-height:1.4;
-  margin-top:2px;font-family:var(--serif)}
+  margin-top:2px;font-family:var(--serif);flex-basis:100%;
+  padding-left:calc(var(--seal-w) + 14px)}
 .edition{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
   letter-spacing:.11em;text-transform:uppercase;color:var(--deep-ink-2);
   text-align:right;line-height:1.5}
@@ -470,13 +501,24 @@ figure{margin:0;padding:0}
 
 /* ---------- лист документа лежит на столе. Единственная глубина облика:
    не «карточка с рамкой», а оттиск. */
-/* Низ листа 54 плюс низ последнего раздела 54 = 108 до подвала. */
+/* От последней строки до края листа 54: раздел даёт их своим полем,
+   проза — полем последнего блока. От листа до подвала ещё 54. */
 .wrap{max-width:calc(var(--page) + 40px);margin:0 auto;
   padding:var(--sp2) clamp(0px,2.2vw,20px) var(--sp4)}
-/* Нижнее поле бумаги. Без него последняя строка текста упиралась в край
-   листа: замер на /pay-raise/ давал ровно 0. */
-.sheet{background:var(--sheet);box-shadow:var(--sheet-shadow);
-  padding-bottom:var(--sp4)}
+/* Нижнее поле бумаги ставит ПОСЛЕДНИЙ БЛОК листа, а не сам лист. Без поля
+   последняя строка упиралась в край листа: замер на /pay-raise/ давал
+   ровно 0. Но раздел приносит свою землю до самого края, и на 65 страницах
+   из 166 это поле читалось чужой полосой: под тонированной полосой
+   rgb(241,231,204) лежало 54px бумаги rgb(253,250,243). В тёмной теме то
+   же самое: rgb(66,60,48) и под ней rgb(48,44,37). Поле нужно там, где
+   страница кончается прозой, и не нужно там, где она кончается землёй.
+   Проверено по всей выдаче: последний ребёнок main — либо section.q (121
+   страница), либо ровно class="col" (45); титула среди них нет.
+   Медиазапрос 760, а не 640: нижнее поле раздела становится 27px именно с
+   760, и при 640 полоса 641..760 развела бы прозу и разделы на 54 и 27. */
+.sheet{background:var(--sheet);box-shadow:var(--sheet-shadow)}
+main>:last-child:not(section){padding-bottom:var(--sp4)}
+@media (max-width:760px){main>:last-child:not(section){padding-bottom:var(--sp3)}}
 .col{max-width:var(--page);margin:0 auto;
   padding-left:var(--pad);padding-right:var(--pad)}
 
@@ -517,7 +559,14 @@ figure{margin:0;padding:0}
   max-width:min(46vw,320px)}
 
 /* ---------- подвал */
-footer{background:var(--deep);color:var(--deep-ink);margin-top:0}
+/* У листа есть внешний отступ .wrap (clamp(0px,2.2vw,20px)), у подвала
+   его не было. Пока в подвале ничто не доставало до правого края,
+   разница не была видна; полноширинная оговорка её обнажает. Замер
+   правых краёв «колонка / оговорка»: 900 -> 835/854, 1000 -> 931/951,
+   1080 -> 1008/1026, 1140 и выше -> совпадают. С этим отступом
+   совпадают от 900 до 1440. */
+footer{background:var(--deep);color:var(--deep-ink);margin-top:0;
+  padding:0 clamp(0px,2.2vw,20px)}
 .foot-in{max-width:var(--page);margin:0 auto;
   padding:var(--sp5) var(--pad);
   display:grid;gap:var(--sp3) clamp(26px,4vw,64px);
@@ -528,6 +577,18 @@ footer{background:var(--deep);color:var(--deep-ink);margin-top:0}
 .foot-seal{width:110px;height:110px;color:var(--deep-ink-2)}
 .foot-disc{font-size:var(--s-lead);line-height:1.4;max-width:var(--measure);
   margin:0 0 var(--sp2);color:var(--deep-ink);font-family:var(--serif)}
+/* Оговорка идёт ОТДЕЛЬНОЙ строкой подвала во всю полосу, а не колонкой в
+   372 px. Прежнее .foot-disc{grid-column:2 / 4} не работало вовсе: абзац
+   лежал не в сетке .foot-in, а внутри промежуточного <div>, и grid-column
+   на не-элементе сетки не значит ничего.
+   Специфичность 0-2-0 нужна против .foot-in p (0-1-1). Из-за неё же тут
+   ПОВТОРЕНЫ набор и цвет: собственные объявления .foot-disc (0-1-0) были
+   мертвы все до одного, и юридическая оговорка набиралась 15-м кеглем
+   гротеска вместо объявленных 21 px антиквы. Расширить строку, не починив
+   набор, значило бы сделать её самой широкой и самой мелкой разом. */
+.foot-in>.foot-disc{grid-column:1 / -1;max-width:none;
+  font-size:var(--s-lead);line-height:1.4;font-family:var(--serif);
+  color:var(--deep-ink);margin:0 0 var(--sp3)}
 .foot-in p{color:var(--deep-ink-2);font-family:var(--sans);
   font-size:var(--s-fine);line-height:1.55;max-width:44em}
 .foot-links{display:flex;flex-wrap:wrap;gap:6px 18px;margin:var(--sp2) 0}
@@ -552,7 +613,6 @@ footer{background:var(--deep);color:var(--deep-ink);margin-top:0}
 
 @media (min-width:820px){
   .foot-in{grid-template-columns:120px minmax(0,1fr) minmax(0,1fr)}
-  .foot-disc{grid-column:2 / 4;max-width:none}
 }
 @media (max-width:700px){
   .nt-long{display:none}
@@ -643,6 +703,28 @@ h3{font-family:var(--serif);font-size:var(--s-lead);line-height:1.3;
   margin:0 0 var(--sp3)}
 .plate .q-lead strong{color:var(--deep-ink)}
 section.q p{max-width:var(--measure)}
+/* Мера — свойство ПРОЗЫ, то есть текста, который читают прогоном. Строка
+   ПРИ ОБЪЕКТЕ прозой не является: это часть объекта — подпись, легенда,
+   вывод инструмента, строка источников, — и ширину она берёт у объекта.
+   Абзац в 748 под таблицей в 980 глаз читает как обрыв. Нового правого
+   края это не даёт: 1203 — тот же край, что у самой таблицы.
+   Признак «при объекте» ровно один и виден в разметке:
+     ПОД объектом — сразу за div, figure, table или ИМЕНОВАННЫМ перечнем
+       (.chips-plain и подобные). Безымянные ul/ol сами стоят на мере, они
+       проза, и абзац за ними тоже остаётся на мере;
+     ВНУТРИ объекта — в инструменте (.fp-calc, .fp-out) и в подтабличной
+       пометке (.marg-under). Боковое поле .marg сюда НЕ входит: там
+       ширину задаёт само поле, и легенда обязана в него укладываться;
+     ОБЪЯВЛЕННЫЙ реквизит — p.src, строка источников: объекта над ней нет,
+       поэтому признак объявлен классом, как у .rd и .docline выше.
+   Плашка ответа .fp-hero исключена намеренно: у неё своя внутренняя мера
+   26em и запас в две строки под перерисовку, полная ширина её ломает.
+   :is() вместо :where() здесь обязателен: section.q p — это 0-1-2, и
+   правило с нулевой специфичностью до неё не достаёт (проверено: с
+   :where() max-width оставался 748px). */
+main :is(.col,.grid>div)>:is(div,figure,table,ul[class],ol[class],dl[class])+p,
+main :is(.col,.grid>div)>p.src{max-width:none}
+main :is(.col,.grid>div) :is(.fp-calc>p,.fp-calc>noscript>p,.fp-out p,.marg-under p){max-width:none}
 
 /* ---------- указатель штатов: три группы, ровная сетка, число зон
    Прежде 51 ссылка шла сплошным потоком в пять рядов и не сообщала ничего
@@ -730,8 +812,26 @@ main :where(.col,.grid>div)>ol:not([class])>li:last-child{margin-bottom:0}
 .fp-calc>h2{margin:0;padding:0;border:0;font-family:var(--serif);
   font-size:var(--s-head);font-weight:600;letter-spacing:-.012em}
 
+/* Плашка выходит на поля ЛИСТА, а текст в ней остаётся на общем левом
+   краю: поля берутся отступом --pad и тут же возвращаются отрицательной
+   отбивкой той же величины. Замер при 1440: плашка 182.5..1242.5 — это
+   ровно края листа, новых вертикалей на странице не появляется; текст
+   222.5 вровень с заголовком раздела; линейка над подписью кончается на
+   970.5, то есть на мере строки, как у прозы вокруг. Отступ БЕЗ выноса
+   (просто padding) увёл бы эту линейку на 1010.5 — третий правый край. */
 .fp-lead .fp-hero{background:var(--band);color:var(--band-ink);
-  padding:var(--sp2) var(--calc-pad) var(--sp3);margin-top:var(--sp2)}
+  padding:var(--sp2) var(--pad) var(--sp3);margin-top:var(--sp2);
+  margin-left:calc(-1 * var(--pad));margin-right:calc(-1 * var(--pad))}
+/* На полях документа выноса нет: как только на поле встаёт башня или
+   пометка, колонка сжимается до меры — замер на /gs-12/ при 1440 с
+   включённой рекламой: 223..971. Вынос дал бы там правый край на 1011,
+   посреди 81-пиксельной отбивки до башни.
+   Гасить ОДИН вынос мало: с полями --pad текст плашки встал бы на 263 при
+   заголовке раздела на 223 — тот самый съезд на 40px, из-за которого
+   --calc-pad когда-то обнулили. Гаснут и поля. */
+.grid:has(.marg .ad-slot.on) .fp-lead .fp-hero,
+.grid:has(.marg .note) .fp-lead .fp-hero{margin-left:0;margin-right:0;
+  padding-left:0;padding-right:0}
 .fp-hero .fp-what{font-family:var(--serif);font-size:var(--s-lead);
   line-height:1.35;color:var(--band-ink);letter-spacing:0;
   text-transform:none;margin:0 0 var(--sp1);max-width:26em;
@@ -739,6 +839,17 @@ main :where(.col,.grid>div)>ol:not([class])>li:last-child{margin-bottom:0}
      запаса первый же выбор двигал бы число на 39 px. */
   min-height:calc(2 * 1.35 * var(--s-lead));
   padding-bottom:8px;border-bottom:1px solid var(--band-hair);font-weight:400}
+/* Название зоны — отдельным куском, поэтому разрыв строки проходит ТОЛЬКО
+   между «step 5 in» и названием, внутри названия — никогда.
+   inline-block, а НЕ block: block ломал бы строку безусловно, и «Laredo,
+   TX» (10 знаков, самое короткое из 58) уехало бы на вторую строку,
+   оставив первую висеть на предлоге. С inline-block короткое название
+   остаётся в строке, длинное переезжает целиком.
+   Запрет переноса (white-space:nowrap) не годится: при провале веб-шрифта
+   запасная гарнитура шире, строка вылезла бы за плашку и потащила бы
+   боковую прокрутку всей страницы. Замер при 21px: самое длинное из 58
+   названий 533px при полосе 546. */
+.fp-what .fp-area{display:inline-block}
 .fp-hero .fp-big{font-family:var(--serif);font-size:var(--s-figure);
   line-height:1;font-weight:600;letter-spacing:-.02em;color:var(--band-ink);
   margin:var(--sp1) 0 0}
@@ -845,8 +956,10 @@ main :where(.col,.grid>div)>ol:not([class])>li:last-child{margin-bottom:0}
 @media (max-width:760px){
   /* шапка в одну строку: знак меньше, подзаголовок и издание не нужны —
      то же самое сказано полосой границы строкой ниже */
-  .mast-in{padding:9px clamp(14px,4vw,20px);gap:11px}
-  .seal{width:34px;height:34px}
+  .mast-in{padding:9px clamp(14px,4vw,20px);gap:0 11px}
+  /* Знак переопределяется токеном: втяжка подписи следует за ним
+     сама. Сама подпись на телефоне скрыта правилом ниже. */
+  :root{--seal-w:34px}
   .brand{font-size:var(--s-text)}
   .tagline{display:none}
 
@@ -873,8 +986,13 @@ main :where(.col,.grid>div)>ol:not([class])>li:last-child{margin-bottom:0}
      без заголовка ломает структуру документа. */
   #find .fp-calc>h2{font-size:var(--s-lead);line-height:1.25}
 
+  /* Тот же приём полем телефона: плашка выходит на края листа (замер
+     375: 8.25..366.75), текст встаёт на 23.25 вровень с заголовком —
+     до этого он стоял на 38.3 при заголовке на 23.3, то есть третьим
+     левым краем. */
   .fp-lead .fp-hero{padding:11px clamp(14px,4vw,20px) var(--sp2);
-    margin-top:var(--sp2)}
+    margin-top:var(--sp2);margin-left:calc(-1 * clamp(14px,4vw,20px));
+    margin-right:calc(-1 * clamp(14px,4vw,20px))}
   /* Строка выбранной клетки: кегль служебного слоя и запас в четыре строки.
      Запас нужен потому, что скрипт перерисовывает именно её при смене зоны,
      а названия зон различаются вчетверо по длине — от «Laredo, TX» до
@@ -884,7 +1002,10 @@ main :where(.col,.grid>div)>ol:not([class])>li:last-child{margin-bottom:0}
     min-height:calc(4 * 1.4 * var(--s-fine));margin-bottom:6px;padding-bottom:6px}
   .fp-hero .fp-big{font-size:clamp(34px,9vw,44px)}
   .fp-hero .fp-ranks{margin-top:var(--sp2);padding-top:7px}
-  .fp-fields{padding:var(--sp2) clamp(14px,4vw,20px) 0}
+  /* Боковое поле формы снято вместе с выносом плашки: иначе подписи
+     полей остались бы на 38.3, когда всё остальное встало на 23.3 —
+     третий левый край на 75 страницах. */
+  .fp-fields{padding:var(--sp2) 0 0}
 }
 @media (max-width:400px){
   /* На 320 длинное название зоны занимает пять строк. */
@@ -1045,8 +1166,16 @@ thead th{position:sticky;top:0;z-index:2;
   letter-spacing:.1em;text-transform:uppercase;text-align:left;padding:0;
   border-bottom:1px solid var(--band)}
 thead th:not(:has(button)){padding:12px 16px}
+/* Заголовки граф — в одну строку. «PP rank» ломался надвое даже при 1440,
+   при 1024 переносились пять заголовков из семи. Запрет переноса стоит
+   ширины: min-content ведомости растёт с 814 до 972 при полосе 965, то
+   есть один только nowrap загнал бы таблицу в боковую прокрутку на самой
+   широкой раскладке. Поэтому боковое поле клетки ужимается с 16 до 12 —
+   вместе с корпусом (правило table[data-home] ниже), иначе правые края
+   чисел и их заголовков разойдутся на 4px. Итог: 916 при 965. */
 thead th button{all:unset;display:block;width:100%;box-sizing:border-box;
-  padding:12px 16px;cursor:pointer;color:inherit;font-family:var(--sans);
+  padding:12px;white-space:nowrap;cursor:pointer;color:inherit;
+  font-family:var(--sans);
   font-size:var(--s-stamp);font-weight:600;line-height:1.3;
   letter-spacing:.1em;text-transform:uppercase}
 thead th button:hover{background:var(--seal-fill);color:var(--seal-on)}
@@ -1069,6 +1198,15 @@ tbody td{padding:11px 16px;border-bottom:1px solid var(--hair);
 tbody td.num{text-align:right}
 tbody td.rank{font-family:var(--sans);font-size:var(--s-fine);font-weight:600;
   color:var(--ink-2);width:1%;padding-left:20px;text-align:right}
+/* Ведомость главной — единственная таблица сайта с сортируемой шапкой и
+   самая плотная из всех: семь граф на 965. Клетка ужимается с 16 до 12
+   ВМЕСТЕ с шапкой; поля шапки и корпуса обязаны совпадать, иначе число и
+   его заголовок стоят на разных правых краях. Остальных таблиц это не
+   касается. На телефоне действует мобильное правило ниже — оно уравнено
+   по специфичности, иначе (0-2-2) против (0-1-2) дало бы там 16. */
+table[data-home] tbody th,table[data-home] tbody td{padding-left:12px;
+  padding-right:12px}
+table[data-home] tbody td.rank{padding-left:16px}
 tbody tr:nth-child(even) th,tbody tr:nth-child(even) td{background:var(--tint)}
 tbody tr:hover th,tbody tr:hover td{background:var(--tint-2)}
 /* Опорная линия каждые десять строк: ведомость на 58 строк без них не
@@ -1116,7 +1254,7 @@ table.pay td.cell:focus-visible{outline:2px solid var(--focus);
 
 @media (max-width:760px){
   tbody th,tbody td{padding:9px 12px}
-  tbody td.rank{padding-left:12px}
+  tbody td.rank,table[data-home] tbody td.rank{padding-left:12px}
   /* Графа наименования примораживается к краю. Липкий столбец обязан иметь
      непрозрачный фон во ВСЕХ четырёх состояниях, иначе сквозь него видны
      уезжающие цифры. */
@@ -1323,9 +1461,16 @@ figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
   .marg:not(.marg-under)>*{margin-left:var(--gutter)}
 }
 .marg{min-width:0}
-.marg .note{border-top:1px solid var(--rule);padding-top:var(--sp1);
-  margin-bottom:var(--sp3)}
-.marg .note:last-child{margin-bottom:0}
+/* Расстояние между пометкой и башней объявлено ОДИН раз и на башне: в
+   боковом поле — .marg .ad-rail.on{margin-top}, под таблицей — gap самого
+   .marg-under. Собственный нижний отступ пометки был вторым объявлением
+   той же величины, и он переживал скрытую башню: .note:last-child не
+   срабатывал, потому что последним ребёнком стоял display:none .ad-slot.
+   display:none НЕ выводит узел из :last-child — по сайту 540 таких мест
+   на 157 страницах против пяти правил :last-child в стилях.
+   Замер на главной: у .note margin-bottom 27px, следующий брат —
+   .ad-slot.ad-rail с display:none, хвост раздела #table 81 вместо 54. */
+.marg .note{border-top:1px solid var(--rule);padding-top:var(--sp1)}
 .marg .note-k{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
   letter-spacing:.11em;text-transform:uppercase;color:var(--seal);
   margin:0 0 5px}
@@ -1336,7 +1481,11 @@ figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
    граф сжималась с 965 до 634. Её пометки и башня встают под таблицей. */
 .marg-under{display:flex;flex-wrap:wrap;align-items:flex-start;
   gap:var(--sp3) var(--gutter);margin-top:var(--sp3)}
-.marg-under .note{flex:1 1 320px;max-width:var(--measure)}
+/* Пометка под таблицей — часть таблицы, а не проза, и берёт её ширину.
+   Пока на .note стояла мера, легенда обрывалась на 971 при таблице до
+   1203, и под ведомостью получался второй, более короткий правый край.
+   Зажимали ОБА — контейнер и сама строка, — снять надо было оба. */
+.marg-under .note{flex:1 1 320px}
 .marg-under .ad-rail.on{flex:none;margin-top:0}
 """
 

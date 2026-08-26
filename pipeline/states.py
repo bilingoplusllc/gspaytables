@@ -498,9 +498,9 @@ def states_index(items: list, shell, esc, sz: dict | None = None) -> str:
             + (f'<span class="st-n">{zones_of(nm)}</span>' if zones_of(nm) > 1 else "")
             + "</li>" for rel, nm in rows)
         blocks.append(
-            f'<div class="st-group"><p class="st-head">{esc(title)} '
+            f'<div class="st-group"><h3 class="st-head">{esc(title)} '
             f'<span class="st-note">{esc(note)}</span> '
-            f'<span class="st-count">{len(rows)}</span></p>'
+            f'<span class="st-count">{len(rows)}</span></h3>'
             f'<ul class="st-list">{li}</ul></div>')
     links = "".join(blocks)
     B = ['<ol class="crumbs"><li><a href="/">All localities</a></li>'

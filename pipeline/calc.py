@@ -202,7 +202,9 @@ CALC_JS = r"""
     /* The year is deliberately absent here: it is already printed in the
        edition line and in the heading, and on a phone the area name alone
        takes five lines and pushes the ranks below the fold. */
-    var head = 'GS-' + g + ', step ' + s + ' in ' + esc(zone.n);
+    /* The area name is wrapped so a line break can never fall inside it. */
+    var head = 'GS-' + g + ', step ' + s + ' in ' +
+               '<span class="fp-area">' + esc(zone.n) + '</span>';
     if (hBig){
       var hWhat = box.querySelector("[data-what]");
       var hRank = box.querySelector("[data-ranks]");
