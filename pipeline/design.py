@@ -703,11 +703,13 @@ main :where(.col:not(.titleblock),.grid>div)>:last-child{margin-bottom:0}
 
 /* Перечни — единственные блоки, у которых во всём файле нет ни одного
    правила: они едут на браузерных 1em 40px и на полную ширину колонки,
-   то есть ещё одним правым краем. Втяжка берётся из шкалы, а мера
-   считается от ТЕКСТА, а не от маркера. */
+   то есть ещё одним правым краем. Втяжка берётся из шкалы, а правый
+   край общий с прозой: перечень втягивается ВНУТРЬ полосы, а не
+   вылезает за неё. Компенсация втяжки шириной давала список на 27px
+   правее каждого абзаца вокруг — третий правый край на экране. */
 main :where(.col,.grid>div)>ul:not([class]),
 main :where(.col,.grid>div)>ol:not([class]){padding-left:var(--sp3);
-  max-width:calc(var(--measure) + var(--sp3))}
+  max-width:var(--measure)}
 main :where(.col,.grid>div)>ul:not([class])>li,
 main :where(.col,.grid>div)>ol:not([class])>li{margin-bottom:var(--sp1)}
 main :where(.col,.grid>div)>ul:not([class])>li:last-child,
@@ -1261,7 +1263,7 @@ figcaption{font-family:var(--sans);font-size:var(--s-fine);line-height:1.5;
 .caveat{border:0;border-radius:0;background:transparent;
   border-left:3px solid var(--seal-fill);padding:2px 0 2px var(--sp2);
   margin:var(--sp3) 0;color:var(--ink-2);
-  max-width:calc(var(--measure) + var(--sp2))}
+  max-width:var(--measure)}
 .caveat p{margin:0}
 .caveat strong{color:var(--ink)}
 
