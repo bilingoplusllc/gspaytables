@@ -33,6 +33,7 @@ import icons
 import ladder
 import states
 import pages as P
+import payraise
 
 HERE = Path(__file__).resolve().parent.parent
 DATA = HERE / "data"
@@ -470,6 +471,7 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
     <a href="/states/"{cur('states')}>States</a>
     <a href="/promotion/"{cur('promotion')}>Promotions</a>
     <a href="/grades/"{cur('grades')}>Grades</a>
+    <a href="/pay-raise/"{cur('raise')}>Next raise</a>
     <a href="/how-locality-pay-works/"{cur('how')}>How it works</a>
     <a href="/about/"{cur('about')}>About</a>
   </div>
@@ -637,6 +639,15 @@ def locality_page(code: str, loc: dict, T: dict, R: dict, ranks: dict,
              f'moves onto it \u2014 or use the arrow keys once a cell is '
              f'selected.</p>')
     B.append(exhibit_table(loc, cap, year))
+    # Ссылка на страницу следующей прибавки со ВСЕХ 58 зон. Спрос по «gs pay
+    # scale <следующий год>» разгоняется с начала ноября и достигает пика к
+    # середине декабря, когда ранжирование уже решено. Ссылка стоит сразу под
+    # таблицей, потому что именно здесь читатель задаётся вопросом «а в
+    # следующем году сколько».
+    B.append(f'<p>These are the {year} rates, and they hold until the first pay '
+             f'period of January {year + 1}. Whether they change then, and when '
+             f'that is decided, is on '
+             f'<a href="/pay-raise/">the next pay raise</a>.</p>')
     B.append('</section>')
 
     # --- 2. много ли это
@@ -1234,7 +1245,7 @@ def main() -> int:
     # Константа адреса раздаётся модулям страниц: обратный импорт
     # создал бы петлю, а дублировать литерал нельзя — домен ещё не
     # выбран и обязан меняться одной строкой.
-    for _m in (compare, ladder, P, states):
+    for _m in (compare, ladder, P, states, payraise):
         _m.DOMAIN = DOMAIN
         _m.CONTACT = CONTACT
     T_AREAS = str(len(T["localities"]))
@@ -1430,6 +1441,7 @@ def main() -> int:
         ("methodology", P.methodology(T, R, shell, money, OWNER, CONTACT)),
         ("privacy", P.privacy(shell)),
         ("terms", P.terms(shell)),
+        ("pay-raise", payraise.page(T, shell, money)),
     ):
         write(rel, html_)
         urls.append(f"/{rel}/")
@@ -1989,6 +2001,21 @@ def main() -> int:
         if lit:
             problems.append(f"реклама выключена, а класс on есть на {len(lit)}")
 
+    # 20. свежесть статуса прибавки. Страница /pay-raise/ утверждает, что
+    #     на конкретную дату письмо президента не отправлено. Эта дата ставится
+    #     РУКАМИ после проверки первоисточников, а сборка идёт по расписанию:
+    #     без гейта ежемесячный прогон публиковал бы августовский статус в
+    #     январе, то есть страница выписывала бы себе свежесть, которой не
+    #     проверяла. Срок 40 дней выбран так, чтобы ни дедлайн письма
+    #     (31 августа), ни выход указа (18-23 декабря) не могли пройти между
+    #     двумя прогонами незамеченными.
+    stale = payraise.stale_days()
+    if stale > payraise.STALE_AFTER_DAYS:
+        problems.append(
+            f"статус прибавки не перепроверялся {stale} дней "
+            f"(порог {payraise.STALE_AFTER_DAYS}): открыть whitehouse.gov, "
+            f"Federal Register и govinfo, затем обновить CHECKED в payraise.py")
+
     # 18. год издания на страницах. Год стоял литералом в шести местах, и
     #     гейт свежести пропускал это по построению: он сверял скачанный файл
     #     с ЗАПРОШЕННЫМ годом, а запрашивали всегда один и тот же. В январе
@@ -2046,7 +2073,8 @@ def main() -> int:
           "объём, направление, полнота охвата, пунктуация, крошки, "
           "клиентский расчёт, экранирование, управляющие символы, "
                 "внешние запросы, шрифт, стили, карта сайта, американское написание, табличные цифры, покрытие шрифта, совпадение гарнитуры, "
-          "правила без разметки, описание, адрес, год издания, реклама")
+          "правила без разметки, описание, адрес, год издания, реклама, "
+          "свежесть статуса")
     return 0
 
 
