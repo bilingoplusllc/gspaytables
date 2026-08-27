@@ -472,8 +472,8 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 <a class="skip" href="#content">Skip to content</a>
 <header class="mast">
   <div class="mast-in">
-    <div class="mast-id"><a class="brand" href="/" aria-label="{SITE} — home">{SEAL_MAST}<span
-      class="brand-name">{SITE}</span></a><span class="tagline">{TAGLINE}</span></div>
+    <a class="brand" href="/">{SEAL_MAST}<span class="mast-text"><span
+      class="brand-name">{SITE}</span><span class="tagline">{TAGLINE}</span></span></a>
     <span class="edition">{T_YEAR} edition<br>Effective January {T_YEAR}</span>
   </div>
 </header>
@@ -492,9 +492,9 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 </nav>
 <div class="notice">
   <p class="notice-in"><b>This is not a U.S. government website.</b>
-  <span class="nt-long">{SITE} is an independent reference published by {OWNER}
-  and is not affiliated with, endorsed by, or connected to the U.S. Office of
-  Personnel Management or any federal agency.</span><span class="nt-short">Not
+  <span class="nt-long">{SITE} is an independent reference, not affiliated with,
+  endorsed by, or connected to the U.S. Office of Personnel Management or any
+  federal agency.</span><span class="nt-short">Not
   affiliated with OPM or any federal agency.</span></p>
 </div>
 {bar}
@@ -508,14 +508,16 @@ def shell(title: str, desc: str, body: str, canonical: str, nav: str = "",
 </div>
 <footer><div class="foot-in">
   <div class="foot-mark">{SEAL_FOOT}</div>
+  <div class="foot-who">
   <p class="foot-disc">Not affiliated with the U.S. Office of Personnel
   Management or any federal agency.</p>
-  <div class="foot-body">
   <p class="disclaimer">{SITE} is an independent reference published by {OWNER}.
   Pay figures are computed from the official OPM salary tables and verified cell
   by cell against them. Price levels are Regional Price Parities from the U.S.
   Bureau of Economic Analysis. Both are works of the U.S. government and in the
   public domain.</p>
+  </div>
+  <div class="foot-body">
   <p class="foot-links"><a href="/how-locality-pay-works/">How locality pay works</a>
   <a href="/grades/">All grades</a> <a href="/compare/">Compare areas</a>
   <a href="/methodology/">Methodology</a> <a href="/about/">About</a>
@@ -1682,8 +1684,11 @@ def main() -> int:
         # 3. тире там, где должна быть длина CSS или число
         if re.search(r"[\u2013\u2014](?=px|\d*px)|\d[\u2013\u2014]px", h):
             problems.append(f"{rel}: тире вместо длины CSS")
-        # 4. дисклеймер обязателен на каждой странице — FTC Impersonation Rule
-        if "not affiliated with" not in h:
+        # 4. дисклеймер обязателен на каждой странице — FTC Impersonation Rule.
+        #    Сверяем по НОРМАЛИЗОВАННОМУ тексту: перенос строки в исходнике
+        #    не меняет того, что читает человек, но рвал подстроку, и гейт
+        #    краснел на верной странице.
+        if "not affiliated with" not in re.sub(r"\s+", " ", h).lower():
             problems.append(f"{rel}: нет дисклеймера о неаффилированности")
         # 5. внутренние ссылки должны вести на существующее — на страницу
         #    ИЛИ на файл. Иконки и шрифты лежат в сборке файлами, и проверка

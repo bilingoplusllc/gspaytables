@@ -453,14 +453,16 @@ figure{margin:0;padding:0}
 .mast-in{max-width:var(--page);margin:0 auto;
   padding:14px var(--pad) 12px;
   display:flex;align-items:center;gap:0 16px;flex-wrap:wrap}
-/* Опознавательный блок: два ряда и две колонки. Первая колонка — ровно
-   поле знака, вторая — всё остальное; ссылка занимает оба столбца
-   первого ряда, подпись стоит во втором столбце второго. Втяжка подписи
-   больше не ВЫЧИСЛЯЕТСЯ, а ЕСТЬ: это дорожка сетки, набранная теми же
-   двумя токенами, из которых сложен внутренний зазор ссылки. */
-.mast-id{flex:1 1 auto;min-width:0;display:grid;
-  grid-template-columns:var(--seal-w) minmax(0,1fr);
-  column-gap:var(--seal-gap)}
+/* Опознавательный блок — ОДНА ссылка: знак, справа от него столбик из
+   названия и подписи. Прежде ссылка охватывала только знак и название, а
+   подпись лежала снаружи, и знак центрировался по первому ряду: замер
+   давал знак и название на 36, а блок целиком и выходные данные на 48 —
+   знак висел на 12px выше оптического центра. Теперь знак равняется по
+   столбику, а выходные данные по всему блоку, и согласовывать руками
+   нечего.
+   Подпись оказалась внутри ссылки; WCAG 2.5.3 выполняется тем, что
+   aria-label снят и доступное имя равно видимому тексту. */
+.mast-text{display:flex;flex-direction:column;min-width:0}
 .seal{width:var(--seal-w);height:var(--seal-w);flex:none;display:block}
 .s-ring{fill:none;stroke:currentColor}
 .s-w2{stroke-width:2.4}
@@ -486,7 +488,7 @@ figure{margin:0;padding:0}
    был кликабелен, хотя выглядит как логотип и читатель по нему бьёт. */
 .brand{display:flex;align-items:center;gap:var(--seal-gap);
   text-decoration:none;color:var(--deep-ink);margin-right:auto;
-  min-width:0;grid-column:1/-1}
+  min-width:0}
 .brand-name{font-family:var(--sans);font-size:var(--s-lead);
   font-weight:700;letter-spacing:-.005em;text-transform:uppercase;
   line-height:1.1}
@@ -498,7 +500,7 @@ figure{margin:0;padding:0}
    нет: подпись просто стоит во втором столбце сетки .mast-id, то есть
    там же, где название. */
 .tagline{font-size:var(--s-fine);color:var(--deep-ink-2);line-height:1.4;
-  margin-top:2px;font-family:var(--serif);grid-column:2}
+  margin-top:2px;font-family:var(--serif)}
 .edition{font-family:var(--sans);font-size:var(--s-stamp);font-weight:600;
   letter-spacing:.11em;text-transform:uppercase;color:var(--deep-ink-2);
   text-align:right;line-height:1.5}
@@ -615,6 +617,10 @@ footer{background:var(--deep);color:var(--deep-ink);margin-top:0;
    непринадлежности, а не отдельной колонкой возле всего текста.
    line-height:0 снимает зазор под строчным svg. */
 .foot-mark{line-height:0}
+/* Рядом со знаком стоят ОБА заявления — кто мы и кем мы не являемся:
+   они про одно и то же. Прежде рядом стояла одна строка в 58px против
+   знака в 110, и справа от его нижней половины висело 66px пустоты. */
+.foot-who{min-width:0}
 .foot-body{min-width:0}
 .foot-seal{width:110px;height:110px;color:var(--deep-ink-2)}
 .foot-disc{font-size:var(--s-lead);line-height:1.4;
@@ -628,9 +634,12 @@ footer{background:var(--deep);color:var(--deep-ink);margin-top:0;
    мертвы все до одного, и юридическая оговорка набиралась 15-м кеглем
    гротеска вместо объявленных 21 px антиквы. Расширить строку, не починив
    набор, значило бы сделать её самой широкой и самой мелкой разом. */
-.foot-in>.foot-disc{grid-column:1 / -1;max-width:none;
+/* Селектор через .foot-who, а не .foot-in: оговорка теперь лежит внутри
+   группы, и прежний прямой потомок перестал бы совпадать — а вместе с
+   ним умер бы и набор, который тут повторён против .foot-in p (0-1-1). */
+.foot-who>.foot-disc{max-width:none;
   font-size:var(--s-lead);line-height:1.4;font-family:var(--serif);
-  color:var(--deep-ink);margin:0 0 var(--sp3)}
+  color:var(--deep-ink);margin:0 0 var(--sp2)}
 /* Меры здесь больше нет: 44em при 15px давали 660, и пока колонка подвала
    была 372, зажим просто не срабатывал. Дав подвалу полосу, он вернул бы
    второй правый край внутри самого подвала. */
@@ -663,7 +672,7 @@ footer{background:var(--deep);color:var(--deep-ink);margin-top:0;
 @media (min-width:820px){
   .foot-in{grid-template-columns:120px minmax(0,1fr)}
   .foot-mark{grid-column:1;grid-row:1}
-  .foot-in>.foot-disc{grid-column:2;grid-row:1;align-self:center}
+  .foot-who{grid-column:2;grid-row:1}
   .foot-body{grid-column:1 / -1}
 }
 @media (max-width:700px){
