@@ -82,6 +82,20 @@ def money(n) -> str:
     return f"${int(round(n)):,}"
 
 
+LOCALITY_EXPERIMENT = "locality-desc-2026-09"
+
+
+def locality_experiment(code: str) -> bool:
+    """Половина зон — в опыт, половина в контроль. Дели ЧЁТНО и устойчиво.
+
+    Отбор по чётности суммы байтов кода зоны: правило не зависит ни от
+    данных, ни от порядка обхода, поэтому срез один и тот же на любой сборке
+    и не может поехать при добавлении зоны. Алфавитное деление пополам взяли
+    бы половину страны против другой половины, и опыт мерил бы географию.
+    """
+    return sum(code.encode()) % 2 == 0
+
+
 def fit_title(core: str, limit: int = 60) -> str:
     """Бренд в конец — только если он влезает в отображаемую длину выдачи."""
     tail = f" | {SITE}"
@@ -725,35 +739,63 @@ def locality_page(code: str, loc: dict, T: dict, R: dict, ranks: dict,
               "second, statutory ceiling last.")))
     B.append('</section>')
 
-    title = fit_title(f"{name} GS Pay Scale {year}")
+    # ОПЫТ С ОПИСАНИЯМИ ЗОН, начат 09.09.2026, читать 21.10.2026.
+    #
+    # Замер, ради которого он ставится. Страницы зон при средней позиции 11,3
+    # дают CTR 0,21%, а страницы штатов при ХУДШЕЙ позиции 12,3 — 1,03%.
+    # Впятеро при том, что отвечают на один и тот же вопрос. 46 из 51
+    # недобранных переходов по всему сайту — этот один раздел.
+    #
+    # Что проверяем. Сниппет зоны ведёт с переворота ранга («pays 36th-most
+    # of the 57 ranked areas»), и это было сознательным решением: у
+    # конкурентов такого нет, а без него мы в выдаче неотличимы. Данные
+    # говорят, что не работает, но НЕ говорят, что виноват ранг: внутри
+    # раздела страницы с суммой шли даже чуть хуже, чем без неё — на семи
+    # переходах, то есть не измерено вовсе. Поэтому срез, а не переделка
+    # всех: половина зон получает сумму в заголовке и ставку первой строкой
+    # описания, половина остаётся как есть, и через шесть недель их можно
+    # сравнить при почти равной позиции.
+    in_exp = locality_experiment(code)
+    if in_exp:
+        who_t = names.short_name(name) if len(name) > 22 else name
+        title = fit_title(f"{who_t} GS Pay {year}: {money(ref['annual'])}"
+                          f" at GS-12 Step 5")
+    else:
+        title = fit_title(f"{name} GS Pay Scale {year}")
     cs = cities(name)
     covers = ("Covers " + ", ".join(cs[:-1]) + " and " + cs[-1] + "."
               if len(cs) > 1 else (f"Covers {cs[0]}." if cs else ""))
-    # Сниппет ведёт с переворота ранга: это единственное, чего нет ни у
-    # одного конкурента. Прежде все 58 описаний начинались со ставки и
-    # процента — ровно то же, что пишут federalpay и generalschedule, то
-    # есть в выдаче мы были неотличимы.
     lead = ""
     if nom and adj:
         n = ranks["n"]
         who = names.short_name(name) if len(name) > 26 else name
         if adj > nom:
             lead = (f"{who} pays {ordinal(nom)}-most of the {n} ranked areas "
-                    f"\u2014 and {ordinal(adj)} once local prices are counted.")
+                    f"— and {ordinal(adj)} once local prices are counted.")
         elif adj < nom:
             lead = (f"{who} ranks {ordinal(nom)} of {n} on the payslip and "
-                    f"{ordinal(adj)} once local prices are counted \u2014 "
+                    f"{ordinal(adj)} once local prices are counted — "
                     f"the salary goes further than the number suggests.")
         else:
             lead = (f"{who} holds {ordinal(nom)} of {n} both on the payslip "
                     f"and after local prices.")
-    d = fit_desc([p for p in [
-        lead,
-        f"GS-12 step 5 is {money(ref['annual'])} in {year}, "
-        f"{pct:g}% locality pay.",
-        covers if not lead else "",
-        "All 15 grades and 10 steps, checked against the official table.",
-    ] if p])
+    pay_first = (f"GS-12 step 5 is {money(ref['annual'])} in {name}, "
+                 f"{pct:g}% locality pay.")
+    if in_exp:
+        # Ставка первой строкой, ранг в хвост: человек ищет, сколько платят.
+        d = fit_desc([p for p in [
+            pay_first,
+            "All 15 grades and 10 steps, checked against the official table.",
+            lead,
+        ] if p])
+    else:
+        d = fit_desc([p for p in [
+            lead,
+            f"GS-12 step 5 is {money(ref['annual'])} in {year}, "
+            f"{pct:g}% locality pay.",
+            covers if not lead else "",
+            "All 15 grades and 10 steps, checked against the official table.",
+        ] if p])
 
     return shell(title, d, "\n".join(B), f"{DOMAIN}/locality/{slug(name)}/", "home",
                  crumbs=[("All localities", "/"), (name, None)],

@@ -150,6 +150,33 @@ def page(T: dict, shell, money) -> str:
              f'December order says otherwise.</p>')
     B.append('</div>')
 
+    # ТАБЛИЦА СЛЕДУЮЩЕГО ГОДА, а не рассуждение о ней.
+    #
+    # Запрос «2027 gs pay scale» идёт вверх с ноября к середине декабря, и
+    # отвечать на него сегодня некому: конкуренты публикуют «оценку», а у нас
+    # при объявленной заморозке никакой оценки не нужно — предложенная
+    # таблица 2027 года ЕСТЬ таблица 2026 года, число в число. Это и есть
+    # ответ, которого ни у кого нет, и он не требует ни одного нового замера.
+    #
+    # Слово «proposed» стоит в заголовке таблицы и в подписи под ней: пока
+    # указ не подписан, это предложение, и печатать его как закон нельзя.
+    grades = T['base']['grades']
+    rows = ''
+    for g in sorted(grades, key=int):
+        s = grades[g]
+        rows += (f'<tr><th>GS-{g}</th>'
+                 f'<td class="num">{money(s["1"]["annual"])}</td>'
+                 f'<td class="num">{money(s["5"]["annual"])}</td>'
+                 f'<td class="num">{money(s["10"]["annual"])}</td></tr>')
+    B.append(f'<h2>The {nxt} GS base table, as proposed</h2>')
+    B.append(f'<p>Because the alternative pay plan holds rates where they are, the {nxt} base table is the {year} base table. These are the rates before locality pay; your own figure is base plus your area percentage, and the <a href="/calculator/">calculator</a> does that for you.</p>')
+    B.append('<div class="scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>')
+    B.append(f'<caption>General Schedule base rates, {nxt} as proposed &mdash; identical to {year}</caption>')
+    B.append('<thead><tr><th>Grade</th><th class="num">Step 1</th>'
+             '<th class="num">Step 5</th><th class="num">Step 10</th></tr></thead>')
+    B.append(f'<tbody>{rows}</tbody></table></div>')
+    B.append(f'<p class="ex-note">Proposed, not law. The executive order signed between 18 and 23 December is what sets {nxt} rates; until then this table is what the alternative pay plan asks for. Law enforcement is the one group the letter treats differently, at 3.8 percent. Locality percentages are unchanged too, so every locality page on this site also holds for {nxt} under the proposal.</p>')
+
     # ---- три статуса, которые все смешивают
     B.append('<h2>Three different things get called "the raise"</h2>')
     B.append('<p>Most of the confusion in this subject comes from mixing three '
