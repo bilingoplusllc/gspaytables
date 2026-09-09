@@ -216,6 +216,23 @@ def _home_table(T, R, ranks, L, esc, money, slug) -> str:
             f'area when you sort by something else.</span></p>')
 
 
+def grade_span(T: dict, g: str):
+    """Настоящий диапазон грейда: от ступени 1 в самой дешёвой зоне до
+    ступени 10 в самой дорогой.
+
+    Зачем отдельно. В описании страницы стояли числа таблицы, а таблица тут
+    по СТУПЕНИ 5. Для GS-14 это давало «$142,549 to $178,204», тогда как
+    настоящий разброс грейда $125,776-$197,200: снизу занижено на 17 тысяч,
+    сверху на 19. Человек, набравший «GS-14 salary», видел в выдаче диапазон,
+    который не совпадает ни с его платёжкой, ни с потолком, к которому он
+    идёт. Числа были верны как величина и неверны как ОТВЕТ на вопрос.
+    """
+    loc = T["localities"]
+    lo = min(loc[k]["grades"][g]["1"]["annual"] for k in loc)
+    hi = max(loc[k]["grades"][g]["10"]["annual"] for k in loc)
+    return lo, hi
+
+
 def grade_page(g: str, T: dict, R: dict, ranks: dict, shell, esc, money, slug,
                rail: str = "", widget: str = "", js: str = "") -> str:
     year = T["year"]
@@ -246,10 +263,13 @@ def grade_page(g: str, T: dict, R: dict, ranks: dict, shell, esc, money, slug,
     B = [f'<ol class="crumbs"><li><a href="/">All localities</a></li>'
          f'<li><a href="/grades/">All grades</a></li>'
          f'<li>GS-{g}</li></ol>']
-    B.append(f'<h1>GS-{g} salary in {year}, by locality</h1>')
-    B.append(f'<p class="sub">What a GS-{g} earns in each of the {len(rows)} locality '
-             f'pay areas, and what that salary is worth once local prices are counted. '
-             f'The same grade and step ranges from {money(lo["pay"])} to '
+    _span_lo, _span_hi = grade_span(T, g)
+    B.append(f'<p class="sub">A GS-{g} earns between {money(_span_lo)} and '
+             f'{money(_span_hi)} in {year}: the low end is step 1 in the '
+             f'cheapest locality, the high end step 10 in the dearest. The '
+             f'table below fixes the step at 5 and varies only the place, so '
+             f'the {len(rows)} rows are comparable to each other, and the same '
+             f'grade and step ranges from {money(lo["pay"])} to '
              f'{money(hi["pay"])} depending only on where the desk is.</p>')
 
     B.append('<div class="answer">')
@@ -362,10 +382,16 @@ tables; BEA Regional Price Parities {R['bea_year']}.</figcaption>
                     for x in sorted(T["base"]["grades"], key=int) if x != g)
     B.append(f'<div class="chips">{links}</div>')
 
-    return shell(f"GS-{g} Pay Scale {year} — salary in every locality | GS Pay Tables",
-                 f"What a GS-{g} earns in {year} in each of the {len(rows)} locality pay "
-                 f"areas, from {money(lo['pay'])} to {money(hi['pay'])}, with each "
-                 f"salary adjusted for local prices.",
+    span_lo, span_hi = grade_span(T, g)
+    return shell(f"GS-{g} Pay Scale {year}: {money(span_lo)} to {money(span_hi)} "
+                 f"| GS Pay Tables",
+                 # Диапазон НАСТОЯЩИЙ: ступень 1 в самой дешёвой зоне и
+                 # ступень 10 в самой дорогой. Раньше стояли числа таблицы,
+                 # а она по ступени 5: снизу и сверху отрезано по двадцать
+                 # тысяч, и в выдаче это читалось как весь грейд.
+                 f"A GS-{g} earns {money(span_lo)} to {money(span_hi)} in "
+                 f"{year}, depending on step and duty station. All "
+                 f"{len(rows)} locality pay areas, adjusted for local prices.",
                  "\n".join(B), f"{DOMAIN}/gs-{g}/", "grades",
                  crumbs=[("All localities", "/"),
                          ("All grades", "/grades/"),

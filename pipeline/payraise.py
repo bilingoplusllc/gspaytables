@@ -35,7 +35,7 @@ from datetime import date
 # --- ЧТО ПРОВЕРЕНО И КОГДА -------------------------------------------------
 # Ставится руками после фактической проверки whitehouse.gov, Federal Register и
 # govinfo. Меняя дату, ОБЯЗАТЕЛЬНО перечитай STATUS ниже.
-CHECKED = date(2026, 8, 26)
+CHECKED = date(2026, 9, 9)
 
 # Сколько дней статус считается годным. За этим порогом сборка краснеет.
 # 40 дней выбраны так, чтобы срок письма (31 августа) и выход указа (18–23
@@ -78,6 +78,36 @@ SOURCES = [
 ]
 
 
+# КАЛЕНДАРЬ СОБЫТИЙ, а не счётчик дней.
+#
+# Гейт свежести считал дни от ручной проверки и краснел через сорок. Этого
+# оказалось мало и по существу неверно: письмо об альтернативном плане ушло
+# 26 августа 2026 — в ТОТ ЖЕ день, когда проверяли, — и страница простояла с
+# «Status: not decided» пятнадцать суток. Сорокадневный порог не наступил бы
+# до 5 октября, а вопрос года был решён 26 августа.
+#
+# Страница сама печатала даты, когда письма приходили в прошлые годы: 31.08.2022,
+# 31.08.2023, 30.08.2024, 28.08.2025. Она предсказала день своего протухания и
+# всё равно протухла, потому что будильник считал не то.
+#
+# Теперь гейт краснеет, когда МЕЖДУ проверкой и сегодняшним днём прошло
+# календарное событие, меняющее ответ.
+EVENTS = [
+    (date(2026, 9, 1), "крайний срок письма об альтернативном плане на 2027"),
+    (date(2026, 12, 1), "отчёт Федерального совета по окладам, 5 U.S.C. 5304a"),
+    (date(2026, 12, 18), "окно подписания указа о ставках 2027 (18–23 декабря)"),
+    (date(2027, 1, 11), "дата вступления ставок 2027 в силу"),
+    (date(2027, 9, 1), "крайний срок письма об альтернативном плане на 2028"),
+]
+
+
+def missed_events(today: date | None = None) -> list:
+    """События, которые прошли ПОСЛЕ последней проверки. Пустой список —
+    ответ на странице всё ещё может быть верным."""
+    now = today or date.today()
+    return [(d_, why) for d_, why in EVENTS if CHECKED < d_ <= now]
+
+
 def stale_days(today: date | None = None) -> int:
     """Сколько дней прошло с последней ручной проверки статуса."""
     return ((today or date.today()) - CHECKED).days
@@ -97,13 +127,28 @@ def page(T: dict, shell, money) -> str:
     # линейку сверху, а прямо над ней уже стоит издательская линейка титула —
     # получались две подряд с пустотой между ними. Карточка рассчитана на
     # место ПОСЛЕ текста, а не сразу под заголовком страницы.
+    # 26 августа 2026 письмо ушло — в день запуска сайта, через несколько
+    # часов после ручной проверки. Страница простояла с «Status: not decided»
+    # пятнадцать суток, и ровно в эти сутки переходы упали с 29 до 2: вопрос
+    # года получил ответ, а мы продолжали отвечать «пока неизвестно».
     B.append('<p class="q-lead">')
-    B.append(f'<strong>Status: not decided.</strong> As of {checked} the '
-             f'President had not sent Congress the alternative pay plan letter '
-             f'that sets the {nxt} raise. The letter is due before 1 September '
-             f'{year}. Nothing is binding until an executive order is signed, '
-             f'which for the last five years has happened between 18 and 23 '
-             f'December.</p>')
+    B.append(f'<strong>Proposed: a freeze.</strong> On 26 August {year} the '
+             f'President sent Congress the alternative pay plan letter for '
+             f'{nxt}. It holds base pay and locality pay for civilian federal '
+             f'employees at their {year} rates — a zero-percent year — and '
+             f'gives law enforcement 3.8 percent. Nothing is binding until an '
+             f'executive order is signed, which for the last five years has '
+             f'happened between 18 and 23 December. The alternative plan is '
+             f'usually what the order adopts, but it is a proposal until then.</p>')
+    # Это и есть то, чего нет ни у кого: при заморозке таблицы следующего года
+    # ИЗВЕСТНЫ уже сейчас, потому что они равны нынешним.
+    B.append('<div class="caveat">')
+    B.append(f'<p><strong>If the freeze holds, the {nxt} tables are already '
+             f'known: they are the {year} tables.</strong> Base rates and all '
+             f'58 locality percentages stay where they are. Every number on '
+             f'this site is therefore also the {nxt} number, unless the '
+             f'December order says otherwise.</p>')
+    B.append('</div>')
 
     # ---- три статуса, которые все смешивают
     B.append('<h2>Three different things get called "the raise"</h2>')
@@ -125,13 +170,17 @@ def page(T: dict, shell, money) -> str:
 
     B.append('<figure class="ex">')
     B.append('<p class="ex-kicker">Announced</p>')
-    B.append(f'<p class="ex-title">{nxt}: nothing yet</p>')
-    B.append(f'<p class="ex-note">The President may set aside the statutory '
-             f'formula by sending Congress an alternative pay plan, and the '
-             f'deadline for doing so is before 1 September. Every President has '
-             f'used that power every year since 1994. As of {checked} no such '
-             f'letter for {nxt} had appeared on whitehouse.gov, in the Federal '
-             f'Register, or among the documents Congress publishes.</p>')
+    B.append(f'<p class="ex-title">{nxt}: base and locality frozen at {year} '
+             f'rates, 3.8 percent for law enforcement</p>')
+    B.append(f'<p class="ex-note">The alternative pay plan letter went to '
+             f'Congress on 26 August {year}, five days before the 1 September '
+             f'deadline. The President may set aside the statutory formula this '
+             f'way, and every President has used that power every year since '
+             f'1994. The letter says base pay and locality pay for civilian '
+             f'employees will not change from {year} rates; the stated reason '
+             f'is fiscal. Law enforcement is the single exception at 3.8 '
+             f'percent. Announced is not in force: the December executive order '
+             f'is what makes rates law.</p>')
     B.append('</figure>')
 
     B.append('<figure class="ex">')
@@ -291,10 +340,13 @@ def page(T: dict, shell, money) -> str:
              f'{STALE_AFTER_DAYS} days, so a stale status cannot quietly ship.</p>')
 
     return shell(
-        f"{nxt} Federal Pay Raise — what is decided and when",
-        f"Status of the {nxt} federal pay raise: what is decided, what is not, "
-        f"when the answer arrives, and whether step increases still happen if "
-        f"the raise is zero.",
+        # Слово, которое человек набирает, обязано стоять в заголовке. Пока
+        # там было «what is decided and when», страница отвечала на вопрос,
+        # который уже никто не задаёт: ответ известен, спрашивают про него.
+        f"{nxt} Federal Pay Raise: Frozen at {year} Rates | GS Pay Tables",
+        f"The {nxt} pay plan freezes base and locality pay at {year} "
+        f"rates, with 3.8 percent for law enforcement. What it means, and "
+        f"the December date that decides it.",
         "\n".join(B), f"{DOMAIN}/pay-raise/", "raise")
 
 
