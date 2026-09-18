@@ -1271,7 +1271,7 @@ def methodology(T: dict, R: dict, shell, money, owner: str, contact_email: str) 
          f'to 58, and a fixed list would silently miss a new one.</p>',
          f'<p><strong>Locality pay area definitions.</strong> OPM, {year}. These are '
          f'the counties and military installations that make up each area \u2014 '
-         f'920 counties across 57 areas, with Rest of U.S. defined by exclusion.</p>',
+         f'920 counties across the 55 areas that name any, with Rest of U.S. defined by exclusion and three areas defined without counties at all.</p>',
          f'<p><strong>Price levels.</strong> U.S. Bureau of Economic Analysis '
          f'Regional Price Parities for {R["bea_year"]}, at metropolitan level for the '
          f'55 metropolitan areas and at state level for Alaska and Hawaii, where the '
@@ -1322,7 +1322,7 @@ def methodology(T: dict, R: dict, shell, money, owner: str, contact_email: str) 
          '100 there would be an invention.</p></section>',
 
          '<section class="q"><h2>What stops publication</h2>',
-         '<p class="q-lead">The build fails, and nothing ships, when any of sixteen '
+         '<p class="q-lead">The build fails, and nothing ships, when any of twenty-nine '
          'checks finds a problem in the finished pages.</p>',
          '<p>The first is the strictest: every rate is recomputed independently from '
          'the base table and the percentage and compared with the figure OPM '
@@ -1362,7 +1362,7 @@ def methodology(T: dict, R: dict, shell, money, owner: str, contact_email: str) 
          f'<a href="mailto:{contact_email}">{contact_email}</a>.</p></section>']
     return shell("How GS Pay Tables Makes Its Numbers",
                  "The sources, the arithmetic in the order the law sets it, the "
-                 "sixteen checks that stop publication, and what this site "
+                 "twenty-nine checks that stop publication, and what this site "
                  "deliberately does not do.",
                  "\n".join(B), f"{DOMAIN}/methodology/", "method",
                  crumbs=[("All localities", "/"), ("Methodology", None)])
