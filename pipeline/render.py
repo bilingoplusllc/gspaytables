@@ -809,6 +809,12 @@ def facts_grid(code, loc, T, R, ranks, ref, base_ref, n_capped, nom, adj) -> str
     year, cap = T["year"], T["ex_iv_cap"]
     pct = loc["locality_pct"]
     rpp = R["areas"].get(code, {}).get("rpp")
+    # ЧЬИ ЭТО ЦЕНЫ. Методика обещает, что метро-область названа; до сегодня
+    # она не была названа ни на одной странице, и подмену нельзя было
+    # увидеть глазами — шесть зон полгода считались по чужому городу, один
+    # из них в другом штате. Имя берётся из той же записи, из которой берётся
+    # сам индекс, поэтому разойтись они не могут.
+    _msa = R["areas"].get(code, {}).get("msa") or ""
 
     rows = [("Base rate before locality", money(base_ref), ""),
             (f"Locality pay, {pct:g}%", "+ " + money(ref["annual"] - base_ref), ""),
@@ -836,7 +842,9 @@ def facts_grid(code, loc, T, R, ranks, ref, base_ref, n_capped, nom, adj) -> str
               f'<span class="kpi">{money(buys)}</span>'
               f'<span class="kpi-sub">at average U.S. prices, from a salary of '
               f'{money(ref["annual"])}. Local price level {rpp:.1f} against a '
-              f'national average of 100.</span></div>')
+              f'national average of 100'
+              + (f', measured for {_msa}' if _msa else '')
+              + f'.</span></div>')
     else:
         c2 = (f'<div class="fact"><p class="fact-k">Rank</p>'
               f'<span class="kpi">\u2014</span>'
