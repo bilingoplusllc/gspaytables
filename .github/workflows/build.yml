@@ -149,6 +149,41 @@ jobs:
           path: dist
           retention-days: 30
 
+      # ВЫКЛАДКА. До 18.09.2026 этот сайт выкладывался РУКАМИ, и был
+      # единственным живым сайтом фермы без автоматической выкладки. Цена
+      # видна по календарю: указ о прибавке подписывают 18-23 декабря, спрос
+      # на пике в январе, и в этот момент между исправленной сборкой и живой
+      # страницей стояло только то, вспомнит ли человек набрать wrangler.
+      #
+      # Шаг ОБУСЛОВЛЕН наличием секрета, и это не осторожность, а правило:
+      # «не настроено» и «сломалось» — разные исходы, и шаг, который красит
+      # прогон в красный из-за отсутствующего токена, научит смотреть мимо
+      # настоящих отказов. Зато пропуск обязан быть ГРОМКИМ — иначе сайт
+      # молча стоит на прошлой сборке, а прогон зелёный.
+      - name: Deploy to Cloudflare Pages
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=gspaytables --branch=main
+
+      - name: Say it out loud when nothing was deployed
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' }}
+        run: |
+          {
+            echo "### Собрано и проверено, НО НЕ ВЫЛОЖЕНО"
+            echo ""
+            echo "В репозитории нет секрета CLOUDFLARE_API_TOKEN, поэтому шаг"
+            echo "выкладки пропущен. Живой сайт стоит на прошлой сборке, и"
+            echo "зелёный прогон об этом ничего не говорит."
+            echo ""
+            echo "Чтобы выкладка пошла сама: Settings -> Secrets and variables"
+            echo "-> Actions -> New repository secret, имя CLOUDFLARE_API_TOKEN,"
+            echo "права Cloudflare Pages: Edit. CLOUDFLARE_ACCOUNT_ID уже есть."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::warning::Собрано, но не выложено: нет CLOUDFLARE_API_TOKEN"
+
   # GitHub молча отключает cron после 60 дней без активности в репозитории.
   # Ежемесячный коммит этого не допускает. Пишется встроенным GITHUB_TOKEN —
   # он выдаётся автоматически, создавать и хранить ничего не нужно.
