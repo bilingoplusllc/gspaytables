@@ -30,11 +30,11 @@
    "why": null
   },
   "ATL": {
-   "msa": "Athens-Clarke County, GA",
-   "rpp": 93.343,
+   "msa": "Atlanta-Sandy Springs-Roswell, GA",
+   "rpp": 100.058,
    "matched_cities": [
-    "athens",
-    "clarke county"
+    "atlanta",
+    "sandy springs"
    ],
    "exact": false,
    "why": null
@@ -116,17 +116,17 @@
    "why": null
   },
   "CLE": {
-   "msa": "Akron, OH",
-   "rpp": 93.37,
+   "msa": "Cleveland, OH",
+   "rpp": 93.923,
    "matched_cities": [
-    "akron"
+    "cleveland"
    ],
    "exact": false,
    "why": null
   },
   "COL": {
-   "msa": "Columbus, GA-AL",
-   "rpp": 89.296,
+   "msa": "Columbus, OH",
+   "rpp": 95.469,
    "matched_cities": [
     "columbus"
    ],
@@ -259,10 +259,10 @@
    "why": null
   },
   "HNT": {
-   "msa": "Decatur, AL",
-   "rpp": 87.212,
+   "msa": "Huntsville, AL",
+   "rpp": 93.072,
    "matched_cities": [
-    "decatur"
+    "huntsville"
    ],
    "exact": false,
    "why": null
@@ -453,8 +453,8 @@
    "why": null
   },
   "RT": {
-   "msa": "Rochester, MN",
-   "rpp": 90.821,
+   "msa": "Rochester, NY",
+   "rpp": 97.035,
    "matched_cities": [
     "rochester"
    ],
@@ -507,10 +507,10 @@
    "why": null
   },
   "SL": {
-   "msa": "Farmington, NM",
-   "rpp": 87.707,
+   "msa": "St. Louis, MO-IL",
+   "rpp": 95.088,
    "matched_cities": [
-    "farmington"
+    "st. louis"
    ],
    "exact": false,
    "why": null

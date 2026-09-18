@@ -48,9 +48,30 @@ def _cities(name: str) -> set[str]:
     return {p.strip().lower() for p in parts if p.strip()}
 
 
-def _state(name: str) -> str:
-    m = re.search(r",\s*([A-Z]{2})", name)
-    return m.group(1) if m else ""
+def _lead_city(name: str) -> str:
+    """Первый город в названии зоны. OPM называет главный город первым, и
+    это единственный осмысленный способ развести ничью между кандидатами с
+    одинаковым числом совпадений."""
+    head = name.split(",")[0]
+    first = re.split(r"[-–/]", head)[0].strip().lower()
+    return first
+
+
+def _states(name: str) -> set[str]:
+    """Коды штатов из хвоста названия — ВСЕ, а не первый.
+
+    Здесь была ловушка, стоившая сайту его собственной витрины. Прежняя
+    версия брала регуляркой `([A-Z]{2})` ОДИН код: «MO-IL» превращалось в
+    «MO». Сравнение потом пересекало БУКВЫ этой строки с буквами другой, и
+    `set("MO") & set("NM")` давало `{"M"}` — непустое. То есть проверка
+    штата не срабатывала даже там, где штаты разные, и Сент-Луис в Миссури
+    получал цены Фармингтона в Нью-Мексико.
+
+    Возвращается МНОЖЕСТВО КОДОВ. Сравнивать множества кодов и множества
+    букв — разные действия, и одно из них ничего не проверяет.
+    """
+    m = re.search(r",\s*([A-Z]{2}(?:-[A-Z]{2})*)", name)
+    return set(m.group(1).split("-")) if m else set()
 
 
 def load_bea(zip_path: Path) -> list[dict]:
@@ -80,7 +101,7 @@ def load_bea(zip_path: Path) -> list[dict]:
             continue                                      # (NA) и прочерки
         clean = geo.replace("(Metropolitan Statistical Area)", "").strip()
         out.append({"msa": clean, "rpp": rpp,
-                    "cities": _cities(clean), "state": _state(clean)})
+                    "cities": _cities(clean), "state": _states(clean)})
     return out, last_year
 
 
@@ -112,23 +133,134 @@ def load_state(zip_path: Path) -> tuple[dict, str]:
 
 
 def match(area_name: str, bea: list[dict]) -> dict | None:
-    """Ищем метро-область по пересечению городов, а не по совпадению строки."""
+    """Метро-область для зоны: по городам, по штату и по ПЕРВОМУ городу.
+
+    ТРИ ПРАВИЛА, И НИ ОДНО ИЗ НИХ НЕ ЛИШНЕЕ.
+
+    1. Совпадение по городам. Названия у OPM и BEA пишутся по-разному, и
+       сравнивать строки целиком бессмысленно.
+
+    2. Штат обязан пересечься. Раньше эта проверка была НАПИСАНА И ТУТ ЖЕ
+       ВЫБРОШЕНА — в её теле стояло `pass`. Шесть зон получали цены чужого
+       города, три из них из другого штата: Сент-Луис (Миссури) считался по
+       Фармингтону (Нью-Мексико), Колумбус в Огайо — по Колумбусу в
+       Джорджии, Рочестер в Нью-Йорке — по Рочестеру в Миннесоте. От этого
+       39 рангов «что покупает зарплата» из 57 были неверны, а витрина
+       сайта на четверть состояла из артефактов.
+
+    3. НИЧЬЯ РЕШАЕТСЯ ПЕРВЫМ НАЗВАННЫМ ГОРОДОМ, а не порядком строк в файле
+       BEA. Тринадцать привязок из 55 решались ничьёй, и семь из них были
+       верны по алфавитной случайности. Худший случай ждал своего часа:
+       «Omaha-Council Bluffs-FREMONT, NE-IA» набирает по одному совпадению и
+       с Омахой (91,9), и с Сан-Франциско-Окленд-ФРИМОНТ (115,6) — разница
+       23,7 пункта, то есть 22 853 доллара на ячейке GS-12/5, и держалась
+       она ровно на том, что «O» в алфавите раньше «S». Теперь побеждает
+       кандидат, содержащий первый город из имени зоны, — OPM называет
+       главный город первым.
+
+    Правило «первый город» применяется ТОЛЬКО как тай-брейк. Как приоритет
+    оно перекинуло бы Сан-Франциско на Сан-Хосе и сдвинуло 15 зон из 57 —
+    это отдельное решение владельца, а не побочный эффект починки.
+    """
     want = _cities(area_name)
-    st = _state(area_name)
-    best, best_score = None, 0
+    st = _states(area_name)
+    lead = _lead_city(area_name)
+    best, best_score, best_lead = None, 0, False
     for cand in bea:
-        # Штат должен совпасть хотя бы по одной букве кода: зоны бывают
-        # многоштатные ("DC-MD-VA-WV-PA"), метро — тоже.
-        if st and cand["state"] and not (set(st) & set(cand["state"])):
-            pass  # не отбрасываем: многоштатные коды пишутся по-разному
+        # Зоны бывают многоштатные ("DC-MD-VA-WV-PA"), метро — тоже; хватает
+        # пересечения по одному коду. Пустой штат у кандидата не отбрасываем:
+        # это не отказ, а отсутствие сведений.
+        if st and cand["state"] and not (st & cand["state"]):
+            continue
         score = len(want & cand["cities"])
-        if score > best_score:
-            best, best_score = cand, score
+        if not score:
+            continue
+        has_lead = bool(lead) and lead in cand["cities"]
+        if score > best_score or (score == best_score and has_lead
+                                  and not best_lead):
+            best, best_score, best_lead = cand, score, has_lead
     if best is None or best_score == 0:
         return None
     return {"msa": best["msa"], "rpp": best["rpp"],
             "matched_cities": sorted(want & best["cities"]),
             "exact": best_score == len(want)}
+
+
+def check(payload: dict, bea: list[dict]) -> None:
+    """ГЕЙТ ПРИВЯЗКИ. Падает громко, а не печатает предупреждение.
+
+    Зачем он есть. Зарплатные ячейки мы не считаем — мы их переписываем у
+    OPM и сверяем дважды. А ВОТ ЭТУ связь мы выбираем сами, и именно она
+    даёт сайту его единственное отличие от конкурентов: «что зарплата
+    покупает». Она же до сегодняшнего дня была единственным крупным звеном,
+    у которого не было ни одной проверки — и шесть зон из 57 ехали с ценами
+    чужого города, три из них из другого штата, ПОЛГОДА, при всех зелёных
+    гейтах.
+
+    Проверяется ТРИ вещи, и каждая ловит свой класс отказа.
+    """
+    areas = payload["areas"]
+    by_msa = {c["msa"]: c for c in bea}
+    bad = []
+
+    # 1. ШТАТ. Тот самый отказ: Сент-Луис в Миссури с ценами Фармингтона в
+    #    Нью-Мексико. Сравниваются МНОЖЕСТВА КОДОВ, а не буквы: буквенное
+    #    пересечение «MO» и «NM» непусто, и проверка на буквах не проверяет
+    #    ничего.
+    tables = json.loads(
+        (DATA / f"paytables-{edition.YEAR}.json").read_text(encoding="utf-8"))
+    for code, v in sorted(areas.items()):
+        if not v.get("rpp") or v.get("level") == "state":
+            continue
+        area_name = tables["localities"][code]["area_name"]
+        want = _states(area_name)
+        cand = by_msa.get(v["msa"])
+        if cand is None:
+            bad.append(f"{code}: метро {v['msa']!r} нет в файле BEA")
+            continue
+        if want and cand["state"] and not (want & cand["state"]):
+            bad.append(f"{code}: зона {area_name!r} ({'-'.join(sorted(want))}) "
+                       f"получила цены {v['msa']!r} "
+                       f"({'-'.join(sorted(cand['state']))}) — другой штат")
+
+    # 2. НИЧЬЯ, КОТОРУЮ НЕ РАЗВЁЛ СМЫСЛ. Тринадцать привязок из 55 решались
+    #    порядком строк в файле BEA, и семь были верны по алфавитной
+    #    случайности. Худшая: «Omaha-Council Bluffs-FREMONT, NE-IA» одинаково
+    #    совпадала с Омахой и с Сан-Франциско-Окленд-ФРИМОНТ — разница 23,7
+    #    пункта. Перенумеруй BEA свой файл, и витрина сайта молча
+    #    перетасуется. Ничья, не разрешённая первым названным городом, —
+    #    это не «выбрали как-нибудь», это «выбрали ничем».
+    for code, v in sorted(areas.items()):
+        if not v.get("rpp") or v.get("level") == "state":
+            continue
+        area_name = tables["localities"][code]["area_name"]
+        want_c, st = _cities(area_name), _states(area_name)
+        lead = _lead_city(area_name)
+        score = len(want_c & by_msa[v["msa"]]["cities"]) if v["msa"] in by_msa else 0
+        rivals = [c for c in bea
+                  if c["msa"] != v["msa"]
+                  and (not st or not c["state"] or (st & c["state"]))
+                  and len(want_c & c["cities"]) == score
+                  and not (lead and lead in c["cities"])]
+        if rivals and not (lead and lead in by_msa[v["msa"]]["cities"]):
+            bad.append(
+                f"{code}: {v['msa']!r} выбрана ничьёй по порядку файла — "
+                f"столько же совпадений у {rivals[0]['msa']!r} "
+                f"(индексы {v['rpp']} и {rivals[0]['rpp']})")
+
+    # 3. ПУСТАЯ ВЫБОРКА — ТОЖЕ ОТКАЗ. Проверка, которой нечего проверять,
+    #    зеленеет ровно так же, как исправная.
+    checked = sum(1 for v in areas.values()
+                  if v.get("rpp") and v.get("level") != "state")
+    if checked < 40:
+        bad.append(f"проверено всего {checked} привязок — выборка не та, "
+                   f"и зелёный здесь ничего не значит")
+
+    if bad:
+        raise RuntimeError("ГЕЙТ ПРИВЯЗКИ УПАЛ:" + "".join(
+            "\n  · " + b for b in bad))
+    print(f"  гейт привязки: {checked} зон, штат сходится у всех, "
+          f"ничьих по порядку файла нет")
 
 
 def build() -> dict:
@@ -162,6 +294,8 @@ def build() -> dict:
     payload = {"bea_year": year, "us_base": 100.0, "areas": result}
     (DATA / "rpp-map.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+
+    check(payload, bea)
 
     ok = sum(1 for v in result.values() if v.get("rpp"))
     exact = sum(1 for v in result.values() if v.get("exact"))
