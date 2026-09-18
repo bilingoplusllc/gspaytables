@@ -43,6 +43,12 @@ concurrency:
 
 jobs:
   build:
+    # Секрет поднят в env ЗАДАНИЯ намеренно: контекст `secrets` в условии
+    # ШАГА недоступен, и файл с ним GitHub объявляет недействительным
+    # целиком — прогон падает за ноль секунд, не выполнив ни одного шага.
+    # Через env условие работает, а значение остаётся замаскированным.
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -161,7 +167,7 @@ jobs:
       # настоящих отказов. Зато пропуск обязан быть ГРОМКИМ — иначе сайт
       # молча стоит на прошлой сборке, а прогон зелёный.
       - name: Deploy to Cloudflare Pages
-        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+        if: env.CF_TOKEN != ''
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -169,7 +175,7 @@ jobs:
           command: pages deploy dist --project-name=gspaytables --branch=main
 
       - name: Say it out loud when nothing was deployed
-        if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' }}
+        if: env.CF_TOKEN == ''
         run: |
           {
             echo "### Собрано и проверено, НО НЕ ВЫЛОЖЕНО"
