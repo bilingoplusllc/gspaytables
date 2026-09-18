@@ -244,31 +244,41 @@ def page(T: dict, shell, money) -> str:
     #
     # Слово «proposed» стоит в заголовке таблицы и в подписи под ней: пока
     # указ не подписан, это предложение, и печатать его как закон нельзя.
-    grades = T['base']['grades']
-    rows = ''
-    for g in sorted(grades, key=int):
-        s = grades[g]
-        rows += (f'<tr><th>GS-{g}</th>'
-                 f'<td class="num">{money(s["1"]["annual"])}</td>'
-                 f'<td class="num">{money(s["5"]["annual"])}</td>'
-                 f'<td class="num">{money(s["10"]["annual"])}</td></tr>')
-    B.append(f'<h2>The {nxt} GS base table, as proposed</h2>')
-    B.append(f'<p>Because the alternative pay plan holds rates where they are, the {nxt} base table is the {year} base table. These are the rates before locality pay; your own figure is base plus your area percentage, and the <a href="/calculator/">calculator</a> does that for you.</p>')
-    B.append('<div class="scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>')
-    B.append(f'<caption>General Schedule base rates, {nxt} as proposed &mdash; identical to {year}</caption>')
-    B.append('<thead><tr><th>Grade</th><th class="num">Step 1</th>'
-             '<th class="num">Step 5</th><th class="num">Step 10</th></tr></thead>')
-    B.append(f'<tbody>{rows}</tbody></table></div>')
-    B.append(f'<p class="ex-note">Proposed, not law. The executive order '
-             f'signed between {window} is what sets {nxt} rates; until then '
-             f'this table is what the alternative pay plan asks for. Law '
-             f'enforcement is the one group the letter treats differently, '
-             f'at {prop["leo"]} percent &mdash; their own base table and '
-             f'where it stops are on the '
-             f'<a href="/law-enforcement/">law enforcement pay page</a>. '
-             f'Locality percentages are unchanged too, so every locality '
-             f'page on this site also holds for {nxt} under the '
-             f'proposal.</p>')
+    # ВЕСЬ БЛОК ТАБЛИЦЫ СЛЕДУЮЩЕГО ГОДА ЖИВЁТ ТОЛЬКО ПРИ ЗАПИСИ О
+    # ПРЕДЛОЖЕНИИ. До этой правки он стоял на уровне функции и читал
+    # prop["leo"] безусловно — а комментарий в этом же файле предписывает
+    # в день указа перенести запись из PROPOSED в HISTORY. То есть ровно
+    # 18-23 декабря, в неделю пикового спроса, сборка падала бы с
+    # TypeError на None. Воспроизведено исполнением, а не вычитано.
+    #
+    # Таблица «как предложено» и не должна печататься после подписания:
+    # с этого момента есть закон, и предложение перестаёт быть ответом.
+    if prop:
+        grades = T['base']['grades']
+        rows = ''
+        for g in sorted(grades, key=int):
+            s = grades[g]
+            rows += (f'<tr><th>GS-{g}</th>'
+                     f'<td class="num">{money(s["1"]["annual"])}</td>'
+                     f'<td class="num">{money(s["5"]["annual"])}</td>'
+                     f'<td class="num">{money(s["10"]["annual"])}</td></tr>')
+        B.append(f'<h2>The {nxt} GS base table, as proposed</h2>')
+        B.append(f'<p>Because the alternative pay plan holds rates where they are, the {nxt} base table is the {year} base table. These are the rates before locality pay; your own figure is base plus your area percentage, and the <a href="/calculator/">calculator</a> does that for you.</p>')
+        B.append('<div class="scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>')
+        B.append(f'<caption>General Schedule base rates, {nxt} as proposed &mdash; identical to {year}</caption>')
+        B.append('<thead><tr><th>Grade</th><th class="num">Step 1</th>'
+                 '<th class="num">Step 5</th><th class="num">Step 10</th></tr></thead>')
+        B.append(f'<tbody>{rows}</tbody></table></div>')
+        B.append(f'<p class="ex-note">Proposed, not law. The executive order '
+                 f'signed between {window} is what sets {nxt} rates; until then '
+                 f'this table is what the alternative pay plan asks for. Law '
+                 f'enforcement is the one group the letter treats differently, '
+                 f'at {prop["leo"]} percent &mdash; their own base table and '
+                 f'where it stops are on the '
+                 f'<a href="/law-enforcement/">law enforcement pay page</a>. '
+                 f'Locality percentages are unchanged too, so every locality '
+                 f'page on this site also holds for {nxt} under the '
+                 f'proposal.</p>')
 
     # ---- три статуса, которые все смешивают
     B.append('<h2>Three different things get called "the raise"</h2>')
@@ -416,7 +426,9 @@ def page(T: dict, shell, money) -> str:
              '<a href="/how-locality-pay-works/">how locality pay works</a>.</p>')
 
     # ---- история
-    B.append('<h2>What the last four years actually did</h2>')
+    # Число лет ПОСЧИТАНО: строк в истории станет пять в день указа,
+    # и слово «four» стало бы неправдой само собой.
+    B.append(f'<h2>What the last {len(HISTORY)} years actually did</h2>')
     rows = "".join(
         f'<tr><th>{y}</th><td class="num">{b}%</td><td class="num">{l}%</td>'
         f'<td class="num">{tot}%</td><td>{letter}</td><td>{eo}, {eod}</td></tr>'

@@ -340,9 +340,22 @@ CALC_JS = r"""
     var msg = box.querySelector("[data-zipmsg]");
     var fixed = box.getAttribute("data-fixed");
 
+    var calcSent = false;
     function draw(){
       render(box, fixed ? byCode(fixed) : byCode(z.value), +g.value, +s.value);
       if (typeof repaintHome === "function") repaintHome(+g.value, +s.value);
+      // Once per page: a visitor turns the grade and step dials several
+      // times in a row, and counting every repaint would measure the
+      // finger rather than the thing worth knowing, which is whether
+      // the calculator was used at all.
+      if (!calcSent && typeof gtag === "function") {
+        calcSent = true;
+        gtag("event", "calc_use", {
+          grade: +g.value,
+          step: +s.value,
+          zone: fixed || (z && z.value) || ""
+        });
+      }
     }
     [g, s, z].forEach(function(el){ if (el) el.addEventListener("change", draw); });
 
