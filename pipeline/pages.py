@@ -264,6 +264,21 @@ def grade_page(g: str, T: dict, R: dict, ranks: dict, shell, esc, money, slug,
          f'<li><a href="/grades/">All grades</a></li>'
          f'<li>GS-{g}</li></ol>']
     _span_lo, _span_hi = grade_span(T, g)
+    # ЗАГОЛОВКА ЗДЕСЬ НЕ БЫЛО ВООБЩЕ. Пятнадцать страниц разрядов — и только
+    # они — уходили в выдачу без единого <h1>: сразу за крошками начинался
+    # <p class="sub">. У всех остальных типов страниц заголовок есть, то
+    # есть это была не позиция, а пропуск.
+    #
+    # Цена пропуска считается: на эти пятнадцать страниц приходится около
+    # четверти показов сайта. Заголовок — то, чем страница называет себя и
+    # поисковику, и человеку, который читает её с экранного диктора; без
+    # него оба получают документ, начинающийся с придаточного предложения.
+    #
+    # Формулировка повторяет <title> НЕ дословно: title продаёт диапазон,
+    # заголовок называет предмет и то, чем эта страница отличается от
+    # чужих таблиц — она про место, а не про ступень.
+    B.append(f'<h1>GS-{g} pay scale for {year}, and what it is worth '
+             f'in each of the {len(rows)} locality areas</h1>')
     B.append(f'<p class="sub">A GS-{g} earns between {money(_span_lo)} and '
              f'{money(_span_hi)} in {year}: the low end is step 1 in the '
              f'cheapest locality, the high end step 10 in the dearest. The '
