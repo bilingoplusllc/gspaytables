@@ -54,6 +54,34 @@ HISTORY = [
     (2026, "1.0", "0", "1.0", "28 August 2025", "EO 14368", "18 December 2025"),
 ]
 
+# --- ЧТО ПРЕДЛОЖЕНО, НО ЕЩЁ НЕ СТАЛО ЗАКОНОМ ------------------------------
+#
+# Ключ — ГОД, НА КОТОРЫЙ письмо устанавливает ставки. Это не украшение
+# структуры, а единственная защита от того, чтобы страница выдумывала
+# события: год издания переворачивается 1 января сам, и всё, что набрано
+# прозой через {year}, на следующем цикле становится ложным утверждением о
+# президентском письме. Нет записи — нет утверждения.
+#
+# Сюда попадает цикл, письмо по которому УЖЕ ушло, а указа ещё нет. В день
+# подписания указа строка переезжает в HISTORY, и запись отсюда убирается:
+# «предложено» и «в силе» — разные состояния, и одновременно верными они не
+# бывают.
+PROPOSED = {
+    2027: {
+        # Письмо ушло 26.08.2026, за пять дней до установленного законом
+        # срока 1 сентября. В день запуска сайта, через несколько часов
+        # после ручной проверки — страница простояла с «пока не решено»
+        # пятнадцать суток, и переходы за эти сутки упали с 29 до 2.
+        "letter": "26 August 2026",
+        "doc": "House Document 119-87",
+        "base": "0",
+        "locality": "0",
+        "leo": "3.8",
+        "why": "fiscal",
+    },
+}
+
+
 SOURCES = [
     ("5 U.S.C. 5303 — the annual adjustment and the alternative plan",
      "https://www.govinfo.gov/content/pkg/USCODE-2023-title5/html/"
@@ -113,10 +141,38 @@ def stale_days(today: date | None = None) -> int:
     return ((today or date.today()) - CHECKED).days
 
 
+def eo_window() -> str:
+    """Окно подписания указа — ПОСЧИТАНО по истории, а не вспомнено.
+
+    «Между 18 и 23 декабря» стояло в прозе числом. Числа в прозе, которые
+    никто не пересчитывает, живут своей жизнью: добавится год с указом от
+    27 декабря — и фраза станет ложной, ничего об этом не сказав.
+    """
+    days = []
+    for row in HISTORY:
+        d = row[6].split()
+        if len(d) == 3 and d[1] == "December":
+            days.append(int(d[0]))
+    if not days:
+        raise RuntimeError("в истории нет ни одного декабрьского указа — "
+                           "окно считать не из чего")
+    lo, hi = min(days), max(days)
+    return f"{lo} and {hi} December" if lo != hi else f"{lo} December"
+
+
 def page(T: dict, shell, money) -> str:
     year = int(T["year"])
     nxt = year + 1
     checked = CHECKED.strftime("%d %B %Y").lstrip("0")
+    # Цикл, о котором идёт речь. None — значит письма по нему ещё не было, и
+    # страница обязана это СКАЗАТЬ, а не пересказать прошлогоднее.
+    prop = PROPOSED.get(nxt)
+    window = eo_window()
+    in_force = next((r for r in HISTORY if r[0] == year), None)
+    if in_force is None:
+        raise RuntimeError(
+            f"в HISTORY нет года {year}, а страница обязана назвать, что "
+            f"действует СЕЙЧАС: без этой строки она пересказала бы чужой год")
 
     B = [f'<h1>The {nxt} federal pay raise</h1>']
     B.append(f'<p class="sub">What has been decided, what has not, and the date '
@@ -132,23 +188,51 @@ def page(T: dict, shell, money) -> str:
     # пятнадцать суток, и ровно в эти сутки переходы упали с 29 до 2: вопрос
     # года получил ответ, а мы продолжали отвечать «пока неизвестно».
     B.append('<p class="q-lead">')
-    B.append(f'<strong>Proposed: a freeze.</strong> On 26 August {year} the '
-             f'President sent Congress the alternative pay plan letter for '
-             f'{nxt}. It holds base pay and locality pay for civilian federal '
-             f'employees at their {year} rates — a zero-percent year — and '
-             f'gives law enforcement 3.8 percent. Nothing is binding until an '
-             f'executive order is signed, which for the last five years has '
-             f'happened between 18 and 23 December. The alternative plan is '
-             f'usually what the order adopts, but it is a proposal until then.</p>')
+    if prop:
+        _frozen = prop["base"] == "0" and prop["locality"] == "0"
+        _head = ("a freeze" if _frozen
+                 else f'base pay up {prop["base"]} percent')
+        B.append(f'<strong>Proposed: {_head}.</strong> On {prop["letter"]} the '
+                 f'President sent Congress the alternative pay plan letter for '
+                 f'{nxt}. It holds base pay and locality pay for civilian '
+                 f'federal employees at their {year} rates — a zero-percent '
+                 f'year — and gives law enforcement {prop["leo"]} percent. '
+                 f'Nothing is binding until an executive order is signed, '
+                 f'which for the last {len(HISTORY)} years has happened '
+                 f'between {window}. The alternative plan is usually what the '
+                 f'order adopts, but it is a proposal until then.</p>'
+                 if _frozen else
+                 f'<strong>Proposed: {_head}.</strong> On {prop["letter"]} the '
+                 f'President sent Congress the alternative pay plan letter for '
+                 f'{nxt}: base pay {prop["base"]} percent, locality pay '
+                 f'{prop["locality"]} percent, and {prop["leo"]} percent for '
+                 f'law enforcement. Nothing is binding until an executive '
+                 f'order is signed, which for the last {len(HISTORY)} years '
+                 f'has happened between {window}.</p>')
+    else:
+        # ЧЕСТНАЯ ВЕТКА. Раньше её не было вовсе, и на следующем цикле
+        # страница пересказывала прошлогоднее письмо с подставленным годом —
+        # то есть сообщала о событии, которого не было. Теперь она говорит
+        # ровно то, что известно: чего ещё не произошло и когда произойдёт.
+        B.append(f'<strong>Not announced yet.</strong> The alternative pay '
+                 f'plan letter for {nxt} has not been sent. By law the '
+                 f'President has until 31 August {year} to send it, and in '
+                 f'each of the last {len(HISTORY)} years the letter arrived '
+                 f'within the last days of August. Until it does, nothing '
+                 f'about {nxt} pay is announced — and anything published '
+                 f'elsewhere as the {nxt} table is a forecast, not a rate. '
+                 f'The binding step comes later still: an executive order, '
+                 f'signed between {window}.</p>')
     # Это и есть то, чего нет ни у кого: при заморозке таблицы следующего года
     # ИЗВЕСТНЫ уже сейчас, потому что они равны нынешним.
-    B.append('<div class="caveat">')
-    B.append(f'<p><strong>If the freeze holds, the {nxt} tables are already '
-             f'known: they are the {year} tables.</strong> Base rates and all '
-             f'58 locality percentages stay where they are. Every number on '
-             f'this site is therefore also the {nxt} number, unless the '
-             f'December order says otherwise.</p>')
-    B.append('</div>')
+    if prop and prop["base"] == "0" and prop["locality"] == "0":
+        B.append('<div class="caveat">')
+        B.append(f'<p><strong>If the freeze holds, the {nxt} tables are '
+                 f'already known: they are the {year} tables.</strong> Base '
+                 f'rates and all 58 locality percentages stay where they are. '
+                 f'Every number on this site is therefore also the {nxt} '
+                 f'number, unless the December order says otherwise.</p>')
+        B.append('</div>')
 
     # ТАБЛИЦА СЛЕДУЮЩЕГО ГОДА, а не рассуждение о ней.
     #
@@ -175,7 +259,13 @@ def page(T: dict, shell, money) -> str:
     B.append('<thead><tr><th>Grade</th><th class="num">Step 1</th>'
              '<th class="num">Step 5</th><th class="num">Step 10</th></tr></thead>')
     B.append(f'<tbody>{rows}</tbody></table></div>')
-    B.append(f'<p class="ex-note">Proposed, not law. The executive order signed between 18 and 23 December is what sets {nxt} rates; until then this table is what the alternative pay plan asks for. Law enforcement is the one group the letter treats differently, at 3.8 percent. Locality percentages are unchanged too, so every locality page on this site also holds for {nxt} under the proposal.</p>')
+    B.append(f'<p class="ex-note">Proposed, not law. The executive order '
+             f'signed between {window} is what sets {nxt} rates; until then '
+             f'this table is what the alternative pay plan asks for. Law '
+             f'enforcement is the one group the letter treats differently, at '
+             f'{prop["leo"]} percent. Locality percentages are unchanged too, '
+             f'so every locality page on this site also holds for {nxt} under '
+             f'the proposal.</p>')
 
     # ---- три статуса, которые все смешивают
     B.append('<h2>Three different things get called "the raise"</h2>')
@@ -185,29 +275,50 @@ def page(T: dict, shell, money) -> str:
 
     B.append('<figure class="ex">')
     B.append('<p class="ex-kicker">In force</p>')
-    B.append(f'<p class="ex-title">{year}: base pay up 1.0 percent, locality '
-             f'frozen</p>')
-    B.append(f'<p class="ex-note">Executive Order 14368, signed 18 December '
-             f'{year - 1}. Base rates rose 1.0 percent; locality percentages '
-             f'were held at their {year - 1} levels. The rates took effect on '
-             f'the first day of the first pay period beginning on or after '
-             f'1 January {year} — 11 January {year} in practice. These are the '
-             f'numbers on this site, and they are the only ones that are law.</p>')
+    # ЧТО ДЕЙСТВУЕТ СЕЙЧАС — из строки истории за этот год, а не из памяти.
+    # Здесь стояли «1.0 percent» и «Executive Order 14368, signed 18 December»
+    # прозой: на следующем цикле год подставлялся, а номер указа и процент
+    # оставались прошлогодними, и страница приписывала новому году чужой указ.
+    _y, _base, _loc, _tot, _letter, _eo, _eod = in_force
+    _locpart = ("locality frozen" if _loc == "0"
+                else f"locality up {_loc} percent")
+    B.append(f'<p class="ex-title">{year}: base pay up {_base} percent, '
+             f'{_locpart}</p>')
+    B.append(f'<p class="ex-note">Executive Order {_eo.replace("EO ", "")}, '
+             f'signed {_eod}. Base rates rose {_base} percent; locality '
+             f'percentages '
+             + (f'were held at their {year - 1} levels' if _loc == "0"
+                else f'rose {_loc} percent')
+             + f'. The rates took effect on the first day of the first pay '
+             f'period beginning on or after 1 January {year} — 11 January '
+             f'{year} in practice. These are the numbers on this site, and '
+             f'they are the only ones that are law.</p>')
     B.append('</figure>')
 
     B.append('<figure class="ex">')
     B.append('<p class="ex-kicker">Announced</p>')
-    B.append(f'<p class="ex-title">{nxt}: base and locality frozen at {year} '
-             f'rates, 3.8 percent for law enforcement</p>')
-    B.append(f'<p class="ex-note">The alternative pay plan letter went to '
-             f'Congress on 26 August {year}, five days before the 1 September '
-             f'deadline. The President may set aside the statutory formula this '
-             f'way, and every President has used that power every year since '
-             f'1994. The letter says base pay and locality pay for civilian '
-             f'employees will not change from {year} rates; the stated reason '
-             f'is fiscal. Law enforcement is the single exception at 3.8 '
-             f'percent. Announced is not in force: the December executive order '
-             f'is what makes rates law.</p>')
+    if prop:
+        B.append(f'<p class="ex-title">{nxt}: base and locality frozen at '
+                 f'{year} rates, {prop["leo"]} percent for law '
+                 f'enforcement</p>')
+        B.append(f'<p class="ex-note">The alternative pay plan letter went to '
+                 f'Congress on {prop["letter"]}, before the 1 September '
+                 f'deadline. The President may set aside the statutory formula '
+                 f'this way, and every President has used that power every '
+                 f'year since 1994. The letter says base pay and locality pay '
+                 f'for civilian employees will not change from {year} rates; '
+                 f'the stated reason is {prop["why"]}. Law enforcement is the '
+                 f'single exception at {prop["leo"]} percent. Announced is not '
+                 f'in force: the December executive order is what makes rates '
+                 f'law.</p>')
+    else:
+        B.append(f'<p class="ex-title">{nxt}: nothing announced</p>')
+        B.append(f'<p class="ex-note">No alternative pay plan letter for '
+                 f'{nxt} has been sent to Congress, and no executive order '
+                 f'has been signed. This row will name both the day the '
+                 f'letter arrives. Until then there is nothing here to '
+                 f'report, and a page that reported something would be '
+                 f'reporting an event that has not happened.</p>')
     B.append('</figure>')
 
     B.append('<figure class="ex">')
