@@ -1516,6 +1516,12 @@ def main() -> int:
         ("privacy", P.privacy(shell)),
         ("terms", P.terms(shell)),
         ("pay-raise", payraise.page(T, shell, money)),
+        # Правоохранители: своя базовая таблица и единственная
+        # группа, которой письмо на следующий год даёт прибавку.
+        ("law-enforcement",
+         P.law_enforcement(T, shell, money,
+                           payraise.PROPOSED.get(
+                               int(T["year"]) + 1, {}).get("leo", ""))),
     ):
         write(rel, html_)
         urls.append(f"/{rel}/")

@@ -91,7 +91,7 @@ jobs:
         run: |
           COUNT=$(find dist -name index.html | wc -l)
           echo "страниц собрано: $COUNT"
-          if [ "$COUNT" -lt 95 ]; then
+          if [ "$COUNT" -lt 140 ]; then
             echo "::error::Слишком мало страниц ($COUNT) — прогон остановлен"
             exit 1
           fi

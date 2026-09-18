@@ -146,9 +146,18 @@ def main(year: int = edition.YEAR) -> int:
     print(f"потолок EX-IV {year}: ${cap:,}")
 
     base = parse_table(src / "GS.xml")
+
+    # GL — СПЕЦИАЛЬНЫЕ БАЗОВЫЕ СТАВКИ ПРАВООХРАНИТЕЛЕЙ (разряды 3-10), и это
+    # НЕ ЗОНА. Цикл ниже считает зоной всё, что не GS и не EX, а гейт
+    # двойного счёта пересчитывает зону как «база × процент зоны». У GL своя
+    # база, процента зоны у неё нет, и попади она в этот список — гейт
+    # покраснел бы на ВЕРНЫХ данных, а починка «подгони процент» испортила
+    # бы настоящую проверку.
+    leo = parse_table(src / "GL.xml") if (src / "GL.xml").exists() else None
+
     localities: dict[str, dict] = {}
     for f in sorted(src.glob("*.xml")):
-        if f.stem in ("GS", "EX"):
+        if f.stem in ("GS", "EX", "GL"):
             continue
         localities[f.stem] = parse_table(f)
 
@@ -198,6 +207,9 @@ def main(year: int = edition.YEAR) -> int:
         "effective": base["effective"],
         "ex_iv_cap": cap,
         "base": base,
+        # Ставки правоохранителей лежат ОТДЕЛЬНЫМ ключом, а не среди зон:
+        # у них своя база, и смешать их с зонами значит поломать пересчёт.
+        "leo_base": leo,
         "localities": localities,
     }
     dst = OUT / f"paytables-{year}.json"

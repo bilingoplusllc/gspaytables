@@ -262,10 +262,13 @@ def page(T: dict, shell, money) -> str:
     B.append(f'<p class="ex-note">Proposed, not law. The executive order '
              f'signed between {window} is what sets {nxt} rates; until then '
              f'this table is what the alternative pay plan asks for. Law '
-             f'enforcement is the one group the letter treats differently, at '
-             f'{prop["leo"]} percent. Locality percentages are unchanged too, '
-             f'so every locality page on this site also holds for {nxt} under '
-             f'the proposal.</p>')
+             f'enforcement is the one group the letter treats differently, '
+             f'at {prop["leo"]} percent &mdash; their own base table and '
+             f'where it stops are on the '
+             f'<a href="/law-enforcement/">law enforcement pay page</a>. '
+             f'Locality percentages are unchanged too, so every locality '
+             f'page on this site also holds for {nxt} under the '
+             f'proposal.</p>')
 
     # ---- три статуса, которые все смешивают
     B.append('<h2>Three different things get called "the raise"</h2>')
@@ -307,10 +310,11 @@ def page(T: dict, shell, money) -> str:
                  f'this way, and every President has used that power every '
                  f'year since 1994. The letter says base pay and locality pay '
                  f'for civilian employees will not change from {year} rates; '
-                 f'the stated reason is {prop["why"]}. Law enforcement is the '
-                 f'single exception at {prop["leo"]} percent. Announced is not '
-                 f'in force: the December executive order is what makes rates '
-                 f'law.</p>')
+                 f'the stated reason is {prop["why"]}. Law enforcement is '
+                 f'the single exception at {prop["leo"]} percent, on the '
+                 f'<a href="/law-enforcement/">separate GL base table</a>. '
+                 f'Announced is not in force: the December executive order '
+                 f'is what makes rates law.</p>')
     else:
         B.append(f'<p class="ex-title">{nxt}: nothing announced</p>')
         B.append(f'<p class="ex-note">No alternative pay plan letter for '

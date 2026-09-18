@@ -511,6 +511,184 @@ def how_it_works(T: dict, shell, money) -> str:
                  "\n".join(B), f"{DOMAIN}/how-locality-pay-works/", "how")
 
 
+def law_enforcement(T: dict, shell, money, leo_raise: str = "") -> str:
+    """Специальные базовые ставки правоохранителей — разряды с 3 по 10.
+
+    ЧЕМ ЭТА СТРАНИЦА ОТЛИЧАЕТСЯ ОТ ЧУЖИХ. Таблицу GL печатают все, кто
+    перепечатывает OPM. Здесь к ней добавлено то, чего у них нет: где
+    специальная ставка ЗАКАНЧИВАЕТСЯ (разряд 10 — и дальше правоохранитель
+    получает обычную ставку своего разряда), и что письмо на следующий год
+    делает с этой группой отдельно от всех остальных.
+    """
+    year = T["year"]
+    nxt = year + 1
+    leo = T.get("leo_base")
+    if not leo:
+        raise RuntimeError(
+            "нет таблицы GL: страница правоохранителей не может быть "
+            "собрана из ничего, а собранная из ничего она напечатала бы "
+            "пустую таблицу под уверенным заголовком")
+    grades = leo["grades"]
+    gs = T["base"]["grades"]
+
+    B = [f'<h1>Law enforcement pay in {year}: the GL table, and where it '
+         f'stops</h1>']
+    B.append(f'<p class="sub">Federal law enforcement officers at grades 3 '
+             f'through 10 are paid from a separate base table, not the '
+             f'General Schedule one. Above grade 10 the special rates end '
+             f'and the ordinary GS table takes over — that edge is the part '
+             f'most tables leave out.</p>')
+
+    # ---- ответ первым экраном
+    g3 = grades["3"]["1"]["annual"]
+    g10 = grades["10"]["10"]["annual"]
+    B.append('<p class="q-lead">')
+    B.append(f'<strong>The GL table runs from {money(g3)} to {money(g10)} '
+             f'before locality pay.</strong> These are base rates for grades '
+             f'3 to 10 only. Your own figure is this base plus your locality '
+             f'percentage, exactly as it works on the General Schedule, and '
+             f'the <a href="/calculator/">calculator</a> does that sum.</p>')
+
+    if leo_raise:
+        B.append('<div class="caveat">')
+        B.append(f'<p><strong>Law enforcement is the one group with a raise '
+                 f'proposed for {nxt}.</strong> The alternative pay plan '
+                 f'letter freezes base and locality pay for civilian federal '
+                 f'employees at their {year} rates and gives law enforcement '
+                 f'{leo_raise} percent. Proposed is not law: the executive '
+                 f'order signed in December is what sets rates. The detail '
+                 f'is on <a href="/pay-raise/">the {nxt} pay raise page</a>.'
+                 f'</p>')
+        B.append('</div>')
+
+    # ---- сама таблица
+    rows = ""
+    for g in sorted(grades, key=int):
+        s = grades[g]
+        rows += (f'<tr><th>GL-{g}</th>'
+                 f'<td class="num">{money(s["1"]["annual"])}</td>'
+                 f'<td class="num">{money(s["5"]["annual"])}</td>'
+                 f'<td class="num">{money(s["10"]["annual"])}</td></tr>')
+    B.append(f'<h2>Special base rates for law enforcement officers, {year}</h2>')
+    B.append('<div class="scroll" tabindex="0" role="region" '
+             'aria-label="Scrollable table"><table>')
+    B.append(f'<caption>Salary table {year}-GL &mdash; special base rates, '
+             f'grades 3 to 10, before locality pay</caption>')
+    B.append('<thead><tr><th>Grade</th><th class="num">Step 1</th>'
+             '<th class="num">Step 5</th><th class="num">Step 10</th>'
+             '</tr></thead>')
+    B.append(f'<tbody>{rows}</tbody></table></div>')
+
+    # ---- ГДЕ ОНА КОНЧАЕТСЯ. Это и есть то, чего нет у соседей по выдаче.
+    # Величина ПОСЧИТАНА по обеим таблицам, а не написана рядом.
+    g10_1 = grades["10"]["1"]["annual"]
+    gs10_1 = gs["10"]["1"]["annual"]
+    gap = g10_1 - gs10_1
+    pct = gap / gs10_1 * 100
+    gs11_1 = gs["11"]["1"]["annual"]
+    B.append('<h2>Where the special rate stops</h2>')
+    B.append(f'<p>At grade 10 step 1 the law enforcement rate is '
+             f'{money(g10_1)} against {money(gs10_1)} on the General '
+             f'Schedule &mdash; {money(gap)} more, or {pct:.1f} percent. At '
+             f'grade 11 there is no GL rate at all: a law enforcement '
+             f'officer promoted to GS-11 is paid {money(gs11_1)} at step 1, '
+             f'the ordinary General Schedule figure, and the special base '
+             f'rate stops applying.</p>')
+    B.append(f'<p>That is the step most published tables do not mark, and it '
+             f'is worth knowing before a promotion: the raise from grade 10 '
+             f'to grade 11 is smaller than the grade numbers suggest, '
+             f'because the special rate is left behind at the same time. '
+             f'<a href="/grades/">Every General Schedule grade</a> is listed '
+             f'separately on this site, and the '
+             f'<a href="/promotion/gs-10-to-gs-11/">GS-10 to GS-11 page</a> '
+             f'works that particular step through.</p>')
+
+    B.append('<h2>Locality pay applies the same way</h2>')
+    B.append(f'<p>The GL table is a <em>base</em> table. Locality pay is '
+             f'added on top of it with the same percentage that applies to '
+             f'everyone else in that area, so an officer in a high-paying '
+             f'locality is paid the GL base plus that area percentage. '
+             f'Which means the ranking this site publishes &mdash; '
+             f'<a href="/">what the salary is worth after local prices</a> '
+             f'&mdash; holds for law enforcement too, on a different base.</p>')
+
+    # ---- КТО ВООБЩЕ ПОПАДАЕТ В ЭТУ ТАБЛИЦУ. Первый вопрос читателя, и
+    # ответ на него нигде рядом с таблицей не печатают.
+    B.append('<h2>Who is paid from this table</h2>')
+    B.append('<p>Not everyone with a badge. The special base rates apply to '
+             'employees who meet the statutory definition of a law '
+             'enforcement officer for federal retirement purposes &mdash; '
+             'broadly, someone whose duties are the investigation, '
+             'apprehension or detention of people suspected or convicted of '
+             'federal offences, and who is covered by the enhanced law '
+             'enforcement retirement provisions. The definitions sit in '
+             '5 U.S.C. 8331(20) for the older retirement system and '
+             '5 U.S.C. 8401(17) for the newer one.</p>')
+    B.append('<p>The practical test is the retirement coverage, not the job '
+             'title: an agency investigator covered by those provisions is '
+             'paid from this table, and a uniformed officer who is not '
+             'covered is paid from the ordinary General Schedule. If you do '
+             'not know which applies to you, your agency human resources '
+             'office does &mdash; it is recorded in your personnel file, '
+             'because it changes both your pay and your retirement.</p>')
+
+    # ---- НАДБАВКА ЗА ГОТОВНОСТЬ. Она БОЛЬШЕ, чем вся разница в базе, и
+    # именно поэтому её отсутствие рядом с таблицей делает таблицу
+    # обманчивой. Величина посчитана, а не написана.
+    leap = round(g10_1 * 0.25)
+    B.append('<h2>Availability pay is the larger number</h2>')
+    B.append(f'<p>Criminal investigators who are required to work '
+             f'unscheduled duty hours receive law enforcement availability '
+             f'pay: an additional 25 percent of base pay, paid in every '
+             f'paycheck rather than claimed as overtime. At grade 10 '
+             f'step 1 that is {money(leap)} a year on top of the '
+             f'{money(g10_1)} in the table above.</p>')
+    B.append(f'<p>It is worth putting those two numbers side by side. The '
+             f'special base rate is worth {money(gap)} a year more than the '
+             f'General Schedule at that cell; availability pay, where it '
+             f'applies, is worth {money(leap)}. A table that shows only the '
+             f'first is showing the smaller half of the difference. '
+             f'Availability pay is not automatic and not universal &mdash; '
+             f'it applies to criminal investigators with the unscheduled '
+             f'duty requirement, which is why it is described here rather '
+             f'than folded into the figures.</p>')
+
+    # ---- ПОСЧИТАННЫЙ ПРИМЕР С ЗОНОЙ. Берётся самая многочисленная зона
+    # федеральной службы, а не выдуманная: числа выводятся из тех же
+    # таблиц, что и весь сайт.
+    _loc = T["localities"].get("DCB")
+    if _loc:
+        _pct = _loc["locality_pct"]
+        _gl7 = grades["7"]["1"]["annual"]
+        _with = round(_gl7 * (1 + _pct / 100.0))
+        B.append('<h2>What it comes to in one real place</h2>')
+        B.append(f'<p>A GL-7 step 1 in the '
+                 f'{_loc["area_name"]} locality area: the base rate is '
+                 f'{money(_gl7)}, the area adds {_pct} percent, and the '
+                 f'salary is {money(_with)} before any availability pay. '
+                 f'The same officer at GS-7 step 1 would start from '
+                 f'{money(gs["7"]["1"]["annual"])} instead. Every other '
+                 f'area works the same way, and '
+                 f'<a href="/">the ranking on the front page</a> shows what '
+                 f'each of them is worth once local prices are counted.</p>')
+
+    B.append('<h2>Where these numbers come from</h2>')
+    B.append(f'<p>Salary table {year}-GL, published by the Office of '
+             f'Personnel Management, read from OPM\'s own XML and checked '
+             f'cell by cell against the published figures. The special base '
+             f'rates themselves were created by section 403 of the Federal '
+             f'Employees Pay Comparability Act of 1990 and have been '
+             f'published as a separate table ever since. The '
+             f'<a href="/methodology/">methodology page</a> sets out how '
+             f'every table on this site is verified.</p>')
+
+    return shell(f"Law Enforcement Pay {year}: the GL Table, Grades 3 to 10",
+                 f"Federal law enforcement officers at grades 3 to 10 "
+                 f"are paid from the GL base table: {money(g3)} to "
+                 f"{money(g10)} before locality pay, and where it stops.",
+                 "\n".join(B), f"{DOMAIN}/law-enforcement/", "how")
+
+
 def about(shell) -> str:
     B = ['<h1>About GS Pay Tables</h1>']
     B.append('<p class="sub">Who builds this, how the numbers get here, and what to do '
@@ -761,6 +939,18 @@ that grade are pinned to the {money(cap)} statutory ceiling somewhere in the cou
 <figcaption>Source: OPM {year} General Schedule salary tables, all 8,700 cells
 independently recomputed and matched to the published figures.</figcaption>
 </figure>""")
+    # ОДНА ГРУППА ПЛАТИТСЯ НЕ ПО ЭТОЙ ТАБЛИЦЕ, и страница, которая
+    # называет себя «каждый разряд», обязана это сказать. Заодно это
+    # единственный путь к их таблице из общего указателя.
+    B.append('<h2>One group is not paid from this table</h2>')
+    B.append('<p>Federal law enforcement officers at grades 3 to 10 '
+             'are paid from separate special base rates, higher than '
+             'the ones above, and above grade 10 those rates stop and '
+             'the ordinary schedule takes over. Their table, and the '
+             'point where it ends, are on the '
+             '<a href="/law-enforcement/">law enforcement pay '
+             'page</a>.</p>')
+
     B.append('<h2>Which grade is which</h2>')
     B.append('<p>Grades roughly track responsibility and entry requirements rather than '
              'job title. GS-5 to GS-7 is where most degree-holding entrants start, GS-9 '
